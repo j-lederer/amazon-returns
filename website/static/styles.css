@@ -1,0 +1,183 @@
+body h1{
+			color:Azure;
+		}
+
+body {
+    /*background-color: #f2f2f2;*/
+    background-color: #008B8B;
+    font-family: Arial;
+    font-size: 18px;
+    margin: 0;
+    padding: 0;
+}
+h1 {
+    color: #333;
+    margin-top: 10px;
+    text-align: center;
+}
+h3{
+   margin-top: 5px;
+   margin-bottom: 0;
+   margin-left: 0;
+   margin-right: 0;
+  
+}
+img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+.intro{
+    position: relative;
+    top: 50px;
+    left: 50px;
+    
+}
+
+.introAnswers{
+    position: relative;
+    top: -315px;
+    left: 440px;
+
+}
+.image{
+    width: 300px;
+    position: relative;
+    top: -80px;
+    left: 150px;
+}
+.checkList{
+    position: relative;
+    top: -300px;
+    left: 800px;
+}
+.button1{
+    position: relative;
+    top:130px;
+    left:500px;
+    
+}
+button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    cursor: pointer;
+}
+.tester{
+    width:100px;
+    position: relative;
+    top:-100px;
+    left:150px;
+    background-color:#5F9EA0;
+    color:;
+    padding:10px;
+    margin:;
+}
+.tester2{
+    width:100px;
+    position: relative;
+    top:-100px;
+    left:150px;
+    background-color:#AFEEEE;
+    color:;
+    padding:10px;
+    margin:;
+}
+.tester3{
+    width:100px;
+    position: relative;
+    top:-100px;
+    left:150px;
+    background-color:#00FFFF;
+    color:;
+    padding:10px;
+    margin:;
+}
+.tester4{
+    width:100px;
+    position: relative;
+    top:-100px;
+    left:150px;
+    background-color:#008080;
+    color:;
+    padding:10px;
+    margin:;
+}
+
+.trackingID{
+    position: relative;
+    top:-907px;
+    left:715px;
+    width: 245px;
+    background-color:#00FFFF;
+
+}
+.Refresh_Button{
+    position: relative;
+    top:-500px;
+    left:50px;
+    width: 160px;
+    background-color:#00FFFF;
+
+}
+.Clear_Search_Button{
+    position: relative;
+    top:-500px;
+    left:50px;
+    width: 160px;
+    background-color:#00FFFF;
+
+}
+.Clear_Queue_Button{
+    position: relative;
+    top:-150px;
+    left:100px;
+    width: 160px;
+    background-color:#AFEEEE;
+
+}
+
+
+
+/*This is from youtube flask*/
+.content {
+    margin: 0 auto;
+    width: 400px;
+    position: relative;
+    top:-200px;
+    left:0px;
+}
+
+table, td, th {
+    border: 1px solid #aaa;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th {
+    height: 30px;
+}
+
+td {
+    text-align: center;
+    padding: 5px;
+}
+
+.form {
+    margin-top: 20px;
+}
+
+#content {
+    width: 69%;
+}

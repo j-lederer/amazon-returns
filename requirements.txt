@@ -1,0 +1,14 @@
+Flask
+gunicorn
+sqlalchemy
+pymysql
+python-amazon-sp-api
+flask-login
+Flask-SQLAlchemy
+flask-migrate
+stripe
+fpdf2
+reportlab
+flask-security-too[fsqla,common]
+bcrypt
+#Werkzeug

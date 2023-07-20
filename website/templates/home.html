@@ -1,0 +1,160 @@
+  {% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
+%}
+	<h1>Amazon Returns </h1>
+
+	<div class="intro">
+	<h3>Scan For Info</h3>
+	<!--<h3>Item Name</h3>-->
+	<!--<h3>Name of Buyer:</h3>	-->
+  <h3>Address</h3>
+	<h3>Reason for Return:</h3>
+	<h3>SKU:</h3>	
+	<h3>Number of items bought:</h3>	
+	<h3>Number of items returned:</h3>	
+	<h3>Est. Inventory left:</h3>
+	<h3>Order ID:</h3>
+  <h3>In Queue:</h3>
+	</div>
+	<!--Can add Item Name-->
+	<!--<h3>Item Name:</h3>-->
+	<!--<h3>ASIN:</h3>-->
+	<!--To get shipping address call get order on order ID and print out ShippingAddress from payload.-->
+
+
+	<div class="introAnswers">
+		<form method="POST" action="{{ url_for('views.get_info_on_track') }}">
+			<input type="text" placeholder="Barcode" name="track"/>
+			<input type="submit" value="Enter">
+		</form>
+	
+		{% if passed_value %}
+		<!--Can add Item Name-->
+		<!--<h3>{{passed_value['item_name']}}</h3>-->
+		<!--<h3>NA</h3>	-->
+    <h3>{{address}}</h3>
+		<h3>{{passed_value['reason_returned']}}</h3>	
+		<h3>{{passed_value['sku']}}</h3>	
+		<h3>{{passed_value['order_quantity']}}</h3>	
+		<h3>{{passed_value['return_quantity']}}</h3>	
+		<h3>{{passed_value['Inventory']}}</h3>
+		<h3>{{passed_value['order_id']}}</h3>
+    <h3>{{queue_checker}}</h3>
+
+		<!--might be able to  use asin for picture-->
+		<!--<h3>{{passed_value['ASIN']}}</h3>-->
+		
+		{% else %}
+    <h3>-</h3>
+    <h3>-</h3>	
+		<h3>-</h3>	
+		<h3>-</h3>	
+		<h3>-</h3>	
+		<h3>-</h3>	
+		<h3>-</h3>
+		<h3>-</h3>
+    
+    <!--
+		<h3>Pillipe</h3>	
+		<h3>"Used"</h3>	
+		<h3>NA</h3>	
+		<h3>2</h3>	
+		<h3>1</h3>	
+		<h3>400</h3>
+		<h3>NA</h3>
+    <h3><h3>
+    -->
+		{% endif %}
+		
+
+		<!--
+		<h3>Phillipe</h3>	
+		<h3>"Used"</h3>	
+		<h3>Description...</h3>	
+		<h3>2</h3>	
+		<h3>1</h3>	
+		<h3>400</h3>
+		-->
+		</div>
+		<!--{'reasonReturned': reason_returned, 'merchantSKU': sku, 'returnQuantity': return_quantity, 'refundAmount': refund_amount, 'orderID': order_id, 'itemsBought':order_quantity, 'inventory': Quantity_of_SKU }-->
+      
+      <!--
+	<div class="image" style="border: 1px solid red;">
+	<img src="C:\Users\jlede\OneDrive\Documents\My Code\Coding Projects\Amazon (1)\Website\images\product-image-Amazon.jpg" alt="Image of product not available" style="width:100%;">
+	</div>
+	-->
+
+	<div class="checkList"> <form action="/add_to_queue_button" method='post'>
+    <!--
+	<input type="checkbox" id="Accept" name="Accept" value="Refund" checked>
+<label for="inventory"> Accept Return</label><br><br>
+<input type="checkbox" id="Inventory" name="Inventory" value="Increase" checked>
+<label for="vehicle2"> Restock Inventory</label><br><br>
+<input type="checkbox" id="vehicle3" name="vehicle3" value="Boat">
+<label for="vehicle3"> Confirm</label><br><br>
+    -->
+<input type="submit" value="Add to queue">
+</form>
+</form></div>
+
+  <a class="button1" href='/increase_inventory' onclick="return confirm('Are you sure you want to submit and increase inventory');">Submit</a>
+	<!--<button class="button1">Submit</button>-->
+	<div class="tester"><p1>Colortester</p1></div>
+	<div class="tester2"><p1>Colortester</p1></div>
+	<div class="tester3"><p1>Colortester</p1></div>
+	<div class="tester4"><p1>Colortester</p1></div>
+	<script src='C:\Users\jlede\OneDrive\Documents\My Code\Coding Projects\Amazon (1)\Website\templates\script.js'></script>
+
+	<div class="trackingID">
+		{% if tracking_id %}
+		<h5>{{tracking_id}}</h5>
+		{% endif %}	
+		 </div>
+
+  <a class="Refresh_Button" href="/refresh_returns_and_inventory">Refresh Returns and Inventory Data</a>
+  <br>
+  <a class="Clear_Search_Button" href="/clearSearch">Clear Search</a>
+  <br>
+  <a class="Clear_Queue_Button" href="/clearQueue">Clear Queue</a>
+
+	<!--From youtube flask-->
+	<div class="content">
+		<h1 style="text-align: center">Queue</h1> 
+    <a href="{{url_for('views.download_queue')}}">Download a pdf of Queue</a>
+    <br>
+    <a href="{{url_for('views.download_queue_and_inventory_change')}}">Download Inventory to Change</a>
+		{% if tasks|length < 1 %}
+		<h4 style="text-align: center">There are no Tracking ID's in the queue. Add one now!</h4>
+		{% else %}
+		<table>
+			<tr>
+				<th>Tracking IDs</th>
+				<th>sku</th>
+        <th>Quantity Returned</th>
+				<th>Actions</th>
+			</tr>
+			{% for task in tasks %}
+				<tr>
+					<td>{{ task['tracking'] }}</td>
+				  <td>{{task['SKU']}}</td>
+          <td>{{task['return_quantity']}}</td>
+					<td> <a href="/delete/{{task['tracking']}}">Delete</a>
+						<br>
+						<!-- <a href="/update/{{task.id}}">Update</a>-->
+					</td>
+				</tr>
+			{% endfor %}
+		</table>
+		{% endif %}
+
+
+    <!--
+		<div class="form">
+			<form action="/add_trackingID" method="POST">
+				<input type="text" name="added_track" id="content">
+				<input type="submit" value="Add Tracking ID">
+			</form>
+		</div>-->
+	</div>
+{% endblock %}
+
+

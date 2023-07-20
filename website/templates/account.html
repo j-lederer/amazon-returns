@@ -1,0 +1,95 @@
+ {% extends "base.html" %} {% block title %}Account{% endblock %} {% block content
+%}
+
+<h1 style="color: black;"">Account</h1>
+
+<div class="container mt-5">
+        <div class="card" style="width: 18rem;">
+          <div class="card-body">
+            <h5 class="card-title">Email: {{user.email}}</h5>
+            <p class="card-text">
+              Name: {{ user.first_name }}
+            </p>
+            {% if user.restricted %}
+              <p class="card-text">
+                Restricted
+              </p>
+            {% endif %}
+          </div>
+        </div>
+  
+<div class="container mt-5">
+      {% if subscription and (subscription.status == "active" or subscription.status=="trialing") %}
+        <h4>Your subscription:</h4>
+        <div class="card" style="width: 18rem;">
+          <div class="card-body">
+            <h5 class="card-title">{{ product.name }}</h5>
+            <p class="card-text">
+              {{ product.description }}
+            </p>
+          </div>
+        </div>
+
+<div class='container mt-5'>
+  <h4>Customer Portal</h4>
+  <form method="POST" action="/create-customer-portal-session">
+  <button type="submit">Manage billing</button>
+</form>
+</div>
+      {% else %}
+        <a href="/stripeHome">Subscribe</a>
+      {% endif %}
+    </div>
+
+
+<div class="container mt-5">
+      {% if refresh_token %}
+        <h4>Amazon Account Status:</h4>
+        <div class="card" style="width: 18rem;">
+          <div class="card-body">
+            <h5 class="card-title">Connected</h5>
+            <p class="card-text">Have to refresh once a year.
+            </p>
+          </div>
+        </div>
+
+<div class='container mt-5'>
+  <h4>Renew Amazon Connection</h4>
+  <a href="/connect_amazon">Refresh Amazon Connection</a>
+  <form method="POST" action="/connect_amazon">
+  <button type="submit">Refresh Amazon Account Connection</button>
+</form>
+</div>
+      {% else %}
+        <a href="/connect_amazon">Link Amazon Account</a>
+        <div class="container mt-5">
+  <form method="POST" action="/connect_amazon">
+  <button type="submit">Connect Amazon Account</button>
+</div>
+      {% endif %}
+    </div>
+
+
+
+
+<div class="container mt-5">
+  <a href="/request_delete_user/{{user['id']}}"
+  onclick='return confirm("Are you sure you want to send a request to delete your account?");'>Request Delete Account</a>
+</div>
+
+
+
+{% endblock %}
+
+
+
+<!--stripe pricing table-->
+<!-- 
+<script async src="https://js.stripe.com/v3/pricing-table.js"></script>
+<stripe-pricing-table 
+  pricing-table-id="prctbl_1NS0RIGx5rHp5dcplCGLsozZ"
+publishable-key="pk_test_51NPo7ZGx5rHp5dcpVtFZleeCQ26ipY3ywIXRZuPNtz0QNP51MbJRBhjeMqn7zuuMg7g4h6mu8c8D7txdzOdSfoa000nrjegKGF" 
+  client-reference-id="{{user.id}}"
+</stripe-pricing-table> -->
+
+

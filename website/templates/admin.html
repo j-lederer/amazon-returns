@@ -1,0 +1,111 @@
+{% extends "base.html" %} {% block title %}Admin{% endblock %} {% block content
+%}
+<div class="contentAmin">
+		<h1 style="text-align: center; color:black">Users</h1>
+  {% if users|length < 1 %}
+		<h4 style="text-align: center">There are no Users.</h4>
+	{% else %}
+		<table>
+			<tr>
+				<th>ID</th>
+				<th>Email</th>
+        <th>First Name</th>
+        <th>Date Joined</th>
+        <th>Status</th>
+				<th>Actions</th>
+			</tr>
+			{% for user in users %}
+				<tr>
+					<td>{{ user['id'] }}</td>
+				  <td>{{user['email']}}</td>
+          <td>{{user['first_name']}}</td>
+          <td>{{user['date_joined']}}</td>
+          <td>{{user['status']}}</td>
+					<td> <a href="/delete_user/{{user['id']}}" onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
+						<br>
+					</td>
+				</tr>
+			{% endfor %}
+		</table>
+		{% endif %}
+  </div>
+
+
+  <a href='/clear_all_users'>Clear Users Table</a>
+  <br>
+  <br>
+
+
+<div class="contentAmin">
+	<h1 style="text-align: center; color:black" > Deleted Users </h1>
+  {% if deleted_users|length < 1 %}
+	<h4 style="text-align: center">There are no Deleted Users.</h4>
+	{% else %}
+	<table>
+		<tr>
+      <th>ID</th>
+      <th>Email</th>
+      <th>First Name</th>
+      <th>Date Joined</th>
+      <th>Date Payed</th>
+      <th>Actions</th>
+    </tr>
+    {% for deleted_user in deleted_users %}
+      <tr>
+        <td>{{ deleted_user['id'] }}</td>
+        <td>{{deleted_user['email']}}</td>
+        <td>{{deleted_user['first_name']}}</td>
+        <td>{{deleted_user['date_joined']}}</td>
+        <td>{{deleted_user['date_payed']}}</td>
+        <td> <a href="/delete_deleted_user/{{deleted_user['id']}}">Delete</a>
+          <br>
+					</td>
+				</tr>
+			{% endfor %}
+		</table>
+		{% endif %}
+  </div>
+
+
+ <a href = '/clear_all_deleted_users'>Clear Deleted Users Table</a>
+  <br>
+  <br>
+
+<div class="contentAmin">
+		<h1 style="text-align: center; color:black">Duplicate Subscriptions</h1>
+  {% if duplicates|length < 1 %}
+		<h4 style="text-align: center">No duplicate subscriptions.</h4>
+	{% else %}
+		<table>
+			<tr>
+				<th>UserID</th>
+			</tr>
+			{% for duplicate in duplicates %}
+				<tr>
+					<td>{{ duplicate }}</td>
+				</tr>
+			{% endfor %}
+		</table>
+		{% endif %}
+  </div>
+
+<div class="contentAmin">
+		<h1 style="text-align: center; color:black">Requested Deletes</h1>
+  {% if requested_deletes|length < 1 %}
+		<h4 style="text-align: center">No requested deletes.</h4>
+	{% else %}
+		<table>
+			<tr>
+				<th>UserID</th>
+			</tr>
+			{% for requested_delete in requested_deletes %}
+				<tr>
+					<td>{{ requested_delete }}</td>
+				</tr>
+			{% endfor %}
+		</table>
+		{% endif %}
+  </div>
+
+{% endblock %}
+
