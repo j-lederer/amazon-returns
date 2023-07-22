@@ -384,4 +384,6 @@ def  add_suggestion(suggestion, user):
   db.session.add(suggestion)
   db.session.commit()
 
+
+
   

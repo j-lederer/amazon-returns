@@ -43,7 +43,7 @@ def create_app():
   app.register_blueprint(views, url_prefix='/')
   app.register_blueprint(auth, url_prefix='/')
   app.register_blueprint(stripePay, url_prefix='/')
-  app.register_blueprint(connectAmazon, url_prefix='/')
+  app.register_blueprint( connectAmazon, url_prefix='/')
   
 
   from .models import User, Role
@@ -69,5 +69,15 @@ def create_app():
   from .auth import auth
   from .auth import init_user_datastore
   init_user_datastore(user_datastore)
+
+  from flask_mailman import Mail
+
+  app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER")
+  app.config["MAIL_PORT"] = os.getenv("MAIL_PORT")
+  app.config["MAIL_USE_SSL"] = False
+  app.config["MAIL_USE_TLS"] = True
+  app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
+  app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
+  mail = Mail(app)
 
   return app
