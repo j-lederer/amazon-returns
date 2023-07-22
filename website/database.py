@@ -3,6 +3,7 @@ import os
 from .models import User, Addresses, All_return_details, Current_return_to_display, Tracking_id_to_search, Tracking_ids, Deleted_users, Stripecustomer, Suggestions
 from . import db
 from flask_sqlalchemy import SQLAlchemy
+import datetime
 # from sqlalchemy.orm import scoped_session, sessionmaker
 # from sqlalchemy.ext.declarative import declarative_base
 
@@ -346,6 +347,7 @@ def add_refresh_token(user_id, refreshToken):
   if user:
     user.refresh_token = refreshToken
     db.session.commit()
+    create_token_expiration(user_id)
   else:
     print("error with database call add_refresh_token")
 def get_refresh_token(user_id):
@@ -355,6 +357,11 @@ def get_refresh_token(user_id):
     return refresh_token
   else:
     print("error with database call get_refresh_token")
+def delete_refresh_token_and_expiration(user_id):
+  user = User.query.get(user_id)
+  user.refresh_token = None
+  user.token_expiration = None
+  db.session.commit()
   
 def load_restricted(user_id):
   user = User.query.filter(User.id==user_id).first()
@@ -384,6 +391,20 @@ def  add_suggestion(suggestion, user):
   db.session.add(suggestion)
   db.session.commit()
 
-
+def load_token_expiration(user_id):
+  user = User.query.get(user_id)
+  if user:
+    token_expiration = user.token_expiration
+    return token_expiration
+  else:
+    print("error with database call get_refresh_token")
+    return'error'
+def create_token_expiration(user_id):
+  current_date = datetime.datetime.now()
+  end_date = current_date + datetime.timedelta(days=364)
+  user = User.query.get(user_id)
+  if user:
+    user.token_expiration = end_date
+    db.session.commit()
 
   

@@ -73,6 +73,7 @@ class User(db.Model, UserMixin):
   date_joined = db.Column(db.DateTime(timezone=True), default=func.now())
   status = db.Column(db.String(150))
   refresh_token = db.Column(db.String(3000))
+  token_expiration = db.Column(db.DateTime(timezone=True), default=None)
   restricted = db.Column(db.String(150))
   delete_request = db.Column(db.String(150))
   fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False)
