@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
-from .database import engine, load_queue_from_db, load_all_return_details_from_db, load_tracking_id_to_search, delete_trackingID_from_queue_db, add_tracking_id_to_queue, refresh_all_return_data_in_db, load_current_return_to_display_from_db, add_current_return_to_display_to_db, delete_whole_tracking_id_queue, delete_current_return_to_display_from_db, delete_tracking_id_to_search, add_tracking_id_to_search, check_if_track_in_queue, delete_current_return_to_display_from_db, refresh_addresses_in_db, load_address_from_db, load_users_from_db, load_deleted_users_from_db, delete_user_from_db, delete_deleted_user_from_db, clear_all_users_from_db, clear_all_deleted_users_from_db, add_refresh_token, get_refresh_token, load_restricted, add_request_to_delete_user, load_all_stripe_customers, add_suggestion
+from .database import engine, load_queue_from_db, load_all_return_details_from_db, load_tracking_id_to_search, delete_trackingID_from_queue_db, add_tracking_id_to_queue, refresh_all_return_data_in_db, load_current_return_to_display_from_db, add_current_return_to_display_to_db, delete_whole_tracking_id_queue, delete_current_return_to_display_from_db, delete_tracking_id_to_search, add_tracking_id_to_search, check_if_track_in_queue, delete_current_return_to_display_from_db, refresh_addresses_in_db, load_address_from_db, load_users_from_db, load_deleted_users_from_db, delete_user_from_db, delete_deleted_user_from_db, clear_all_users_from_db, clear_all_deleted_users_from_db, add_refresh_token, get_refresh_token, load_restricted, add_request_to_delete_user, load_all_stripe_customers, add_suggestion, delete_refresh_token_and_expiration
 
+from .models import User
 from .amazonAPI import get_all_Returns_data, increaseInventory, checkInventory, checkInventoryIncrease, get_addresses_from_GetOrders
 
 from flask import Blueprint, render_template, request, flash, jsonify, send_file, make_response
@@ -15,6 +15,7 @@ import json
 from io import BytesIO
 import os
 from collections import Counter
+import datetime
 
 from .download_pdf_queue import download_queue_data
 from .download_pdf_inventoryChange import download_queue_and_inventory_change_data
@@ -28,6 +29,7 @@ views = Blueprint('views', __name__)
 def home(): 
   # print(current_user)
   # print(current_user.id)  #returnDetails = load_returnDetails_from_db()
+  
   All_Return_Details = load_all_return_details_from_db(current_user.id)
   tracking_id=None
   return_details_to_display=None
@@ -47,7 +49,15 @@ def home():
     add_current_return_to_display_to_db(tracking_id, current_user.id)
   return_details_to_display = load_current_return_to_display_from_db(current_user.id)
   queue = load_queue_from_db(current_user.id)
-
+  print("TOKEN EXPIRATION:")
+  print (current_user.token_expiration )
+  if current_user.token_expiration is not None:
+    current_date = datetime.datetime.now()
+    token_expiration =  current_user.token_expiration
+    if (token_expiration < current_date):
+        delete_refresh_token_and_expiration (current_user.id)
+  
+  
   customer = Stripecustomer.query.filter_by(user_id=current_user.id).order_by(Stripecustomer.id.desc()).first()
   subscription = None
   if customer:
@@ -59,7 +69,7 @@ def home():
         }
     
   if(not load_restricted(current_user.id)):
-    if(get_refresh_token (current_user.id)):
+    if(get_refresh_token (current_user.id) and current_user.token_expiration is not None):
       if (subscription and (subscription.status == 'active' or subscription.status == 'trialing')) or (current_user.email == os.environ['ADMIN_EMAIL']):
         if ((return_details_to_display and tracking_id and customer) ):  #if they exist
           print(return_details_to_display)
