@@ -25,8 +25,10 @@ def create_app():
   #     "ssl_ca":"/etc/ssl/cert.pem"},
   # )
   app.config['SQLALCHEMY_DATABASE_URI'] =os.environ['RAILWAY_DB_CONNECTION_STRING']
-  app.config['STRIPE_PUBLIC_KEY'] = os.environ['STRIPE_TEST_PUBLIC_KEY']
-  app.config['STRIPE_SECRET_KEY'] = os.environ['STRIPE_TEST_SECRET_KEY'] 
+  # app.config['STRIPE_PUBLIC_KEY'] = os.environ['STRIPE_TEST_PUBLIC_KEY']
+  app.config['STRIPE_PUBLIC_KEY'] = os.environ['STRIPE_PUBLIC_KEY']
+  # app.config['STRIPE_SECRET_KEY'] = os.environ['STRIPE_TEST_SECRET_KEY'] 
+  app.config['STRIPE_SECRET_KEY'] = os.environ['STRIPE_SECRET_KEY'] 
   #os.environ[
   #   'DB2'] + '?ssl_ca=website/addedExtras/cacert-2023-05-30.pem'
   #/etc/ssl/cert.pem'
