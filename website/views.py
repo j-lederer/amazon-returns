@@ -164,13 +164,21 @@ def increase_inventory():
   #take the tracking id's in the queue and increase inventory by the return order amount for each
   Quantity_of_SKUS = checkInventory( current_user.refresh_token)
   result = increaseInventory(Quantity_of_SKUS, current_user.id,  current_user.refresh_token)
-  print(type(result[1]))
-  print(result[1])
-  result = checkInventoryIncrease(Quantity_of_SKUS, result[1], current_user.refresh_token)
+  print("RESULT:")
+  print(type(result))
   print(result)
-  if result == "Inventory Increased Successfully":
-    delete_tracking_id_to_search(current_user.id)
-    delete_current_return_to_display_from_db(current_user.id)
+  # print(result[1])
+  if result[0] == 'SUCCESS' :
+      flash('Inventory Feed Submitted Successfully! It may take up to 2 hours to load on AmazonSellerCentral.', category='success')
+  elif result[0] == None:
+    flash (f'error. The queue was probabl empty: {result} ', category='error')
+  else:
+    flash (f'error: {result} ', category='error')
+  # result = checkInventoryIncrease(Quantity_of_SKUS, result[1], current_user.refresh_token)
+  # print(result)
+  # if result == "Inventory Increased Successfully":
+  delete_tracking_id_to_search(current_user.id)
+  delete_current_return_to_display_from_db(current_user.id)
   
   return redirect('/')
 
@@ -187,27 +195,29 @@ def delete(tracking):
         return 'There was a problem deleting that task'
 
 
-@views.route('/add_trackingID', methods=['POST', 'GET'])
-@login_required
-def add_tracking_id():
-    tracking_id = request.form
-    print('test')
-    #print(tracking_id)
-    queue = load_queue_from_db(current_user.id) 
-    for track in queue:
-      if track['tracking'] == tracking_id:
-        print("Tracking ID is already in queue")
-        return redirect ('/')
-    print("Successfully Added Tracking ID to Queue.")
-    add_tracking_id_to_queue(tracking_id['added_track'], current_user.id)
-    return redirect('/')
+# @views.route('/add_trackingID', methods=['POST', 'GET'])
+# @login_required
+# def add_tracking_id():
+#     tracking_id = request.form
+#     print('test')
+#     #print(tracking_id)
+#     queue = load_queue_from_db(current_user.id) 
+#     for track in queue:
+#       if track['tracking'] == tracking_id:
+#         print("Tracking ID is already in queue")
+#         flash('Tracking ID is already in the queue.', category ='error')
+#         return redirect ('/')
+#     print("Successfully Added Tracking ID to Queue.")
+#     # flash('Successfully Added Tracking ID to Queue.', category='success')
+#     add_tracking_id_to_queue(tracking_id['added_track'], current_user.id)
+#     return redirect('/')
     
-    try:
-      add_tracking_id_to_queue(tracking_id['added_track'], current_user.id)
-      return redirect('/')
+#     try:
+#       add_tracking_id_to_queue(tracking_id['added_track'], current_user.id)
+#       return redirect('/')
 
-    except:
-      return 'There was a problem adding the Tracking ID to your queue'
+#     except:
+#       return 'There was a problem adding the Tracking ID to your queue'
 @views.route('/add_to_queue_button', methods=['POST', 'GET'])
 def add_to_queue():
   result=request.form
@@ -221,14 +231,17 @@ def add_to_queue():
   print(return_data)
   if return_data['order_id'] == 'Not Found':
     print('Cannot add unknown tracking id to queue')
+    flash('Cannot add unknown tracking id to queue.', category ='error')
     return redirect('/')
   for track in queue:
       #print(track['tracking'])
       if track['tracking'] == tracking_id:
         print("Tracking ID is already in queue")
+        flash("Tracking ID is already in queue", cathory = 'error')
         return redirect ('/')
   print("Successfully Added Tracking ID to Queue.")
   add_tracking_id_to_queue(tracking_id, sku, quantity_of_return, current_user.id)
+  # flash("Successfully Added Tracking ID to Queue.", category = 'success')
   return redirect('/')
 
 @views.route('/search', methods=['POST','GET'])
