@@ -53,7 +53,7 @@ def get_all_Returns_data(refresh_token):
         #report_types = ["GET_FLAT_FILE_OPEN_LISTINGS_DATA",]
         res = Reports(credentials=credentials).create_report(
             reportType="GET_XML_RETURNS_DATA_BY_RETURN_DATE",
-            dataStartTime=(datetime.utcnow() - timedelta(days=60)).isoformat(),
+            dataStartTime=(datetime.utcnow() - timedelta(days=55)).isoformat(),
             #**Looks like get an error (FATAL) if startTime is before account was opened or if bad example. I got error with year 2019
             #dataEndTime=(datetime.utcnow() - timedelta(days=1)).isoformat(), 
             marketplaceIds=[
@@ -198,6 +198,7 @@ def checkInventory(refresh_token):
         
 
 def increaseInventory(Quantity_of_SKUS, user_id, refresh_token):
+  result ={}
   credentials = dict(
     refresh_token=refresh_token,
     lwa_app_id=os.environ['LWA_APP_ID'],
@@ -225,6 +226,7 @@ def increaseInventory(Quantity_of_SKUS, user_id, refresh_token):
         queue_to_increase[track['SKU']]=track['return_quantity']
   print (queue_to_increase)
         #return queue_to_increase
+  result[0] = None
   for sku in queue_to_increase.keys():
     # Initialize the Feeds API client
     feeds = Feeds(credentials=credentials)
@@ -310,22 +312,28 @@ def increaseInventory(Quantity_of_SKUS, user_id, refresh_token):
               if processing_status in ["DONE", "DONE_NO_DATA"]:
                   print(feed_response)
                   print("Feed processing completed.")
+                  
                   document_id = feed_response.payload.get("resultFeedDocumentId")
                   feed_response = Feeds(credentials=credentials).get_feed_document(document_id) #download=true
                   print(feed_response)
+                  # return 'SUCCESS'
+                  delete_whole_tracking_id_queue(user_id)
+                  result[0] = "SUCCESS"
+                  result [1] = queue_to_increase
                   break
-  
           else:
               print("Feed processing encountered a fatal error.")
+              result[0] = 'ERROR'
               break
           time.sleep(5)
 
     except Exception as e:
         print(f"Error submitting feed: {e}") 
+        result[0] = e
       
-  delete_whole_tracking_id_queue(user_id)
-  return "Inventory Feeds submitted successfully", queue_to_increase
-    
+  return result
+      
+  
 
 def produce_pdf(user_id, refresh_token):
   credentials = dict(

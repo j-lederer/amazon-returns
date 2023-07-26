@@ -51,7 +51,8 @@ def stripe_pay():
     metadata={'user_id': current_user.id})
   return {
     'checkout_session_id': session['id'],
-    'checkout_public_key': os.environ['STRIPE_TEST_PUBLIC_KEY']
+    # 'checkout_public_key': os.environ['STRIPE_TEST_PUBLIC_KEY']
+    'checkout_public_key': os.environ['STRIPE_PUBLIC_KEY']
     #app.config['STRIPE_PUBLIC_KEY']
   }
 
@@ -76,7 +77,8 @@ def stripe_pay_monthly():
     metadata={'user_id': current_user.id})
   return {
     'checkout_session_id': session['id'],
-    'checkout_public_key': os.environ['STRIPE_TEST_PUBLIC_KEY']
+    # 'checkout_public_key': os.environ['STRIPE_TEST_PUBLIC_KEY']
+    'checkout_public_key': os.environ['STRIPE_PUBLIC_KEY']
     #app.config['STRIPE_PUBLIC_KEY']
   }
 
@@ -97,7 +99,8 @@ def stripe_pay_yearly():
     metadata={'user_id': current_user.id})
   return {
     'checkout_session_id': session['id'],
-    'checkout_public_key': os.environ['STRIPE_TEST_PUBLIC_KEY']
+    # 'checkout_public_key': os.environ['STRIPE_TEST_PUBLIC_KEY']
+    'checkout_public_key': os.environ['STRIPE_PUBLIC_KEY']
     #app.config['STRIPE_PUBLIC_KEY']
   }
 
