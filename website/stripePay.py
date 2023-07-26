@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, request, abort, Blueprint, flash, redirect
+from flask import Flask, render_template, url_for, request, abort, Blueprint, flash, redirect, current_app
 # from flask_login import login_required, current_user
 from flask_security import login_required, current_user
 
@@ -8,10 +8,11 @@ from . import db
 import os
 from .models import User, Stripecustomer
 
-#from . import app
-#stripe.api_key = app.config['STRIPE_SECRET_KEY']
+
+
 
 stripePay = Blueprint('stripePay', __name__)
+
 
 
 @stripePay.route('/stripeHome')
@@ -63,7 +64,8 @@ def stripe_pay_monthly():
   session = stripe.checkout.Session.create(
     payment_method_types=['card'],
     line_items=[{
-      'price': 'price_1NQ4V6Gx5rHp5dcpaILuI5Dy',
+      # 'price': 'price_1NQ4V6Gx5rHp5dcpaILuI5Dy',
+      'price': 'price_1NPoVnGx5rHp5dcp8DwBPxRL',
       'quantity': 1,
     }],
     mode='subscription',
@@ -89,10 +91,15 @@ def stripe_pay_yearly():
   session = stripe.checkout.Session.create(
     payment_method_types=['card'],
     line_items=[{
-      'price': 'price_1NRHKaGx5rHp5dcpwwYXv0Uc',
+      # 'price': 'price_1NRHKaGx5rHp5dcpwwYXv0Uc',
+      'price': 'price_1NPoUPGx5rHp5dcpFCz8MnLG',
       'quantity': 1,
     }],
     mode='subscription',
+    subscription_data={
+    "trial_settings": {"end_behavior": {"missing_payment_method": "cancel"}},
+    "trial_period_days": 30,
+  },
     success_url=url_for('stripePay.thanks', _external=True) +
     '?session_id={CHECKOUT_SESSION_ID}',
     cancel_url=url_for('stripePay.stripeHome', _external=True),
