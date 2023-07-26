@@ -37,8 +37,8 @@ def callback():
         data = {
             'grant_type': 'authorization_code',
             'code': spapi_oauth_code,
-            'client_id': 'amzn1.application-oa2-client.02b4885695e74873b1a9534b068c0810',
-            'client_secret': 'amzn1.oa2-cs.v1.5b40648db52e497a9725adfa22a4602d94b3c4ddea83ce8e27aedd49195af546',
+            'client_id': os.environ['LWA_CLIENT_ID'],
+            'client_secret': os.environ['LWA_CLIENT_SECRET'],
             'redirect_uri': redirect_url
         }
         response = requests.post(token_url, data=data).json()

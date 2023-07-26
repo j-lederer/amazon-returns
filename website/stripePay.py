@@ -16,6 +16,7 @@ stripePay = Blueprint('stripePay', __name__)
 
 
 @stripePay.route('/stripeHome')
+@login_required
 def stripeHome():
   '''
     session = stripe.checkout.Session.create(
