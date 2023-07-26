@@ -271,7 +271,7 @@ def clearQueue():
 def account():
   stripe.billing_portal.Configuration.create(
   business_profile={
-    "headline": "J&D Group partners with Stripe for simplified billing.",
+    "headline": "AmazeSoftware partners with Stripe for simplified billing.",
   },
   features={"invoice_history": {"enabled": True}},
   metadata={'user_id': current_user.id}
