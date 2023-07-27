@@ -103,7 +103,7 @@ def forgot_password():
         print("RESET TOKEN GENEREATED:")
         print(reset_token)
         
-        password_reset_link = f"https://amazon-returns-vs-code.jonathanlederer.repl.co/reset_password?token={reset_token}"
+        password_reset_link = f"https://amaze-software/reset_password?token={reset_token}"
         context = {
             'reset_link': password_reset_link,
             'reset_token': reset_token,
@@ -171,7 +171,7 @@ def reset_password():
       else:
         flash('Passwords do not match. Please try again.')
 
-    reset_password_link = f"https://amazon-returns-vs-code.jonathanlederer.repl.co/reset_password?token={reset_token}"
+    reset_password_link = f"https://amaze-software/reset_password?token={reset_token}"
     return render_template('reset_password.html', reset_password_link=reset_password_link, reset_password_form=reset_password_form)
 
 
