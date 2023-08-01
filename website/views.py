@@ -242,7 +242,7 @@ def add_to_queue():
         #print(track['tracking'])
         if track['tracking'] == tracking_id:
           print("Tracking ID is already in queue")
-          flash("Tracking ID is already in queue", cathory = 'error')
+          flash("Tracking ID is already in queue", category = 'error')
           
     print("Successfully Added Tracking ID to Queue.")
     add_tracking_id_to_queue(tracking_id, sku, quantity_of_return, current_user.id)

@@ -43,7 +43,7 @@ from sp_api.base.reportTypes import ReportType
 def get_all_Returns_data(refresh_token):
         credentials = dict(
           refresh_token=refresh_token,
-          lwa_app_id=os.environ['LWA_APP_ID'],
+          lwa_app_id=os.environ['LWA_CLIENT_ID'],
           lwa_client_secret=os.environ['LWA_CLIENT_SECRET'],
           aws_access_key=os.environ['AWS_ACCESS_KEY'],
           aws_secret_key=os.environ['AWS_SECRET_KEY'],  
@@ -147,7 +147,7 @@ def get_all_Returns_data(refresh_token):
 def checkInventory(refresh_token):
   credentials = dict(
     refresh_token=refresh_token,
-    lwa_app_id=os.environ['LWA_APP_ID'],
+    lwa_app_id=os.environ['LWA_CLIENT_ID'],
     lwa_client_secret=os.environ['LWA_CLIENT_SECRET'],
     aws_access_key=os.environ['AWS_ACCESS_KEY'],
     aws_secret_key=os.environ['AWS_SECRET_KEY'],  
@@ -201,7 +201,7 @@ def increaseInventory(Quantity_of_SKUS, user_id, refresh_token):
   result ={}
   credentials = dict(
     refresh_token=refresh_token,
-    lwa_app_id=os.environ['LWA_APP_ID'],
+    lwa_app_id=os.environ['LWA_CLIENT_ID'],
     lwa_client_secret=os.environ['LWA_CLIENT_SECRET'],
     aws_access_key=os.environ['AWS_ACCESS_KEY'],
     aws_secret_key=os.environ['AWS_SECRET_KEY'],  
@@ -338,7 +338,7 @@ def increaseInventory(Quantity_of_SKUS, user_id, refresh_token):
 def produce_pdf(user_id, refresh_token):
   credentials = dict(
     refresh_token=refresh_token,
-    lwa_app_id=os.environ['LWA_APP_ID'],
+    lwa_app_id=os.environ['LWA_CLIENT_ID'],
     lwa_client_secret=os.environ['LWA_CLIENT_SECRET'],
     aws_access_key=os.environ['AWS_ACCESS_KEY'],
     aws_secret_key=os.environ['AWS_SECRET_KEY'],  
@@ -370,7 +370,7 @@ def produce_pdf(user_id, refresh_token):
 def checkInventoryIncrease(Initial_quantity_of_skus, skus_and_increases, refresh_token):
   credentials = dict(
     refresh_token=refresh_token,
-    lwa_app_id=os.environ['LWA_APP_ID'],
+    lwa_app_id=os.environ['LWA_CLIENT_ID'],
     lwa_client_secret=os.environ['LWA_CLIENT_SECRET'],
     aws_access_key=os.environ['AWS_ACCESS_KEY'],
     aws_secret_key=os.environ['AWS_SECRET_KEY'],  
@@ -415,7 +415,7 @@ def checkInventoryIncrease(Initial_quantity_of_skus, skus_and_increases, refresh
 def get_addresses_from_GetOrders(refresh_token):
   credentials = dict(
     refresh_token=refresh_token,
-    lwa_app_id=os.environ['LWA_APP_ID'],
+    lwa_app_id=os.environ['LWA_CLIENT_ID'],
     lwa_client_secret=os.environ['LWA_CLIENT_SECRET'],
     aws_access_key=os.environ['AWS_ACCESS_KEY'],
     aws_secret_key=os.environ['AWS_SECRET_KEY'],  
@@ -625,7 +625,7 @@ def run_script_getReturns(tracking_id, refresh_token):
 def get_all_inventory_data(refresh_token):
   credentials = dict(
     refresh_token=refresh_token,
-    lwa_app_id=os.environ['LWA_APP_ID'],
+    lwa_app_id=os.environ['LWA_CLIENT_ID'],
     lwa_client_secret=os.environ['LWA_CLIENT_SECRET'],
     aws_access_key=os.environ['AWS_ACCESS_KEY'],
     aws_secret_key=os.environ['AWS_SECRET_KEY'],  
@@ -673,7 +673,7 @@ def get_all_inventory_data(refresh_token):
 def run_script_increaseInventory(sku_value, refresh_token):
         credentials = dict(
           refresh_token=refresh_token,
-          lwa_app_id=os.environ['LWA_APP_ID'],
+          lwa_app_id=os.environ['LWA_CLIENT_ID'],
           lwa_client_secret=os.environ['LWA_CLIENT_SECRET'],
           aws_access_key=os.environ['AWS_ACCESS_KEY'],
           aws_secret_key=os.environ['AWS_SECRET_KEY'],  
@@ -789,7 +789,7 @@ def run_script_increaseInventory(sku_value, refresh_token):
 def run_script_checkInventoryIncrease(Quantity_of_SKU, return_quantity, refresh_token):
         credentials = dict(
           refresh_token=refresh_token,
-          lwa_app_id=os.environ['LWA_APP_ID'],
+          lwa_app_id=os.environ['LWA_CLIENT_ID'],
           lwa_client_secret=os.environ['LWA_CLIENT_SECRET'],
           aws_access_key=os.environ['AWS_ACCESS_KEY'],
           aws_secret_key=os.environ['AWS_SECRET_KEY'],  
