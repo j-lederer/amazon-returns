@@ -16,6 +16,7 @@ from io import BytesIO
 import os
 from collections import Counter
 import datetime
+import re
 
 from .download_pdf_queue import download_queue_data
 from .download_pdf_inventoryChange import download_queue_and_inventory_change_data
@@ -144,6 +145,11 @@ def refresh():
 def get_info_on_track():
     trackingID = request.form['track']
     print(trackingID)
+    new_trackingID = extract_tracking_id(trackingID)
+    if new_trackingID:
+        print(f"New Tracking ID: {new_trackingID}")
+        trackingID = new_trackingID
+  
     delete_tracking_id_to_search(current_user.id)
     add_tracking_id_to_search(trackingID, current_user.id)
     return redirect('/')
@@ -445,3 +451,18 @@ def support():
 
 # if __name__ == '__main__':
 #     app.run(host='0.0.0.0', debug=True)
+
+
+def extract_tracking_id(trackingID):
+    # Define the patterns for the consecutive digits
+    patterns = ['9400', '9205', '9407', '9303', '9208', '9202']
+
+    # Check if the trackingID matches any of the patterns
+    for pattern in patterns:
+        match = re.search(pattern, trackingID)
+        if match:
+            start_index = match.start()
+            new_trackingID = trackingID[start_index:]
+            return new_trackingID
+
+    return None  # Return None if no match is found
