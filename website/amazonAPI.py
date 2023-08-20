@@ -82,9 +82,11 @@ def get_all_Returns_data(refresh_token):
                     #print(response)
                     #print(document_id)
                     response = Reports(credentials=credentials).get_report_document(document_id, download=True)
+                    print('PRINTING')
                     print(response.payload.get("document"))
-                    #print(response.content)
+                    
                     myroot =ET.fromstring(response.payload.get("document")) #If response is a string
+                    print('PRINTING TAG')
                     print(myroot.tag)
                     Returns_info = []
                     for x in myroot.iter("return_details"): #can also use myroot.findall("")
@@ -97,25 +99,43 @@ def get_all_Returns_data(refresh_token):
                                 # 2. Quantity returned
                                 # 3. SKU and increase inventory
                                 #Ex tracking id: "1Z0V2Y989048009061
-                                  tracking_id = z.text 
+                                  tracking_id = z.text
+                                  reason_returned = []
+                                  item_name = []
+                                  sku = []
+                                  return_quantity = []
+                                  refund_amount = []
+                                  asin = []
+                                  
                                   print("Details for return order:")
-                                  print(x.find("item_details").find("return_reason_code").text)
-                                  reason_returned = x.find("item_details").find("return_reason_code").text
-                                  print(x.find("item_details").find("item_name").text)
-                                  item_name = x.find("item_details").find("item_name").text 
-                                  print(x.find("item_details").find("merchant_sku").text)
-                                  sku = x.find("item_details").find("merchant_sku").text
-                                  print(x.find("item_details").find("return_quantity").text)
-                                  return_quantity = x.find("item_details").find("return_quantity").text
-                                  print(x.find("item_details").find("refund_amount").text)
-                                  refund_amount = x.find("item_details").find("refund_amount").text
-                                  print(x.find("order_id").text)
-                                  order_id = x.find("order_id").text
-                                  print(x.find("order_date").text)
-                                  print(x.find("a_to_z_claim").text)
-                                  print(x.find("order_quantity").text)
-                                  order_quantity = x.find("order_quantity").text
-                                  asin = x.find("item_details").find("asin").text
+                                  for a in x.iter("item_details"):
+                                    print(a.find("return_reason_code").text)
+                                    
+                                    reason_returned.append( a.find("return_reason_code").text)
+                                    print(a.find("item_name").text)
+                                    item_name.append( a.find("item_name").text)
+                                    print(a.find("merchant_sku").text)
+                                    sku.append( a.find("merchant_sku").text)
+                                    print(a.find("return_quantity").text)
+                                    return_quantity.append( a.find("return_quantity").text)
+                                    print(a.find("refund_amount").text)
+                                    refund_amount.append( a.find("refund_amount").text)
+                                    print(x.find("order_id").text)
+                                    order_id = x.find("order_id").text
+                                    print(x.find("order_date").text)
+                                    print(x.find("a_to_z_claim").text)
+                                    print(x.find("order_quantity").text)
+                                    order_quantity = x.find("order_quantity").text
+                                    asin.append(a.find("asin").text)
+
+                                  #convert lists to strings so can store in database  
+                                  reason_returned = ', '.join(reason_returned)
+                                  item_name = ', '.join(item_name)
+                                  sku = ', '.join(sku)
+                                  return_quantity = ', '.join(return_quantity)
+                                  refund_amount = ', '.join(refund_amount)
+                                  asin = ', '.join(asin) 
+                            
                                   new_return['tracking_id']= tracking_id
                                   new_return['item_name'] = item_name
                                   new_return['sku'] = sku

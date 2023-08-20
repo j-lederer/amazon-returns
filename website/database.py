@@ -246,13 +246,17 @@ def refresh_all_return_data_in_db(all_return_data, inventory_data, user_id):
     for return_details in all_return_data:
         if(return_details):
           if return_details['sku']:
-            if inventory_data[return_details['sku']]:
-              return_details['Inventory'] = inventory_data[return_details['sku']]
-            else:
-              print("Could not find inventory_data[return_details['sku']]")
+            return_details['Inventory'] =[]
+            return_details_sku_list = return_details['sku'].split(', ')
+            for item_sku in return_details_sku_list:
+              if inventory_data[item_sku]:
+                return_details['Inventory'].append( inventory_data[item_sku])
+              else:
+                print("Could not find inventory_data[return_details['sku']]")
           else:
             print("Could not find return_details['sku']")
           return_details['user_id'] = user_id
+          return_details['Inventory'] = ', '.join(return_details['Inventory'])
           return_data_obj = All_return_details(**return_details)
           db.session.add(return_data_obj)
   else: 

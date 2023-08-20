@@ -105,7 +105,14 @@ def home():
 @login_required
 def refresh():
     #Get all the new return data with a call from amazonAPI.py
-    #print(get_all_Returns_data())
+    # #For debugging below>>
+    # all_return_data = get_all_Returns_data(current_user.refresh_token)
+    # inventory_data = checkInventory(current_user.refresh_token)
+    # addressData = get_addresses_from_GetOrders(current_user.refresh_token)
+    # # print("ADDRESS DATA:")
+    # # print(addressData)
+    # refresh_all_return_data_in_db(all_return_data, inventory_data, current_user.id)
+    # refresh_addresses_in_db(addressData, current_user.id)
 
     try:
         print("Refreshing Returns and Inventory data:")
@@ -116,12 +123,16 @@ def refresh():
         if (all_return_data != 'CANCELLED' and all_return_data!= 'FATAL'):
           inventory_data = checkInventory(current_user.refresh_token)
           if (inventory_data != 'CANCELLED' and all_return_data!= 'FATAL'):
+
             try:
               addressData = get_addresses_from_GetOrders(current_user.refresh_token)
               if addressData != 'EXCEPTION':
-                refresh_all_return_data_in_db(all_return_data, inventory_data, current_user.id)
+                try:
+                  refresh_all_return_data_in_db(all_return_data, inventory_data, current_user.id)
+                except:
+                  return 'Could not refresh return data in database error views line 126'
                 refresh_addresses_in_db(addressData, current_user.id)
-                flash(f'Successfully refreshed Returns and Inventory Data' ,category='success')
+                flash(f'Successfully refreshed Returns and Inventory Data' ,category="success")
                 return redirect('/')
               else:
                 flash(f'Cannot get addressData. Received Exception' ,category='error')
