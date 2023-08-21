@@ -13,3 +13,4 @@ flask-security-too[fsqla,common]
 bcrypt
 #Werkzeug
 pytz
+cryptography
