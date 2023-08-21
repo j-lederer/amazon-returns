@@ -20,6 +20,7 @@ import re
 
 from .download_pdf_queue import download_queue_data
 from .download_pdf_inventoryChange import download_queue_and_inventory_change_data
+from .download_inventory_to_change import download_inventory_change
 
 views = Blueprint('views', __name__)
 
@@ -443,6 +444,23 @@ def download_queue_and_inventory_change():
     response.headers['Content-Disposition'] = 'attachment; filename=InventoryUpdate.pdf'
   
     return response
+
+@views.route('/download-inventoryChange-pdf')
+def download_inventory_to_change_slim():
+    response = download_inventory_change(current_user.id, current_user.refresh_token)
+    # buffer = BytesIO()
+    # with open('website/static/files/InventoryUpdate.pdf', 'rb') as f:
+    #     buffer.write(f.read())
+    # buffer.seek(0)
+    # os.remove('website/static/files/InventoryUpdate.pdf')
+    # response = make_response(buffer.getvalue())
+  
+      # Set the appropriate headers for a PDF file download
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=InventoryUpdate.pdf'
+  
+    return response
+  
 
 @views.route('/support', methods=['GET', 'POST'])
 def support():

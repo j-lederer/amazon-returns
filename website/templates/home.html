@@ -121,7 +121,9 @@
 		<h1 style="text-align: center; color: black; ">Queue</h1> 
     <a href="{{url_for('views.download_queue')}}">Download a pdf of Queue</a>
     <br>
-    <a href="{{url_for('views.download_queue_and_inventory_change')}}">Download Inventory to Change</a>
+    <a href="{{url_for('views.download_queue_and_inventory_change')}}">Download Inventory Change Full</a>
+    <br>
+    <a href="{{url_for('views.download_inventory_to_change_slim')}}">Download Inventory Change Slim</a>
 		{% if tasks|length < 1 %}
 		<h4 style="text-align: center">There are no Tracking ID's in the queue. Add one now!</h4>
 		{% else %}

@@ -7,7 +7,7 @@ from .models import Tracking_ids
 # from flask_login import login_required, current_user
 # from . import db
 #from.database import load_queue_from_db
-from .amazonAPI import produce_pdf
+from .amazonAPI import produce_pdf_full
 
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
@@ -17,7 +17,7 @@ from flask import Response
 from io import BytesIO
 
 def download_queue_and_inventory_change_data(user_id, refresh_token):
-    response = produce_pdf(user_id, refresh_token)
+    response = produce_pdf_full(user_id, refresh_token)
     Quantity_of_SKUS = response[0]
     queue_to_increase = response[1]
     final_inventory = response[2]
@@ -69,7 +69,7 @@ def download_queue_and_inventory_change_data(user_id, refresh_token):
 
 
 # def download_queue_and_inventory_change_data(user_id, refresh_token):
-#     response = produce_pdf(user_id, refresh_token)
+#     response = produce_pdf_full(user_id, refresh_token)
 #     Quantity_of_SKUS = response[0]
 #     queue_to_increase =response[1]
 #     final_inventory = response[2]

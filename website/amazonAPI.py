@@ -237,13 +237,19 @@ def increaseInventory(Quantity_of_SKUS, user_id, refresh_token):
   queue_to_increase= {}
   is_duplicate = False
   for track in queue:
-      for sku in queue_to_increase.keys():
-        if sku == track['SKU']:
-          is_duplicate = True
-      if is_duplicate:
-        queue_to_increase[track['SKU']] = queue_to_increase[track['SKU']] + track['return_quantity']        
-      else:
-        queue_to_increase[track['SKU']]=track['return_quantity']
+      track_sku_list = track['SKU'].split(', ')
+      track_return_quantity_list = track['return_quantity'].split(', ') 
+      i = 0
+      for individual_sku in track_sku_list:  
+        for sku in queue_to_increase.keys():
+          if sku == individual_sku:
+            is_duplicate = True
+        if is_duplicate:
+          queue_to_increase[individual_sku] = int(queue_to_increase[individual_sku]) + int(track_return_quantity_list[i])
+          i+=1
+        else:
+          queue_to_increase[individual_sku]= int(track_return_quantity_list[i])
+          i+=1
   print (queue_to_increase)
         #return queue_to_increase
   result[0] = None
@@ -355,7 +361,7 @@ def increaseInventory(Quantity_of_SKUS, user_id, refresh_token):
       
   
 
-def produce_pdf(user_id, refresh_token):
+def produce_pdf_full(user_id, refresh_token):
   credentials = dict(
     refresh_token=refresh_token,
     lwa_app_id=os.environ['LWA_CLIENT_ID'],
@@ -370,13 +376,19 @@ def produce_pdf(user_id, refresh_token):
   queue_to_increase= {}
   is_duplicate = False
   for track in queue:
-      for sku in queue_to_increase.keys():
-        if sku == track['SKU']:
-          is_duplicate = True
-      if is_duplicate:
-        queue_to_increase[track['SKU']] = queue_to_increase[track['SKU']] + track['return_quantity']        
-      else:
-        queue_to_increase[track['SKU']]=track['return_quantity']
+      track_sku_list = track['SKU'].split(', ')
+      track_return_quantity_list = track['return_quantity'].split(', ') 
+      i = 0
+      for individual_sku in track_sku_list:  
+        for sku in queue_to_increase.keys():
+          if sku == individual_sku:
+            is_duplicate = True
+        if is_duplicate:
+          queue_to_increase[individual_sku] = int(queue_to_increase[individual_sku]) + int(track_return_quantity_list[i])
+          i+=1
+        else:
+          queue_to_increase[individual_sku]= int(track_return_quantity_list[i])
+          i+=1
 
   final_inventory={}
   for sku in queue_to_increase.keys():
@@ -384,9 +396,30 @@ def produce_pdf(user_id, refresh_token):
 
   return Quantity_of_SKUS, queue_to_increase, final_inventory
     
-  
-        
-  
+def produce_pdf_slim(user_id, refresh_token):
+  queue = load_queue_from_db(user_id)
+  queue_to_increase= {}
+  is_duplicate = False
+  for track in queue:
+      track_sku_list = track['SKU'].split(', ')
+      track_return_quantity_list = track['return_quantity'].split(', ') 
+      i = 0
+      for individual_sku in track_sku_list:  
+        for sku in queue_to_increase.keys():
+          if sku == individual_sku:
+            is_duplicate = True
+        if is_duplicate:
+          queue_to_increase[individual_sku] = int(queue_to_increase[individual_sku]) + int(track_return_quantity_list[i])
+          i+=1
+        else:
+          queue_to_increase[individual_sku]= int(track_return_quantity_list[i])
+          i+=1
+
+  return queue_to_increase
+
+
+
+ #Must adjust this for the list items like did a few lines above 
 def checkInventoryIncrease(Initial_quantity_of_skus, skus_and_increases, refresh_token):
   credentials = dict(
     refresh_token=refresh_token,
