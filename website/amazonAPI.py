@@ -190,7 +190,7 @@ def checkInventory(refresh_token):
   processing_status = res.payload.get("processingStatus")
   while processing_status not in ["DONE", "CANCELLED", "FATAL"]:
     # Wait for a short duration before checking again
-    time.sleep(2)
+    time.sleep(5)
                     
     # Get the updated report status
     response = Reports(credentials=credentials).get_report(report_id)
