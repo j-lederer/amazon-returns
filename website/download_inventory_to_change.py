@@ -19,8 +19,6 @@ from io import BytesIO
 def download_inventory_change(user_id, refresh_token):
     response = produce_pdf_slim(user_id, refresh_token)
     queue_to_increase = response
-    print(queue_to_increase)
-    print("PRINTING QUE_TO_INCREASE     SKLKHLKJHL KJHLK")
   
     # # Create a new PDF document
     # pdf = SimpleDocTemplate("InventoryUpdate.pdf", pagesize=letter)
