@@ -114,6 +114,7 @@ def refresh():
     # print(addressData)
     # refresh_all_return_data_in_db(all_return_data, inventory_data, current_user.id)
     refresh_addresses_in_db(addressData, current_user.id)
+    print('DEBUG MODE')
 
     try:
         print("Refreshing Returns and Inventory data:")
