@@ -190,16 +190,20 @@ def checkInventory(refresh_token):
   report_id = res.payload.get("reportId")
 
   processing_status = res.payload.get("processingStatus")
+  print('STEP BEFORE WHILE')
   while processing_status not in ["DONE", "CANCELLED", "FATAL"]:
     # Wait for a short duration before checking again
+    print('STEP 1 IN WHILE')
     time.sleep(5)
-                    
+    print('STEP 2 IN WHILE')                
     # Get the updated report status
     response = Reports(credentials=credentials).get_report(report_id)
     processing_status = response.payload.get("processingStatus")
     print(processing_status)
+    print('STEP 3 IN WHILE') 
     if processing_status == "DONE":
       # Once the processing is done, retrieve the report document
+      print('STEP 4 IN WHILE') 
       document_id = response.payload.get("reportDocumentId")
       response = Reports(credentials=credentials).get_report_document(document_id, download=True)
     # print(response.payload.get("document"))
