@@ -116,40 +116,40 @@ def refresh():
     refresh_addresses_in_db(addressData, current_user.id)
     print('DEBUG MODE')
 
-    try:
-        print("Refreshing Returns and Inventory data:")
-        print("Getting returns data: ")
-        all_return_data = get_all_Returns_data(current_user.refresh_token)
-        # print('all_return_data : ')
-        # print(all_return_data)
-        if (all_return_data != 'CANCELLED' and all_return_data!= 'FATAL'):
-          inventory_data = checkInventory(current_user.refresh_token)
-          if (inventory_data != 'CANCELLED' and all_return_data!= 'FATAL'):
+    # try:
+    #     print("Refreshing Returns and Inventory data:")
+    #     print("Getting returns data: ")
+    #     all_return_data = get_all_Returns_data(current_user.refresh_token)
+    #     # print('all_return_data : ')
+    #     # print(all_return_data)
+    #     if (all_return_data != 'CANCELLED' and all_return_data!= 'FATAL'):
+    #       inventory_data = checkInventory(current_user.refresh_token)
+    #       if (inventory_data != 'CANCELLED' and all_return_data!= 'FATAL'):
 
-            try:
-              addressData = get_addresses_from_GetOrders(current_user.refresh_token)
-              if addressData != 'EXCEPTION':
-                try:
-                  refresh_all_return_data_in_db(all_return_data, inventory_data, current_user.id)
-                except:
-                  return 'Could not refresh return data in database error views line 132'
-                refresh_addresses_in_db(addressData, current_user.id)
-                flash(f'Successfully refreshed Returns and Inventory Data' ,category="success")
-                return redirect('/')
-              else:
-                flash(f'Cannot get addressData. Received Exception' ,category='error')
-            except:
-              return 'There was a problem retrieving the addresses'
-            return redirect('/')
-          else:
-             flash(f'The process checkInventory was terminated. Error message: {all_return_data}' ,category='error')
-             return redirect('/')
-        else:
-          flash(f'The process get_all_Returns_data was terminated. Error message: {all_return_data}' ,category='error')
-          return redirect('/')
+    #         try:
+    #           addressData = get_addresses_from_GetOrders(current_user.refresh_token)
+    #           if addressData != 'EXCEPTION':
+    #             try:
+    #               refresh_all_return_data_in_db(all_return_data, inventory_data, current_user.id)
+    #             except:
+    #               return 'Could not refresh return data in database error views line 132'
+    #             refresh_addresses_in_db(addressData, current_user.id)
+    #             flash(f'Successfully refreshed Returns and Inventory Data' ,category="success")
+    #             return redirect('/')
+    #           else:
+    #             flash(f'Cannot get addressData. Received Exception' ,category='error')
+    #         except:
+    #           return 'There was a problem retrieving the addresses'
+    #         return redirect('/')
+    #       else:
+    #          flash(f'The process checkInventory was terminated. Error message: {all_return_data}' ,category='error')
+    #          return redirect('/')
+    #     else:
+    #       flash(f'The process get_all_Returns_data was terminated. Error message: {all_return_data}' ,category='error')
+    #       return redirect('/')
         
-    except:
-      return 'There was a problem refreshing your returns'
+    # except:
+    #   return 'There was a problem refreshing your returns'
 
 
 
