@@ -249,7 +249,7 @@ def refresh_all_return_data_in_db(all_return_data, inventory_data, user_id):
             return_details['Inventory'] =[]
             return_details_sku_list = return_details['sku'].split(', ')
             for item_sku in return_details_sku_list:
-              if inventory_data[item_sku]:
+              if item_sku in inventory_data.keys():
                 return_details['Inventory'].append( inventory_data[item_sku])
               else:
                 print("Could not find inventory_data[return_details['sku']]")

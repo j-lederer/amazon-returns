@@ -6,13 +6,15 @@
 	<h3>Scan For Info</h3>
 	<!--<h3>Item Name</h3>-->
 	<!--<h3>Name of Buyer:</h3>	-->
-  <h3>Address</h3>
-	<h3>Reason for Return:</h3>
+  <h3>Address:</h3>
+  <h3>Item Name:</h3>	
 	<h3>SKU:</h3>	
+  <h3>Reason for Return:</h3>
 	<h3>Number of items bought:</h3>	
 	<h3>Number of items returned:</h3>	
 	<h3>Est. Inventory left:</h3>
 	<h3>Order ID:</h3>
+  <h3>Refund Amount</h3>  
   <h3>In Queue:</h3>
 	</div>
 	<!--Can add Item Name-->
@@ -32,12 +34,14 @@
 		<!--<h3>{{passed_value['item_name']}}</h3>-->
 		<!--<h3>NA</h3>	-->
     <h3>{{address}}</h3>
-		<h3>[{{passed_value['reason_returned']}}]</h3>	
+    <h3>[{{passed_value['item_name']}}]</h3>	
 		<h3>[{{passed_value['sku']}}]</h3>	
+    <h3>[{{passed_value['reason_returned']}}]</h3>
 		<h3>{{passed_value['order_quantity']}} </h3>	
 		<h3>[{{passed_value['return_quantity']}}]</h3>	
 		<h3>[{{passed_value['Inventory']}}]</h3>
 		<h3>{{passed_value['order_id']}}</h3>
+    <h3>[{{passed_value['refund_amount']}}]</h3>
     <h3>{{queue_checker}}</h3>
 
 		<!--might be able to  use asin for picture-->

@@ -82,12 +82,12 @@ def get_all_Returns_data(refresh_token):
                     #print(response)
                     #print(document_id)
                     response = Reports(credentials=credentials).get_report_document(document_id, download=True)
-                    print('PRINTING')
-                    print(response.payload.get("document"))
+                    # print('PRINTING')
+                    # print(response.payload.get("document"))
                     
                     myroot =ET.fromstring(response.payload.get("document")) #If response is a string
-                    print('PRINTING TAG')
-                    print(myroot.tag)
+                    # print('PRINTING TAG')
+                    # print(myroot.tag)
                     Returns_info = []
                     for x in myroot.iter("return_details"): #can also use myroot.findall("")
                         new_return={}
@@ -109,22 +109,22 @@ def get_all_Returns_data(refresh_token):
                                   
                                   print("Details for return order:")
                                   for a in x.iter("item_details"):
-                                    print(a.find("return_reason_code").text)
+                                    # print(a.find("return_reason_code").text)
                                     
                                     reason_returned.append( a.find("return_reason_code").text)
-                                    print(a.find("item_name").text)
+                                    # print(a.find("item_name").text)
                                     item_name.append( a.find("item_name").text)
-                                    print(a.find("merchant_sku").text)
+                                    # print(a.find("merchant_sku").text)
                                     sku.append( a.find("merchant_sku").text)
-                                    print(a.find("return_quantity").text)
+                                    # print(a.find("return_quantity").text)
                                     return_quantity.append( a.find("return_quantity").text)
-                                    print(a.find("refund_amount").text)
+                                    # print(a.find("refund_amount").text)
                                     refund_amount.append( a.find("refund_amount").text)
-                                    print(x.find("order_id").text)
+                                    # print(x.find("order_id").text)
                                     order_id = x.find("order_id").text
-                                    print(x.find("order_date").text)
-                                    print(x.find("a_to_z_claim").text)
-                                    print(x.find("order_quantity").text)
+                                    # print(x.find("order_date").text)
+                                    # print(x.find("a_to_z_claim").text)
+                                    # print(x.find("order_quantity").text)
                                     order_quantity = x.find("order_quantity").text
                                     asin.append(a.find("asin").text)
 
@@ -135,22 +135,24 @@ def get_all_Returns_data(refresh_token):
                                   return_quantity = ', '.join(return_quantity)
                                   refund_amount = ', '.join(refund_amount)
                                   asin = ', '.join(asin) 
-                            
-                                  new_return['tracking_id']= tracking_id
-                                  new_return['item_name'] = item_name
-                                  new_return['sku'] = sku
-                                  new_return['return_quantity'] = return_quantity
-                                  new_return['refund_amount'] = refund_amount
-                                  new_return['order_id'] = order_id
-                                  new_return['order_quantity'] = order_quantity
-                                  new_return['asin'] = asin
-                                  new_return['Inventory'] = "No Data"
-                                  new_return['reason_returned'] = reason_returned
+                                  new_return.update({
+                                    'tracking_id': tracking_id,
+                                    'item_name': item_name,
+                                    'sku': sku,
+                                    'return_quantity': return_quantity,
+                                    'refund_amount': refund_amount,
+                                    'order_id': order_id,
+                                    'order_quantity': order_quantity,
+                                    'asin': asin,
+                                    'reason_returned': reason_returned,
+                                    'Inventory': "No Data"
+                                  })
+                                  
 
                                   Returns_info.append(new_return)
                                   
           
-                    print(Returns_info)
+                    # print(Returns_info)
                     output_data = Returns_info                
                         
         elif processing_status == "CANCELLED":
