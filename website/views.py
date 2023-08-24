@@ -108,7 +108,7 @@ import time
 def refresh():
     #Get all the new return data with a call from amazonAPI.py
     #For debugging below>>
-    all_return_data = get_all_Returns_data(current_user.refresh_token)
+    # all_return_data = get_all_Returns_data(current_user.refresh_token)
     # inventory_data = checkInventory(current_user.refresh_token)
     # addressData = get_addresses_from_GetOrders(current_user.refresh_token)
     # print("ADDRESS DATA:")
