@@ -109,19 +109,14 @@ def refresh():
     count = 0
     #Get all the new return data with a call from amazonAPI.py
     #For debugging below>>
-    # all_return_data = get_all_Returns_data(current_user.refresh_token)
-    # inventory_data = checkInventory(current_user.refresh_token)
-    # addressData = get_addresses_from_GetOrders(current_user.refresh_token)
+    all_return_data = get_all_Returns_data(current_user.refresh_token)
+    inventory_data = checkInventory(current_user.refresh_token)
+    addressData = get_addresses_from_GetOrders(current_user.refresh_token)
     # print("ADDRESS DATA:")
     # print(addressData)
-    # refresh_all_return_data_in_db(all_return_data, inventory_data, current_user.id)
-    # refresh_addresses_in_db(addressData, current_user.id)
-    while(True):
-      print('test')
-      time.sleep(1)
-      count+=1
-      if count == 100:
-        break;
+    refresh_all_return_data_in_db(all_return_data, inventory_data, current_user.id)
+    refresh_addresses_in_db(addressData, current_user.id)
+    
     print('DEBUG MODE')
     return redirect('/')
 
@@ -290,6 +285,7 @@ def search():
 @views.route('/clearSearch')
 @login_required
 def clearSearch():
+  time.sleep(10)
   delete_tracking_id_to_search(current_user.id)
   delete_current_return_to_display_from_db(current_user.id)
   return redirect('/')

@@ -186,48 +186,35 @@ def checkInventory(refresh_token):
   #dataEndTime=(datetime.utcnow() - timedelta(days=1)).isoformat(), 
   #marketplaceIds=["ATVPDKIKX0DER",   #US]
   )
-  # res = Reports(credentials=credentials).get_report(res.payload.get("reportId"))
-  # report_id = res.payload.get("reportId")
+  res = Reports(credentials=credentials).get_report(res.payload.get("reportId"))
+  report_id = res.payload.get("reportId")
 
   # processing_status = res.payload.get("processingStatus")
-  processing_status ='testing debug'
-  print('STEP BEFORE WHILE')
   while processing_status not in ["DONE", "CANCELLED", "FATAL"]:
     # Wait for a short duration before checking again
-    print('STEP 1 IN WHILE')
-    print('STEP 1a IN WHILE')
-    print('STEP 1b IN WHILE')
-    time.sleep(.5)
-    print('STEP 1c IN WHILE')
-    time.sleep(.5)
-    print('STEP 1d IN WHILE')
-    time.sleep(1)
-    print('STEP 1e IN WHILE')
-    time.sleep(1)
-    print('STEP 2 IN WHILE')                
-    # Get the updated report status
-    # response = Reports(credentials=credentials).get_report(report_id)
-    # processing_status = response.payload.get("processingStatus")
-    # print('STEP 3a IN WHILE') 
-    # print(processing_status)
-    # print('STEP 3 IN WHILE') 
-    # if processing_status == "DONE":
-    #   # Once the processing is done, retrieve the report document
-    #   print('STEP 4 IN WHILE') 
-    #   document_id = response.payload.get("reportDocumentId")
-    #   response = Reports(credentials=credentials).get_report_document(document_id, download=True)
-    # # print(response.payload.get("document"))
-    #   s = response.payload.get("document")
-    #   buff = StringIO(s)
-    #   inventory_reader = csv.DictReader(buff, delimiter='\t' )
-    #   #csv.reader                                    #next(inventory_reader) #skips the header
-    #   for line in inventory_reader:
-    #     #print("test")
-    #     print(line['sku'], line['asin'], line['price'], line['quantity'])
-    #     Quantity_of_SKUS[line['sku']]=line['quantity']
-    #   print("Quantity left of skus is:")
-    #   print(Quantity_of_SKUS)    
-    #   return Quantity_of_SKUS
+    time.sleep(5)  
+    
+    #Get the updated report status
+    response = Reports(credentials=credentials).get_report(report_id)
+    processing_status = response.payload.get("processingStatus")
+    print(processing_status)
+    if processing_status == "DONE":
+      # Once the processing is done, retrieve the report document
+      print('STEP 4 IN WHILE') 
+      document_id = response.payload.get("reportDocumentId")
+      response = Reports(credentials=credentials).get_report_document(document_id, download=True)
+    # print(response.payload.get("document"))
+      s = response.payload.get("document")
+      buff = StringIO(s)
+      inventory_reader = csv.DictReader(buff, delimiter='\t' )
+      #csv.reader                                    #next(inventory_reader) #skips the header
+      for line in inventory_reader:
+        #print("test")
+        print(line['sku'], line['asin'], line['price'], line['quantity'])
+        Quantity_of_SKUS[line['sku']]=line['quantity']
+      print("Quantity left of skus is:")
+      print(Quantity_of_SKUS)    
+      return Quantity_of_SKUS
     
   Quantity_of_SKUS = processing_status
   return Quantity_of_SKUS
