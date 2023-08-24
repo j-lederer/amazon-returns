@@ -207,6 +207,7 @@ def checkInventory(refresh_token):
     # Get the updated report status
     response = Reports(credentials=credentials).get_report(report_id)
     processing_status = response.payload.get("processingStatus")
+    print('STEP 3a IN WHILE') 
     print(processing_status)
     print('STEP 3 IN WHILE') 
     if processing_status == "DONE":
