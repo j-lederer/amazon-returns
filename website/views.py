@@ -106,6 +106,7 @@ import time
 @views.route('/refresh_returns_and_inventory')
 @login_required
 def refresh():
+    count = 0
     #Get all the new return data with a call from amazonAPI.py
     #For debugging below>>
     # all_return_data = get_all_Returns_data(current_user.refresh_token)
@@ -118,6 +119,9 @@ def refresh():
     while(True):
       print('test')
       time.sleep(1)
+      count+=1
+      if count == 100:
+        break;
     print('DEBUG MODE')
     return redirect('/')
 
