@@ -205,28 +205,28 @@ def checkInventory(refresh_token):
     time.sleep(1)
     print('STEP 2 IN WHILE')                
     # Get the updated report status
-    response = Reports(credentials=credentials).get_report(report_id)
-    processing_status = response.payload.get("processingStatus")
-    print('STEP 3a IN WHILE') 
-    print(processing_status)
-    print('STEP 3 IN WHILE') 
-    if processing_status == "DONE":
-      # Once the processing is done, retrieve the report document
-      print('STEP 4 IN WHILE') 
-      document_id = response.payload.get("reportDocumentId")
-      response = Reports(credentials=credentials).get_report_document(document_id, download=True)
-    # print(response.payload.get("document"))
-      s = response.payload.get("document")
-      buff = StringIO(s)
-      inventory_reader = csv.DictReader(buff, delimiter='\t' )
-      #csv.reader                                    #next(inventory_reader) #skips the header
-      for line in inventory_reader:
-        #print("test")
-        print(line['sku'], line['asin'], line['price'], line['quantity'])
-        Quantity_of_SKUS[line['sku']]=line['quantity']
-      print("Quantity left of skus is:")
-      print(Quantity_of_SKUS)    
-      return Quantity_of_SKUS
+    # response = Reports(credentials=credentials).get_report(report_id)
+    # processing_status = response.payload.get("processingStatus")
+    # print('STEP 3a IN WHILE') 
+    # print(processing_status)
+    # print('STEP 3 IN WHILE') 
+    # if processing_status == "DONE":
+    #   # Once the processing is done, retrieve the report document
+    #   print('STEP 4 IN WHILE') 
+    #   document_id = response.payload.get("reportDocumentId")
+    #   response = Reports(credentials=credentials).get_report_document(document_id, download=True)
+    # # print(response.payload.get("document"))
+    #   s = response.payload.get("document")
+    #   buff = StringIO(s)
+    #   inventory_reader = csv.DictReader(buff, delimiter='\t' )
+    #   #csv.reader                                    #next(inventory_reader) #skips the header
+    #   for line in inventory_reader:
+    #     #print("test")
+    #     print(line['sku'], line['asin'], line['price'], line['quantity'])
+    #     Quantity_of_SKUS[line['sku']]=line['quantity']
+    #   print("Quantity left of skus is:")
+    #   print(Quantity_of_SKUS)    
+    #   return Quantity_of_SKUS
     
   Quantity_of_SKUS = processing_status
   return Quantity_of_SKUS
