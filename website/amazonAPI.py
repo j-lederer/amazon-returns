@@ -186,10 +186,10 @@ def checkInventory(refresh_token):
   #dataEndTime=(datetime.utcnow() - timedelta(days=1)).isoformat(), 
   #marketplaceIds=["ATVPDKIKX0DER",   #US]
   )
-  res = Reports(credentials=credentials).get_report(res.payload.get("reportId"))
-  report_id = res.payload.get("reportId")
+  # res = Reports(credentials=credentials).get_report(res.payload.get("reportId"))
+  # report_id = res.payload.get("reportId")
 
-  processing_status = res.payload.get("processingStatus")
+  # processing_status = res.payload.get("processingStatus")
   print('STEP BEFORE WHILE')
   while processing_status not in ["DONE", "CANCELLED", "FATAL"]:
     # Wait for a short duration before checking again
