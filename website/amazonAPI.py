@@ -202,7 +202,7 @@ def checkInventory(refresh_token):
     print('STEP 1d IN WHILE')
     time.sleep(1)
     print('STEP 1e IN WHILE')
-    time.sleep(5)
+    time.sleep(1)
     print('STEP 2 IN WHILE')                
     # Get the updated report status
     response = Reports(credentials=credentials).get_report(report_id)
