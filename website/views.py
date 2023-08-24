@@ -101,19 +101,23 @@ def home():
   else:
     flash('Your account is Restricted. Please contact us for more information.', category='error')
     return redirect('/account')
-      
+
+import time
 @views.route('/refresh_returns_and_inventory')
 @login_required
 def refresh():
     #Get all the new return data with a call from amazonAPI.py
     #For debugging below>>
     all_return_data = get_all_Returns_data(current_user.refresh_token)
-    inventory_data = checkInventory(current_user.refresh_token)
+    # inventory_data = checkInventory(current_user.refresh_token)
     # addressData = get_addresses_from_GetOrders(current_user.refresh_token)
     # print("ADDRESS DATA:")
     # print(addressData)
     # refresh_all_return_data_in_db(all_return_data, inventory_data, current_user.id)
     # refresh_addresses_in_db(addressData, current_user.id)
+    while(True):
+      print('test')
+      time.sleep(1)
     print('DEBUG MODE')
     return redirect('/')
 
