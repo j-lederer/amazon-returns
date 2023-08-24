@@ -190,6 +190,7 @@ def checkInventory(refresh_token):
   # report_id = res.payload.get("reportId")
 
   # processing_status = res.payload.get("processingStatus")
+  processing_status ='testing debug'
   print('STEP BEFORE WHILE')
   while processing_status not in ["DONE", "CANCELLED", "FATAL"]:
     # Wait for a short duration before checking again
