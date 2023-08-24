@@ -286,6 +286,7 @@ def search():
 @login_required
 def clearSearch():
   time.sleep(10)
+  print('test')
   delete_tracking_id_to_search(current_user.id)
   delete_current_return_to_display_from_db(current_user.id)
   return redirect('/')
