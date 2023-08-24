@@ -194,6 +194,14 @@ def checkInventory(refresh_token):
   while processing_status not in ["DONE", "CANCELLED", "FATAL"]:
     # Wait for a short duration before checking again
     print('STEP 1 IN WHILE')
+    print('STEP 1a IN WHILE')
+    print('STEP 1b IN WHILE')
+    time.sleep(.5)
+    print('STEP 1c IN WHILE')
+    time.sleep(.5)
+    print('STEP 1d IN WHILE')
+    time.sleep(1)
+     print('STEP 1e IN WHILE')
     time.sleep(5)
     print('STEP 2 IN WHILE')                
     # Get the updated report status
