@@ -1,6 +1,16 @@
   {% extends "base.html" %} {% block title %}Home{% endblock %} {% block content
 %}
 	<h1 style='color:black;'>AmazeSoftware </h1>
+   {% with tasks2 = current_user.get_tasks_in_progress() %}
+        {% if tasks2 %}
+            {% for task in tasks2 %}
+            <div class="alert alert-success" role="alert">
+                {{ task.description }}
+                <span id="{{ task.id }}-progress">{{ task.get_progress() }}</span>%
+            </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
 
 	<div class="intro">
 	<h3>Scan For Info</h3>
@@ -163,6 +173,10 @@
 			</form>
 		</div>-->
 	</div>
+
+ <a class="button1" href='/print_numbers' onclick="return confirm('Print Numbers?');">Print Numbers</a>
+
+
 {% endblock %}
 
 

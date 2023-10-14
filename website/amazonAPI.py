@@ -16,9 +16,11 @@ from sp_api.base import Marketplaces
 from sp_api.api import Orders
 from sp_api.util import throttle_retry, load_all_pages
 import os
+import sys
 
 from .database import load_queue_from_db, delete_whole_tracking_id_queue
-
+from .tasks import  _set_task_progress  #,app
+from .models import User
 
 
 
@@ -36,6 +38,7 @@ from .database import load_queue_from_db, delete_whole_tracking_id_queue
 from sp_api.api import Reports
 from sp_api.api import Feeds
 from sp_api.base.reportTypes import ReportType
+
 
 
 
@@ -234,134 +237,143 @@ def increaseInventory(Quantity_of_SKUS, user_id, refresh_token):
   from sp_api.api import Feeds
   #from sp_api.auth import VendorCredentials
   import xml.etree.ElementTree as ET
-
-  queue = load_queue_from_db(user_id)
-  queue_to_increase= {}
-  is_duplicate = False
-  for track in queue:
-      track_sku_list = track['SKU'].split(', ')
-      track_return_quantity_list = track['return_quantity'].split(', ') 
-      i = 0
-      for individual_sku in track_sku_list:  
-        for sku in queue_to_increase.keys():
-          if sku == individual_sku:
-            is_duplicate = True
-        if is_duplicate:
-          queue_to_increase[individual_sku] = int(queue_to_increase[individual_sku]) + int(track_return_quantity_list[i])
-          i+=1
-        else:
-          queue_to_increase[individual_sku]= int(track_return_quantity_list[i])
-          i+=1
-  print (queue_to_increase)
-        #return queue_to_increase
-  result[0] = None
-  for sku in queue_to_increase.keys():
-    # Initialize the Feeds API client
-    feeds = Feeds(credentials=credentials)
-    # Define the inventory update feed message
-    message = {
-            "MessageType": "Inventory",
-            "MessageID": "1",
-            "Inventory": {
-                "SKU": sku,
-                "Quantity": (int(Quantity_of_SKUS[sku])+int(queue_to_increase[sku])),
-                "FulfillmentCenterID": "DEFAULT"
-            },
-            "Override": "false"
-        }
-
-    # Create the XML structure
-    root = ET.Element("AmazonEnvelope")
-    root.set("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
-    root.set("xsi:noNamespaceSchemaLocation", "amzn-envelope.xsd")
-    header = ET.SubElement(root, "Header")
-    document_version = ET.SubElement(header, "DocumentVersion")
-    document_version.text = "1.02"
-    merchant_identifier = ET.SubElement(header, "MerchantIdentifier")
-    merchant_identifier.text = "A2RSMNCJSAU6P5"
-
-    message_type = ET.SubElement(root, "MessageType")
-    message_type.text = message["MessageType"]
-
-    message_element = ET.SubElement(root, "Message")
-    message_id = ET.SubElement(message_element, "MessageID")
-    message_id.text = message["MessageID"]
-
-    inventory = ET.SubElement(message_element, "Inventory")
-    inventory_data = message["Inventory"]
-    seller_sku = ET.SubElement(inventory, "SKU")
-    seller_sku.text = inventory_data["SKU"]
-    fulfillment_center_id = ET.SubElement(inventory, "FulfillmentCenterID")
-    fulfillment_center_id.text = inventory_data["FulfillmentCenterID"]
-
-    # Choice between Available, Quantity, or Lookup
-    quantity = ET.SubElement(inventory, "Quantity")
-    quantity.text = str(inventory_data["Quantity"])
-
-    restock_date = ET.SubElement(inventory, "RestockDate")
-    restock_date.text = "2023-05-26"  # Replace with a valid date
-    fulfillment_latency = ET.SubElement(inventory, "FulfillmentLatency")
-    fulfillment_latency.text = "1"  # Replace with a valid integer
-    switch_fulfillment_to = ET.SubElement(inventory, "SwitchFulfillmentTo")   #I think can leave this and following line out
-    switch_fulfillment_to.text = "MFN"  # Replace with either "MFN" or "AFN  
-
-    # Convert the XML structure to a string
-    xml_string = ET.tostring(root, encoding="utf-8", method="xml")
-
-    # Submit the feed
-    feeds = Feeds(credentials=credentials)
-    feed = BytesIO(xml_string)
-    feed.seek(0)
-
-
-    # Submit the feed
-    try:
-      document_response, create_feed_response= feeds.submit_feed('POST_INVENTORY_AVAILABILITY_DATA', feed, 'text/xml')
-      #print("RETURNED DOCUMENT RESOPONSE")
-      #print(document_response)
-      #print ("RETURNED CREATE FEED RESPONSE")
-      #print(create_feed_response)
-      response = create_feed_response
-      print("Feed submitted...")
-
-      #Check the processing status
-      #print(response)
-      feed_id = response.payload.get('feedId')   
-      #print (feed_id)
-        
-      print("Inventory Feed Processing Status")
-      while True:
-          feed_response = feeds.get_feed(feed_id)
-          #print(feed_response)
-          processing_status = feed_response.payload.get('processingStatus')
-          print(processing_status) 
-          if processing_status in ["DONE", "IN_QUEUE", "IN_PROGRESS"]:
-              #print(f"Processing status: {processing_status}")
-              if processing_status in ["DONE", "DONE_NO_DATA"]:
-                  print(feed_response)
-                  print("Feed processing completed.")
-                  
-                  document_id = feed_response.payload.get("resultFeedDocumentId")
-                  feed_response = Feeds(credentials=credentials).get_feed_document(document_id) #download=true
-                  print(feed_response)
-                  # return 'SUCCESS'
-                  delete_whole_tracking_id_queue(user_id)
-                  result[0] = "SUCCESS"
-                  result [1] = queue_to_increase
-                  break
-          else:
-              print("Feed processing encountered a fatal error.")
-              result[0] = 'ERROR'
-              break
-          time.sleep(5)
-
-    except Exception as e:
-        print(f"Error submitting feed: {e}") 
-        result[0] = e
-      
-  return result
-      
   
+  try:
+    user = User.query.get(user_id)
+    _set_task_progress(0)
+    data = []
+    task_progress_i = 0
+    queue = load_queue_from_db(user_id)
+    queue_to_increase= {}
+    is_duplicate = False
+    for track in queue:
+        track_sku_list = track['SKU'].split(', ')
+        track_return_quantity_list = track['return_quantity'].split(', ') 
+        i = 0
+        for individual_sku in track_sku_list:  
+          for sku in queue_to_increase.keys():
+            if sku == individual_sku:
+              is_duplicate = True
+          if is_duplicate:
+            queue_to_increase[individual_sku] = int(queue_to_increase[individual_sku]) + int(track_return_quantity_list[i])
+            i+=1
+          else:
+            queue_to_increase[individual_sku]= int(track_return_quantity_list[i])
+            i+=1
+    print (queue_to_increase)
+          #return queue_to_increase
+    result[0] = None
+    for sku in queue_to_increase.keys():
+      # Initialize the Feeds API client
+      feeds = Feeds(credentials=credentials)
+      # Define the inventory update feed message
+      message = {
+              "MessageType": "Inventory",
+              "MessageID": "1",
+              "Inventory": {
+                  "SKU": sku,
+                  "Quantity": (int(Quantity_of_SKUS[sku])+int(queue_to_increase[sku])),
+                  "FulfillmentCenterID": "DEFAULT"
+              },
+              "Override": "false"
+          }
+  
+      # Create the XML structure
+      root = ET.Element("AmazonEnvelope")
+      root.set("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
+      root.set("xsi:noNamespaceSchemaLocation", "amzn-envelope.xsd")
+      header = ET.SubElement(root, "Header")
+      document_version = ET.SubElement(header, "DocumentVersion")
+      document_version.text = "1.02"
+      merchant_identifier = ET.SubElement(header, "MerchantIdentifier")
+      merchant_identifier.text = "A2RSMNCJSAU6P5"
+  
+      message_type = ET.SubElement(root, "MessageType")
+      message_type.text = message["MessageType"]
+  
+      message_element = ET.SubElement(root, "Message")
+      message_id = ET.SubElement(message_element, "MessageID")
+      message_id.text = message["MessageID"]
+  
+      inventory = ET.SubElement(message_element, "Inventory")
+      inventory_data = message["Inventory"]
+      seller_sku = ET.SubElement(inventory, "SKU")
+      seller_sku.text = inventory_data["SKU"]
+      fulfillment_center_id = ET.SubElement(inventory, "FulfillmentCenterID")
+      fulfillment_center_id.text = inventory_data["FulfillmentCenterID"]
+  
+      # Choice between Available, Quantity, or Lookup
+      quantity = ET.SubElement(inventory, "Quantity")
+      quantity.text = str(inventory_data["Quantity"])
+  
+      restock_date = ET.SubElement(inventory, "RestockDate")
+      restock_date.text = "2023-05-26"  # Replace with a valid date
+      fulfillment_latency = ET.SubElement(inventory, "FulfillmentLatency")
+      fulfillment_latency.text = "1"  # Replace with a valid integer
+      switch_fulfillment_to = ET.SubElement(inventory, "SwitchFulfillmentTo")   #I think can leave this and following line out
+      switch_fulfillment_to.text = "MFN"  # Replace with either "MFN" or "AFN  
+  
+      # Convert the XML structure to a string
+      xml_string = ET.tostring(root, encoding="utf-8", method="xml")
+  
+      # Submit the feed
+      feeds = Feeds(credentials=credentials)
+      feed = BytesIO(xml_string)
+      feed.seek(0)
+
+      task_progress_i = 50
+  
+      # Submit the feed
+      try:
+        document_response, create_feed_response= feeds.submit_feed('POST_INVENTORY_AVAILABILITY_DATA', feed, 'text/xml')
+        #print("RETURNED DOCUMENT RESOPONSE")
+        #print(document_response)
+        #print ("RETURNED CREATE FEED RESPONSE")
+        #print(create_feed_response)
+        response = create_feed_response
+        print("Feed submitted...")
+  
+        #Check the processing status
+        #print(response)
+        feed_id = response.payload.get('feedId')   
+        #print (feed_id)
+          
+        print("Inventory Feed Processing Status")
+        while True:
+            feed_response = feeds.get_feed(feed_id)
+            #print(feed_response)
+            processing_status = feed_response.payload.get('processingStatus')
+            print(processing_status) 
+            if processing_status in ["DONE", "IN_QUEUE", "IN_PROGRESS"]:
+                #print(f"Processing status: {processing_status}")
+                if processing_status in ["DONE", "DONE_NO_DATA"]:
+                    print(feed_response)
+                    print("Feed processing completed.")
+                    
+                    document_id = feed_response.payload.get("resultFeedDocumentId")
+                    feed_response = Feeds(credentials=credentials).get_feed_document(document_id) #download=true
+                    print(feed_response)
+                    # return 'SUCCESS'
+                    delete_whole_tracking_id_queue(user_id)
+                    result[0] = "SUCCESS"
+                    result [1] = queue_to_increase
+                    task_progress_i = 100
+                    break
+            else:
+                print("Feed processing encountered a fatal error.")
+                result[0] = 'ERROR'
+                break
+            time.sleep(5)
+  
+      except Exception as e:
+          print(f"Error submitting feed: {e}") 
+          result[0] = e
+        
+    return result
+  except:
+    app.logger.error('Unhandled exception', exc_info=sys.exc_info())
+  finally:
+    _set_task_progress(100)
 
 def produce_pdf_full(user_id, refresh_token):
   credentials = dict(

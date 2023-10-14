@@ -2,13 +2,13 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from .database import engine, load_queue_from_db, load_all_return_details_from_db, load_tracking_id_to_search, delete_trackingID_from_queue_db, add_tracking_id_to_queue, refresh_all_return_data_in_db, load_current_return_to_display_from_db, add_current_return_to_display_to_db, delete_whole_tracking_id_queue, delete_current_return_to_display_from_db, delete_tracking_id_to_search, add_tracking_id_to_search, check_if_track_in_queue, delete_current_return_to_display_from_db, refresh_addresses_in_db, load_address_from_db, load_users_from_db, load_deleted_users_from_db, delete_user_from_db, delete_deleted_user_from_db, clear_all_users_from_db, clear_all_deleted_users_from_db, add_refresh_token, get_refresh_token, load_restricted, add_request_to_delete_user, load_all_stripe_customers, add_suggestion, delete_refresh_token_and_expiration
 
-from .models import User
+from .models import User, Notification
 from .amazonAPI import get_all_Returns_data, increaseInventory, checkInventory, checkInventoryIncrease, get_addresses_from_GetOrders
 
-from flask import Blueprint, render_template, request, flash, jsonify, send_file, make_response
+from flask import Blueprint, render_template, request, flash, jsonify, send_file, make_response, current_app
 # from flask_login import login_required, current_user
 from flask_security import login_required, current_user
-from .models import Stripecustomer
+from .models import Stripecustomer, Task
 import stripe
 from . import db
 import json
@@ -185,6 +185,37 @@ def get_info_on_track():
 @login_required
 def increase_inventory():
   #take the tracking id's in the queue and increase inventory by the return order amount for each
+  rq_job = current_user.launch_task('increase_inventory_function', 'Increasing Inventory...')
+  # rq_job = current_app.task_queue.enqueue(increase_inventory_function, current_user.id)
+  task = Task(id=rq_job.get_id(), name='increase_inventory_function', description='Increasing Inventory...', user_id=current_user.id)
+  db.session.add(task)
+  db.session.commit()
+  return redirect('/')
+
+
+def print_numbers(seconds):
+    print("Starting num task")
+    for num in range(seconds):
+        print(num)
+        time.sleep(1)
+    print("Task to print_numbers completed")
+
+@views.route('/print_numbers', methods =['POST', 'GET'])
+@login_required
+def number_print():
+  #take the tracking id's in the queue and increase inventory by the return order amount for each
+  # current_user.launch_task('increase_inventory_function', 'Increasing Inventory...')
+  from .views import print_numbers
+  print_numbers(4)
+  rq_job = current_app.task_queue.enqueue('print_numbers', args=(5,))
+  task = Task(id=rq_job.get_id(), name='print_numbers', description='Printing Numbers...', user_id=current_user.id)
+  db.session.add(task)
+  db.session.commit()
+  return redirect('/')
+  
+
+
+def increase_inventory_function():
   Quantity_of_SKUS = checkInventory( current_user.refresh_token)
   result = increaseInventory(Quantity_of_SKUS, current_user.id,  current_user.refresh_token)
   print("RESULT:")
@@ -194,7 +225,7 @@ def increase_inventory():
   if result[0] == 'SUCCESS' :
       flash('Inventory Feed Submitted Successfully! It may take up to 2 hours to load on AmazonSellerCentral.', category='success')
   elif result[0] == None:
-    flash (f'error. The queue was probabl empty: {result} ', category='error')
+    flash (f'error. The queue was probably empty: {result} ', category='error')
   else:
     flash (f'error: {result} ', category='error')
   # result = checkInventoryIncrease(Quantity_of_SKUS, result[1], current_user.refresh_token)
@@ -202,8 +233,7 @@ def increase_inventory():
   # if result == "Inventory Increased Successfully":
   delete_tracking_id_to_search(current_user.id)
   delete_current_return_to_display_from_db(current_user.id)
-  
-  return redirect('/')
+
 
 @views.route('/delete/<tracking>')
 @login_required
@@ -490,7 +520,18 @@ def support():
 
 # if __name__ == '__main__':
 #     app.run(host='0.0.0.0', debug=True)
-
+@views.route('/notifications')
+@login_required
+def notifications():
+    # since = request.args.get('since', 0.0, type=float)
+    # notifications = current_user.notifications.filter(
+    #     Notification.timestamp > since).order_by(Notification.timestamp.asc())
+    notifications = current_user.notifications.filter().order_by(Notification.timestamp.asc())
+    return jsonify([{
+        'name': n.name,
+        'data': n.get_data(),
+        'timestamp': n.timestamp
+    } for n in notifications])
 
 def extract_tracking_id(trackingID):
     # Define the patterns for the consecutive digits

@@ -15,6 +15,33 @@ typing-extensions = ">=4"
 tz = ["python-dateutil"]
 
 [[package]]
+name = "app"
+version = "0.0.1"
+description = "a simple egg"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "arrow"
+version = "1.2.3"
+description = "Better dates & times for Python"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+python-dateutil = ">=2.7.0"
+
+[[package]]
+name = "async-timeout"
+version = "4.0.3"
+description = "Timeout context manager for asyncio programs"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
 name = "babel"
 version = "2.12.1"
 description = "Internationalization utilities"
@@ -324,6 +351,43 @@ docs = ["furo", "olefile", "sphinx (>=2.4)", "sphinx-copybutton", "sphinx-inline
 tests = ["check-manifest", "coverage", "defusedxml", "markdown2", "olefile", "packaging", "pyroma", "pytest", "pytest-cov", "pytest-timeout"]
 
 [[package]]
+name = "python-dateutil"
+version = "2.8.2"
+description = "Extensions to the standard Python datetime module"
+category = "main"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
+
+[package.dependencies]
+six = ">=1.5"
+
+[[package]]
+name = "redis"
+version = "5.0.0"
+description = "Python client for Redis database and key-value store"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+async-timeout = {version = ">=4.0.2", markers = "python_full_version <= \"3.11.2\""}
+
+[package.extras]
+hiredis = ["hiredis (>=1.0.0)"]
+ocsp = ["cryptography (>=36.0.1)", "pyopenssl (==20.0.1)", "requests (>=2.26.0)"]
+
+[[package]]
+name = "redis-sentinel-url"
+version = "1.0.1"
+description = "A factory for redis connection that supports using Redis Sentinel"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+redis = ">=2.10.3"
+
+[[package]]
 name = "reportlab"
 version = "4.0.4"
 description = "The Reportlab Toolkit"
@@ -356,6 +420,41 @@ urllib3 = ">=1.21.1,<3"
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)"]
 use_chardet_on_py3 = ["chardet (>=3.0.2,<6)"]
+
+[[package]]
+name = "rq"
+version = "1.15.1"
+description = "RQ is a simple, lightweight, library for creating background jobs, and processing them."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+click = ">=5.0.0"
+redis = ">=4.0.0"
+
+[[package]]
+name = "rq-dashboard"
+version = "0.6.7"
+description = "rq-dashboard is a general purpose, lightweight, web interface to monitor your RQ queues, jobs, and workers in realtime."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+arrow = "*"
+Flask = "*"
+redis = "*"
+redis-sentinel-url = "*"
+rq = ">=1.0"
+
+[[package]]
+name = "six"
+version = "1.16.0"
+description = "Python 2 and 3 compatibility utilities"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "speaklater"
@@ -465,10 +564,13 @@ email = ["email-validator"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "b5d72ddcfff16814abe44c31580fc5b375352bcdc3237f1c00d98920ea1cb527"
+content-hash = "5b4ae750ce8f1dd09ca57f8d98bdcc5c7663aa85d87b8da55672ca794a0e071c"
 
 [metadata.files]
 alembic = []
+app = []
+arrow = []
+async-timeout = []
 babel = []
 blinker = []
 certifi = []
@@ -495,8 +597,14 @@ markupsafe = []
 mkdocs-material-extensions = []
 passlib = []
 pillow = []
+python-dateutil = []
+redis = []
+redis-sentinel-url = []
 reportlab = []
 requests = []
+rq = []
+rq-dashboard = []
+six = []
 speaklater = []
 sqlalchemy = []
 stripe = []

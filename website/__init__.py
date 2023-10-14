@@ -8,11 +8,18 @@ from sqlalchemy import URL
 import sqlalchemy
 import stripe
 from flask_security import Security, hash_password, SQLAlchemySessionUserDatastore, SQLAlchemyUserDatastore
+from redis import Redis
+import rq
+import rq_dashboard
 
 db = SQLAlchemy()
 
 def create_app():
   app = Flask(__name__)
+  app.config['RQ_DASHBOARD_REDIS_URL'] =os.environ['REDIS_URL']
+  app.config.from_object(rq_dashboard.default_settings)
+  rq_dashboard.web.setup_rq_connection(app)
+  app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rq")
   app.config['SECRET_KEY'] = 'hjshjhdjah kjshkjdhjs'
   # url_object = URL.create(
   # #sqlUrl = sqlalchemy.engine.url.URL(
@@ -29,6 +36,8 @@ def create_app():
   app.config['STRIPE_PUBLIC_KEY'] = os.environ['STRIPE_PUBLIC_KEY']
   # app.config['STRIPE_SECRET_KEY'] = os.environ['STRIPE_TEST_SECRET_KEY'] 
   app.config['STRIPE_SECRET_KEY'] = os.environ['STRIPE_SECRET_KEY'] 
+  app.redis = Redis.from_url(os.environ['REDIS_URL'])
+  app.task_queue = rq.Queue('amazon-returns-task-queue', connection=app.redis)
   #os.environ[
   #   'DB2'] + '?ssl_ca=website/addedExtras/cacert-2023-05-30.pem'
   #/etc/ssl/cert.pem'

@@ -16,6 +16,10 @@ Flask-SQLAlchemy = "^3.0.5"
 Flask-Migrate = "^4.0.4"
 Flask-Security = "^3.0.0"
 reportlab = "^4.0.4"
+app = "^0.0.1"
+redis = "^5.0.0"
+rq = "^1.15.1"
+rq-dashboard = "^0.6.7"
 
 [tool.poetry.dev-dependencies]
 
