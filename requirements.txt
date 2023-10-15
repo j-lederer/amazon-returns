@@ -15,6 +15,6 @@ bcrypt
 pytz
 cryptography
 urllib3==1.25.11
-rq
-rq-dashboard
+# rq
+# rq-dashboard
 celery
