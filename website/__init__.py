@@ -12,10 +12,14 @@ from redis import Redis
 import rq
 import rq_dashboard
 
+from .utils import make_celery
+
 db = SQLAlchemy()
 
 def create_app():
   app = Flask(__name__)
+  app.config["CELERY_CONFIG"] = {"broker_url": os.environ['REDIS_URL'], "result_backend": os.environ['REDIS_URL']}
+  
   app.config['RQ_DASHBOARD_REDIS_URL'] =os.environ['REDIS_URL']
   app.config.from_object(rq_dashboard.default_settings)
   rq_dashboard.web.setup_rq_connection(app)
@@ -56,7 +60,10 @@ def create_app():
   app.register_blueprint(stripePay, url_prefix='/')
   app.register_blueprint( connectAmazon, url_prefix='/')
   
+  celery = make_celery(app)
+  celery.set_default()
 
+  
   from .models import User, Role
 
   with app.app_context():
@@ -91,4 +98,4 @@ def create_app():
   app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
   mail = Mail(app)
 
-  return app
+  return app, celery

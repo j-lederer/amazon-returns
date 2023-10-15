@@ -22,6 +22,10 @@ from .download_pdf_queue import download_queue_data
 from .download_pdf_inventoryChange import download_queue_and_inventory_change_data
 from .download_inventory_to_change import download_inventory_change
 
+from .tasks import print_numbers, increase_inventory_task
+
+
+
 views = Blueprint('views', __name__)
 
 
@@ -185,54 +189,30 @@ def get_info_on_track():
 @login_required
 def increase_inventory():
   #take the tracking id's in the queue and increase inventory by the return order amount for each
-  rq_job = current_user.launch_task('increase_inventory_function', 'Increasing Inventory...')
+  task = increase_inventory_task.delay()
+  rq_job = current_user.launch_task('increase_inventory_task', 'Increasing Inventory...')
   # rq_job = current_app.task_queue.enqueue(increase_inventory_function, current_user.id)
-  task = Task(id=rq_job.get_id(), name='increase_inventory_function', description='Increasing Inventory...', user_id=current_user.id)
+  task = Task(id=rq_job.get_id(), name='increase_inventory_task', description='Increasing Inventory...', user_id=current_user.id)
   db.session.add(task)
   db.session.commit()
   return redirect('/')
 
 
-def print_numbers(seconds):
-    print("Starting num task")
-    for num in range(seconds):
-        print(num)
-        time.sleep(1)
-    print("Task to print_numbers completed")
 
 @views.route('/print_numbers', methods =['POST', 'GET'])
 @login_required
 def number_print():
   #take the tracking id's in the queue and increase inventory by the return order amount for each
   # current_user.launch_task('increase_inventory_function', 'Increasing Inventory...')
-  from .views import print_numbers
+  task = print_numbers.delay(4)
   print_numbers(4)
   rq_job = current_app.task_queue.enqueue('print_numbers', args=(5,))
   task = Task(id=rq_job.get_id(), name='print_numbers', description='Printing Numbers...', user_id=current_user.id)
   db.session.add(task)
   db.session.commit()
   return redirect('/')
-  
 
 
-def increase_inventory_function():
-  Quantity_of_SKUS = checkInventory( current_user.refresh_token)
-  result = increaseInventory(Quantity_of_SKUS, current_user.id,  current_user.refresh_token)
-  print("RESULT:")
-  print(type(result))
-  print(result)
-  # print(result[1])
-  if result[0] == 'SUCCESS' :
-      flash('Inventory Feed Submitted Successfully! It may take up to 2 hours to load on AmazonSellerCentral.', category='success')
-  elif result[0] == None:
-    flash (f'error. The queue was probably empty: {result} ', category='error')
-  else:
-    flash (f'error: {result} ', category='error')
-  # result = checkInventoryIncrease(Quantity_of_SKUS, result[1], current_user.refresh_token)
-  # print(result)
-  # if result == "Inventory Increased Successfully":
-  delete_tracking_id_to_search(current_user.id)
-  delete_current_return_to_display_from_db(current_user.id)
 
 
 @views.route('/delete/<tracking>')
