@@ -4,7 +4,7 @@ from os import path
 # from flask_login import LoginManager
 from flask_migrate import Migrate
 import os
-from sqlalchemy import URL
+# from sqlalchemy import URL
 import sqlalchemy
 import stripe
 from flask_security import Security, hash_password, SQLAlchemySessionUserDatastore, SQLAlchemyUserDatastore
