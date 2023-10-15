@@ -4,7 +4,7 @@ from .models import Task
 import time
 
 from celery import shared_task
-from celery.contrib.abotable import AbortableTask
+from celery.contrib.abortable import AbortableTask
 
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
