@@ -225,8 +225,8 @@ def increase_inventory_task(self):
 
 
 @shared_task(bind=True, base=AbortableTask)
-def print_numbers_task(self, seconds):
-    task = Task(id=self.request.id, name='print_numbers_task', description='Pinting Numbers...', user_id=current_user.id)
+def print_numbers_task(self, seconds, id):
+    task = Task(id=self.request.id, name='print_numbers_task', description='Pinting Numbers...', user_id=id)
     print('TASK:', task)
     db.session.add(task)
     db.session.commit()
@@ -260,7 +260,7 @@ def number_print():
   #take the tracking id's in the queue and increase inventory by the return order amount for each
   # current_user.launch_task('increase_inventory_function', 'Increasing Inventory...')
   #EVERY TIME YOU LAUNCH A TASK
-  task = print_numbers_task.delay(40)
+  task = print_numbers_task.delay(40, current_user.id)
   print("TASK LAUNCHED: print_numbers_task - TASK_ID", task.id)
   return jsonify({}), 202, {'Location': url_for('views.taskstatus',
     task_id=task.id)}
