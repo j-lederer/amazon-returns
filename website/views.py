@@ -238,14 +238,17 @@ def print_numbers_task(self, seconds, id):
         #Beginning of sequence to update progress
         self.update_state(state='PROGRESS',
           meta={'current': num, 'total': seconds, 'status': 'Printing'})
-        progress = num/seconds #THIS CHANGES
+        progress = num/seconds * 100 #THIS CHANGES
         print("ID", self.request.id)
         task = Task.query.get(self.request.id)
         print(task)
         task.user.add_notification('task_progress', {'task_id': self.request.id, 'progress': progress})
         if progress >= 100:
             task.complete = True
+            print('PROGRESS FINAL', progress)
             print('LKHSKLDJHOIUYWIUYOGDJHGK')
+        else:
+          print('PROGRESS', progress)
         db.session.commit()
         #End of sequence to update progress
         if(self.is_aborted()):
