@@ -245,6 +245,7 @@ def print_numbers_task(self, seconds, id):
         task.user.add_notification('task_progress', {'task_id': self.request.id, 'progress': progress})
         if progress >= 100:
             task.complete = True
+            print('LKHSKLDJHOIUYWIUYOGDJHGK')
         db.session.commit()
         #End of sequence to update progress
         if(self.is_aborted()):
