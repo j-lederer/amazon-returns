@@ -236,8 +236,10 @@ def print_numbers_task(self, seconds):
           meta={'current': num, 'total': seconds, 'status': 'Printing'})
         progress = num/seconds #THIS CHANGES
         task = Task.query.get(self.request.id)
-        task.user.add_notification('task_progress', {'task_id': self.request.id,
-                                                     'progress': progress})
+      current_user.add_notification('task_progress', {'task_id': self.request.id,
+         'progress': progress})
+        # task.user.add_notification('task_progress', {'task_id': self.request.id,
+        #                                              'progress': progress})
         if progress >= 100:
             task.complete = True
         db.session.commit()
