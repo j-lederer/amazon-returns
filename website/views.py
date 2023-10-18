@@ -231,7 +231,6 @@ def print_numbers_task(self, seconds):
     for num in range(seconds):
         print(num)
         time.sleep(1)
-        print(self.info)
         self.update_state(state='PROGRESS',
           meta={'current': num, 'total': seconds, 'status': 'Printing'})
         if(self.is_aborted()):
@@ -247,6 +246,7 @@ def number_print():
   #take the tracking id's in the queue and increase inventory by the return order amount for each
   # current_user.launch_task('increase_inventory_function', 'Increasing Inventory...')
   task = print_numbers_task.delay(4)
+  print("TASK_ID", task.id)
   return jsonify({}), 202, {'Location': url_for('views.taskstatus',
     task_id=task.id)}
   
