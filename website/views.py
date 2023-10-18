@@ -231,8 +231,17 @@ def print_numbers_task(self, seconds):
     for num in range(seconds):
         print(num)
         time.sleep(1)
+        #Beginning of sequence to update progress
         self.update_state(state='PROGRESS',
           meta={'current': num, 'total': seconds, 'status': 'Printing'})
+        progress = num/seconds #THIS CHANGES
+        task = Task.query.get(self.id)
+        task.user.add_notification('task_progress', {'task_id': self.id,
+                                                     'progress': progress})
+        if progress >= 100:
+            task.complete = True
+        db.session.commit()
+        #End of sequence to update progress
         if(self.is_aborted()):
           print("Aborted")
           return "TASK STOPPED!"
@@ -245,8 +254,12 @@ def print_numbers_task(self, seconds):
 def number_print():
   #take the tracking id's in the queue and increase inventory by the return order amount for each
   # current_user.launch_task('increase_inventory_function', 'Increasing Inventory...')
-  task = print_numbers_task.delay(4)
-  print("TASK_ID", task.id)
+  #EVERY TIME YOU LAUNCH A TASK
+  task = print_numbers_task.delay(40)
+  task = Task(id=task.id, name='print_numbers_task', description='Pinting Numbers...',
+              user_id=current_user.id)
+  db.session.add(task)
+  print("TASK LAUNCHED: print_numbers_task - TASK_ID", task.id)
   return jsonify({}), 202, {'Location': url_for('views.taskstatus',
     task_id=task.id)}
   
