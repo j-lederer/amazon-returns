@@ -26,6 +26,7 @@ from .download_inventory_to_change import download_inventory_change
 
 from celery import shared_task
 from celery.contrib.abortable import AbortableTask
+from celery.result import AsyncResult
 
 
 
@@ -230,11 +231,14 @@ def print_numbers_task(self, seconds):
     for num in range(seconds):
         print(num)
         time.sleep(1)
+        print(self.info)
+        self.update_state(state='PROGRESS',
+          meta={'current': num, 'total': seconds, 'status': 'Printing'})
         if(self.is_aborted()):
           print("Aborted")
           return "TASK STOPPED!"
     print("Task to print_numbers completed")
-    return "DONE!"
+    return {'current': 100, 'total': 100, 'status': 'Task completed!', 'result': 42}
 
 
 @views.route('/print_numbers', methods =['POST', 'GET'])
@@ -243,13 +247,55 @@ def number_print():
   #take the tracking id's in the queue and increase inventory by the return order amount for each
   # current_user.launch_task('increase_inventory_function', 'Increasing Inventory...')
   task = print_numbers_task.delay(4)
-  print(task)
-  # print_numbers_task(4)
+  return jsonify({}), 202, {'Location': url_for('views.taskstatus',
+    task_id=task.id)}
+  
+  # print("PRINTING TASK:")
+  # print(task)
+  # print(task.id)
+  # print(task.result)
+  # print(task.status)
+  # time.sleep(5)
+  # print("PRINTING TASK2:")
+  # print(task)
+  # print(task.id)
+  # print(task.result)
+  # print(task.status)
   # rq_job = current_app.task_queue.enqueue('print_numbers', args=(5,))
   # task = Task(id=rq_job.get_id(), name='print_numbers', description='Printing Numbers...', user_id=current_user.id)
   # db.session.add(task)
   # db.session.commit()
-  return redirect('/')
+  #return redirect('/')
+
+@views.route('/status/<task_id>')
+def taskstatus(task_id):
+    task = print_numbers_task.AsyncResult(task_id)
+    if task.state == 'PENDING':
+        # job did not start yet
+        response = {
+            'state': task.state,
+            'current': 0,
+            'total': 1,
+            'status': 'Pending...'
+        }
+    elif task.state != 'FAILURE':
+        response = {
+            'state': task.state,
+            'current': task.info.get('current', 0),
+            'total': task.info.get('total', 1),
+            'status': task.info.get('status', '')
+        }
+        if 'result' in task.info:
+            response['result'] = task.info['result']
+    else:
+        # something went wrong in the background job
+        response = {
+            'state': task.state,
+            'current': 1,
+            'total': 1,
+            'status': str(task.info),  # this is the exception raised
+        }
+    return jsonify(response)
 
 
 @views.route('/delete/<tracking>')
