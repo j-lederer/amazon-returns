@@ -227,6 +227,7 @@ def increase_inventory_task(self):
 @shared_task(bind=True, base=AbortableTask)
 def print_numbers_task(self, seconds):
     task = Task(id=self.request.id, name='print_numbers_task', description='Pinting Numbers...', user_id=current_user.id)
+    print('TASK:', task)
     db.session.add(task)
     db.session.commit()
     print("Printing Numbers")
