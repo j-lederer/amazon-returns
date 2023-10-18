@@ -2,13 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from .database import engine, load_queue_from_db, load_all_return_details_from_db, load_tracking_id_to_search, delete_trackingID_from_queue_db, add_tracking_id_to_queue, refresh_all_return_data_in_db, load_current_return_to_display_from_db, add_current_return_to_display_to_db, delete_whole_tracking_id_queue, delete_current_return_to_display_from_db, delete_tracking_id_to_search, add_tracking_id_to_search, check_if_track_in_queue, delete_current_return_to_display_from_db, refresh_addresses_in_db, load_address_from_db, load_users_from_db, load_deleted_users_from_db, delete_user_from_db, delete_deleted_user_from_db, clear_all_users_from_db, clear_all_deleted_users_from_db, add_refresh_token, get_refresh_token, load_restricted, add_request_to_delete_user, load_all_stripe_customers, add_suggestion, delete_refresh_token_and_expiration
 
-from .models import User, Notification
+from .models import User, Notification, Stripecustomer, Task
 from .amazonAPI import get_all_Returns_data, increaseInventory, checkInventory, checkInventoryIncrease, get_addresses_from_GetOrders
 
 from flask import Blueprint, render_template, request, flash, jsonify, send_file, make_response, current_app
 # from flask_login import login_required, current_user
 from flask_security import login_required, current_user
-from .models import Stripecustomer, Task
 import stripe
 from . import db
 import json
@@ -227,6 +226,10 @@ def increase_inventory_task(self):
 
 @shared_task(bind=True, base=AbortableTask)
 def print_numbers_task(self, seconds):
+    task = Task(id=self.request.id, name='print_numbers_task', description='Pinting Numbers...', user_id=current_user.id)
+    db.session.add(task)
+    db.session.commit()
+    print("Printing Numbers")
     print("Starting num task")
     for num in range(seconds):
         print(num)
@@ -257,9 +260,6 @@ def number_print():
   # current_user.launch_task('increase_inventory_function', 'Increasing Inventory...')
   #EVERY TIME YOU LAUNCH A TASK
   task = print_numbers_task.delay(40)
-  task = Task(id=task.id, name='print_numbers_task', description='Pinting Numbers...',
-              user_id=current_user.id)
-  db.session.add(task)
   print("TASK LAUNCHED: print_numbers_task - TASK_ID", task.id)
   return jsonify({}), 202, {'Location': url_for('views.taskstatus',
     task_id=task.id)}
