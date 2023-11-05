@@ -1,5 +1,5 @@
-#Flask
-#gunicorn
+Flask
+gunicorn
 sqlalchemy
 pymysql
 python-amazon-sp-api
@@ -19,6 +19,41 @@ rq
 rq-dashboard
 
 
+
+
+amqp
+async-timeout
+billiard
+cached-property
+celery
+click
+click-didyoumean
+click-plugins
+click-repl
+Deprecated
+#Flask
+flower
+#gunicorn
+humanize
+importlib-metadata
+itsdangerous
+Jinja2
+kombu
+MarkupSafe
+packaging
+prometheus-client
+prompt-toolkit
+pyparsing
+pytz
+redis
+six
+tornado
+typing-extensions
+vine
+wcwidth
+Werkzeug
+wrapt
+zipp
 
 # amqp==5.1.0
 # async-timeout==4.0.2
@@ -55,37 +90,3 @@ rq-dashboard
 # zipp==3.8.0
 
 
-
-amqp
-async-timeout
-billiard
-cached-property
-celery
-click
-click-didyoumean
-click-plugins
-click-repl
-Deprecated
-Flask
-flower
-gunicorn
-humanize
-importlib-metadata
-itsdangerous
-Jinja2
-kombu
-MarkupSafe
-packaging
-prometheus-client
-prompt-toolkit
-pyparsing
-pytz
-redis
-six
-tornado
-typing-extensions
-vine
-wcwidth
-Werkzeug
-wrapt
-zipp
