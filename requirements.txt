@@ -38,7 +38,7 @@ humanize
 importlib-metadata
 itsdangerous
 Jinja2
-kombu ==5.3.2
+kombu
 MarkupSafe
 packaging
 prometheus-client
