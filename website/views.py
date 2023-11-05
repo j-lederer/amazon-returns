@@ -238,7 +238,7 @@ def print_numbers_task(self, seconds, id):
         #Beginning of sequence to update progress
         self.update_state(state='PROGRESS',
           meta={'current': num, 'total': seconds, 'status': 'Printing'})
-        progress = num/seconds * 100 #THIS CHANGES
+        progress = (num+1)/seconds * 100 #THIS CHANGES PER FUNCTION
         print("ID", self.request.id)
         task = Task.query.get(self.request.id)
         print(task)
