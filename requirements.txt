@@ -12,7 +12,7 @@ reportlab
 flask-security-too[fsqla,common]
 bcrypt
 #Werkzeug
-pytz
+#pytz
 cryptography
 urllib3==1.25.11
 rq
