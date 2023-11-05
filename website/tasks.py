@@ -22,7 +22,14 @@ def _set_task_progress(progress):
                                                      'progress': progress})
         if progress >= 100:
             task.complete = True
-        db.session.commit()
+        try:
+          db.session.commit()
+        except:
+          db.session.rollback()
+          raise
+          print("DEBUG: C")
+          return(500)
+        
 
 
 

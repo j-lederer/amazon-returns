@@ -27,6 +27,7 @@ from celery import shared_task
 from celery.contrib.abortable import AbortableTask
 from celery.result import AsyncResult
 
+from sqlalchemy.exc import PendingRollbackError, OperationalError
 
 
 views = Blueprint('views', __name__)
@@ -224,12 +225,27 @@ def increase_inventory_task(self):
 
 
 
-@shared_task(bind=True, base=AbortableTask)
+@shared_task(bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
 def print_numbers_task(self, seconds, id):
-    task = Task(id=self.request.id, name='print_numbers_task', description='Pinting Numbers...', user_id=id)
-    print('TASK:', task)
-    db.session.add(task)
-    db.session.commit()
+    # db.session.rollback()
+    try:
+      task = Task(id=self.request.id, name='print_numbers_task', description='Printing Numbers...', user_id=id)
+      print('TASK:', task)
+      db.session.add(task)
+      db.session.commit()
+    except OperationalError as e:
+      db.session.rollback()
+      db.session.close()
+      # Log the error if needed
+      print("DEBUG: A")
+      self.retry(exc=e)
+    except PendingRollbackError as e:
+      # Rollback the session and retry the operation after a delay
+        db.session.rollback()
+        db.session.remove()
+        print("DEBUG: ROLLBACK ERROR")
+        self.retry(exc=e)
+      
     print("Printing Numbers")
     print("Starting num task")
     for num in range(seconds):
@@ -249,7 +265,14 @@ def print_numbers_task(self, seconds, id):
             print('LKHSKLDJHOIUYWIUYOGDJHGK')
         else:
           print('PROGRESS', progress)
-        db.session.commit()
+        try:
+          db.session.commit()
+        except OperationalError as e:
+          db.session.rollback()
+          db.session.close()
+          # Log the error if needed
+          print("DEBUG: B")
+          self.retry(exc=e)
         #End of sequence to update progress
         if(self.is_aborted()):
           print("Aborted")
@@ -628,3 +651,17 @@ def extract_tracking_id(trackingID):
             return new_trackingID
 
     return None  # Return None if no match is found
+
+@views.route('/rollback')
+def rollback():
+
+  task = rollback_db.delay()
+  print("TASK LAUNCHED: rollback_db_task - TASK_ID", task.id)
+  return redirect(url_for('views.home'))
+
+@shared_task(bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
+def rollback_db(self):
+  db.session.rollback()
+  db.session.close()
+  print("Tried db rollback")
+  return "Rolled back db"
