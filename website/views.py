@@ -262,7 +262,6 @@ def print_numbers_task(self, seconds, id):
         if progress >= 100:
             task.complete = True
             print('PROGRESS FINAL', progress)
-            print('LKHSKLDJHOIUYWIUYOGDJHGK')
         else:
           print('PROGRESS', progress)
         try:
