@@ -84,6 +84,7 @@ class User(db.Model, UserMixin):
   active = db.Column(db.Boolean())
   confirmed_at = db.Column(db.DateTime(timezone=True))
   addresses = db.relationship('Addresses', backref='addresses_ref', passive_deletes=True)
+  my_task_tracker = db.relationship('My_task_tracker', backref='My_task_tracker_ref', passive_deletes=True)
   all_return_details = db.relationship('All_return_details',
                                        backref='all_return_details_ref', passive_deletes=True)
   current_return_to_display = db.relationship(
@@ -93,12 +94,13 @@ class User(db.Model, UserMixin):
   tracking_ids = db.relationship('Tracking_ids', backref='tracking_ids_ref', passive_deletes=True)
   stripecustomer = db.relationship('Stripecustomer', backref='stripecustomer_ref', passive_deletes=True)
   tasks = db.relationship('Task', backref='user', lazy='dynamic')
+  task_details = db.relationship('Task_details', backref='task_details_ref', passive_deletes=True)
   roles = db.relationship('Role', secondary='roles_users', backref=db.backref('users', lazy='dynamic'),
 passive_deletes=True)
   notifications = db.relationship('Notification', backref='user',
                                     lazy='dynamic')
 
-  
+
   def launch_task(self, name, description, *args, **kwargs):
         rq_job = current_app.task_queue.enqueue('website.views.' + name, self.id,
                                                 *args, **kwargs)
@@ -118,7 +120,7 @@ passive_deletes=True)
         n = Notification(name=name, payload_json=json.dumps(data), user=self)
         db.session.add(n)
         return n
-  
+
 
 # class RolesUsers(db.Model):
 #     id = db.Column(db.Integer, primary_key=True)
@@ -160,6 +162,11 @@ class Task(db.Model):
     description = db.Column(db.String(128))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
     complete = db.Column(db.Boolean, default=False)
+    status = db.Column(db.String(128), default='Task Launched')
+    time_created = db.Column(db.DateTime(timezone=True), default=func.now())
+    time_completed = db.Column(db.DateTime(timezone=True))
+    my_task_tracker = db.Column(db.Integer)
+
 
     def get_rq_job(self):
         try:
@@ -183,3 +190,35 @@ class Notification(db.Model):
 
     def get_data(self):
         return json.loads(str(self.payload_json))
+
+class Task_details(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  tracking = db.Column(db.String(250))
+  SKU = db.Column(db.String(250))
+  return_quantity = db.Column(db.String(250))
+  date_scanned = db.Column(db.DateTime(timezone=True))
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+  my_task_tracker = db.Column(db.Integer)
+
+class My_task_tracker(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+  name = db.Column(db.String(128), index=True)
+  description = db.Column(db.String(128))
+  status = db.Column(db.String(128), default='Waiting')
+  complete = db.Column(db.Boolean, default=False)
+  time_added_to_jobs = db.Column(db.DateTime(timezone=True), default=func.now())
+  time_completed = db.Column(db.DateTime(timezone=True))
+
+
+class History(db.Model):
+  id = db.Column(db.String(36), primary_key=True)
+  name = db.Column(db.String(128), index=True)
+  description = db.Column(db.String(128))
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+  complete = db.Column(db.Boolean, default=False)
+  status = db.Column(db.String(128))
+  time_created = db.Column(db.DateTime(timezone=True), default=func.now())
+  time_celery_launch = db.Column(db.DateTime(timezone=True))
+  time_completed = db.Column(db.DateTime(timezone=True))
+  my_task_tracker = db.Column(db.Integer)

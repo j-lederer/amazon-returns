@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, text
 import os
-from .models import User, Addresses, All_return_details, Current_return_to_display, Tracking_id_to_search, Tracking_ids, Deleted_users, Stripecustomer, Suggestions
+from .models import User, Addresses, All_return_details, Current_return_to_display, Tracking_id_to_search, Tracking_ids, Deleted_users, Stripecustomer, Suggestions, Task, History, Task_details, My_task_tracker
 from . import db
 from flask_sqlalchemy import SQLAlchemy
 import datetime
@@ -37,6 +37,27 @@ def check_if_track_in_queue(trackingID, user_id):
       return True
   return False
 
+def load_jobs_from_db(user_id):
+  jobs = Task.query.filter_by(user_id=user_id).all()
+  return [item.__dict__ for item in jobs]
+
+def get_info_job_from_db(my_track_jobs_id, user_id):
+  queue = Task_details.query.filter_by(user_id=user_id, my_task_tracker=my_track_jobs_id).all()
+  return [item.__dict__ for item in queue]
+
+def load_my_task_trackers_from_db(user_id):
+  jobs_trackers = My_task_tracker.query.filter_by(user_id=user_id).all()
+  return [item.__dict__ for item in jobs_trackers]
+
+def load_history_from_db(user_id):
+  history = History.query.filter_by(user_id=user_id).all()
+  return [item.__dict__ for item in history]
+
+def delete_job_db(job_id, user_id):
+  job = My_task_tracker.query.filter_by(id=job_id).first()
+  if job:
+    db.session.delete(job)
+    db.session.commit()
 
 def delete_trackingID_from_queue_db(trackingID, user_id):
   # with engine.connect() as conn:
@@ -410,5 +431,48 @@ def create_token_expiration(user_id):
   if user:
     user.token_expiration = end_date
     db.session.commit()
+
+def add_queue_to_task_details(queue_object, my_task_tracker_id, user_id):
+  # print("LOOOOOOOOOOOKKKKKK HHHEEEEEEEEEEEERRRRREEEE  QUEUE OBJECT: ", queue_object)
+  for track in queue_object:
+  #  print("track: ", track)
+    task_details = Task_details(tracking=track['tracking'], SKU=track['SKU'], return_quantity=track['return_quantity'], date_scanned=track['date'], user_id=track['user_id'], my_task_tracker=my_task_tracker_id)
+    db.session.add(task_details)
+
+  try:
+    db.session.commit()
+  except Exception as e:
+    db.session.rollback()
+    raise e
+    print("DEBUG: Error when committing to database: moving queue to task details  add_queue_to_task_details()")
+    return(500)
+
+
+def load_task_details_from_db(my_task_tracker_id, user_id):
+  task_details = Task_details.query.filter_by(my_task_tracker= my_task_tracker_id, user_id=user_id).all()
+  # return task_details        could just do this but then have to change code in amazonAPI
+  return [item.__dict__ for item in task_details]
+  #DEBUGGING
+  # print('LOOOOOOOKKKKK HHEEEEEEEERRRRREEEEE:')
+  # print(task_details)
+  # for track in task_details:
+  #   print("TRACK:", track)
+  #   print(track.tracking)
+  #   print("TYPE: ", type(track))
+  #   print("TYPE: ", type(track.tracking))  
+  # print ([item.__dict__ for item in task_details])
+
+def move_my_task_tracker_to_history(my_task_tracker_id, task_id, user_id):
+    my_task_tracker = MyTaskTracker.query.filter_by(id=my_task_tracker_id, user_id=user_id).first()
+    task = MyTaskTracker.query.filter_by(id=task_id, user_id=user_id).first()
+    
+    if my_task_tracker and task:
+      history_entry = History(name=task.name, description=task.description, user_id=task.user_id, complete=task.complete, status=task.status, time_created= my_task_tracker.time_added_to_jobs, time_celery_launch= task.time_created, time_completed=task.time_completed, my_task_tracker=my_task_tracker_id)
+      db.session.add(history_entry)
+      db.session.commit()
+      db.session.delete(task)
+      db.session.commit()
+
+
 
   

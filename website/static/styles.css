@@ -49,15 +49,25 @@ img {
 }
 .checkList{
     position: relative;
-    top: -300px;
-    left: 800px;
+    top: -440px;
+    left: 900px;
 }
 .button1{
     position: relative;
     top:20px;
     left:450px;
-    
 }
+.button_add_to_jobs{
+    position: relative;
+    top:20px;
+    left:450px;
+}
+.button_go_to_jobs{
+  position: relative;
+  top:-152px;
+  left:700px;
+}
+
 button {
     background-color: #4CAF50; /* Green */
     border: none;
@@ -114,7 +124,7 @@ button {
 
 .trackingID{
     position: relative;
-    top:-1075px;
+    top:-1098px;
     left:715px;
     width: 245px;
     background-color:#00FFFF;
@@ -146,6 +156,31 @@ button {
 }
 
 
+.jobs-content {
+    margin: 0 auto;
+    width: 1200px;
+    position: relative;
+    top:0px;
+    left:0px;
+}
+
+table.jobs-content, td.jobs-content, th.jobs-content {
+    border: 1px solid #aaa;
+}
+
+table.jobs-content {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th.jobs-content {
+    height: 30px;
+}
+
+td.jobs-content {
+    text-align: center;
+    padding: 5px;
+}
 
 /*This is from youtube flask*/
 .content {

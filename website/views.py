@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from .database import engine, load_queue_from_db, load_all_return_details_from_db, load_tracking_id_to_search, delete_trackingID_from_queue_db, add_tracking_id_to_queue, refresh_all_return_data_in_db, load_current_return_to_display_from_db, add_current_return_to_display_to_db, delete_whole_tracking_id_queue, delete_current_return_to_display_from_db, delete_tracking_id_to_search, add_tracking_id_to_search, check_if_track_in_queue, delete_current_return_to_display_from_db, refresh_addresses_in_db, load_address_from_db, load_users_from_db, load_deleted_users_from_db, delete_user_from_db, delete_deleted_user_from_db, clear_all_users_from_db, clear_all_deleted_users_from_db, add_refresh_token, get_refresh_token, load_restricted, add_request_to_delete_user, load_all_stripe_customers, add_suggestion, delete_refresh_token_and_expiration
+from .database import engine, load_queue_from_db, load_all_return_details_from_db, load_tracking_id_to_search, delete_trackingID_from_queue_db, add_tracking_id_to_queue, refresh_all_return_data_in_db, load_current_return_to_display_from_db, add_current_return_to_display_to_db, delete_whole_tracking_id_queue, delete_current_return_to_display_from_db, delete_tracking_id_to_search, add_tracking_id_to_search, check_if_track_in_queue, delete_current_return_to_display_from_db, refresh_addresses_in_db, load_address_from_db, load_users_from_db, load_deleted_users_from_db, delete_user_from_db, delete_deleted_user_from_db, clear_all_users_from_db, clear_all_deleted_users_from_db, add_refresh_token, get_refresh_token, load_restricted, add_request_to_delete_user, load_all_stripe_customers, add_suggestion, delete_refresh_token_and_expiration, load_jobs_from_db, load_history_from_db, add_queue_to_task_details, load_my_task_trackers_from_db, delete_job_db, get_info_job_from_db, load_task_details_from_db
 
-from .models import User, Notification, Stripecustomer, Task
+from .models import User, Notification, Stripecustomer, Task, My_task_tracker
 from .amazonAPI import get_all_Returns_data, increaseInventory, checkInventory, checkInventoryIncrease, get_addresses_from_GetOrders
 
 from flask import Blueprint, render_template, request, flash, jsonify, send_file, make_response, current_app
@@ -14,7 +14,7 @@ import json
 from io import BytesIO
 import os
 from collections import Counter
-import datetime
+from datetime import datetime
 import re
 
 from .download_pdf_queue import download_queue_data
@@ -62,7 +62,7 @@ def home():
   print("TOKEN EXPIRATION:")
   print (current_user.token_expiration )
   if current_user.token_expiration is not None:
-    current_date = datetime.datetime.now()
+    current_date = datetime.now()
     token_expiration =  current_user.token_expiration
     if (token_expiration < current_date):
         delete_refresh_token_and_expiration (current_user.id)
@@ -189,39 +189,40 @@ def get_info_on_track():
     except:
         return 'There was a problem getting the info for this return'
 
-@views.route('/increase_inventory', methods =['POST', 'GET'])
+@views.route('/increase_inventory/<my_task_tracker_id>', methods =['POST', 'GET'])
 @login_required
-def increase_inventory():
+def increase_inventory(my_task_tracker_id):
   #take the tracking id's in the queue and increase inventory by the return order amount for each
-  task = increase_inventory_task.delay()
-  rq_job = current_user.launch_task('increase_inventory_task', 'Increasing Inventory...')
-  # rq_job = current_app.task_queue.enqueue(increase_inventory_function, current_user.id)
-  task = Task(id=rq_job.get_id(), name='increase_inventory_task', description='Increasing Inventory...', user_id=current_user.id)
-  db.session.add(task)
-  db.session.commit()
+  task = increase_inventory_task.delay(my_task_tracker_id)
   return redirect('/')
 
 
 
-@shared_task(bind=True, base=AbortableTask)
-def increase_inventory_task(self):
-  Quantity_of_SKUS = checkInventory( current_user.refresh_token)
-  result = increaseInventory(Quantity_of_SKUS, current_user.id,  current_user.refresh_token)
-  print("RESULT:")
-  print(type(result))
-  print(result)
-  # print(result[1])
-  if result[0] == 'SUCCESS' :
-      flash('Inventory Feed Submitted Successfully! It may take up to 2 hours to load on AmazonSellerCentral.', category='success')
-  elif result[0] == None:
-    flash (f'error. The queue was probably empty: {result} ', category='error')
-  else:
-    flash (f'error: {result} ', category='error')
-  # result = checkInventoryIncrease(Quantity_of_SKUS, result[1], current_user.refresh_token)
-  # print(result)
-  # if result == "Inventory Increased Successfully":
-  delete_tracking_id_to_search(current_user.id)
-  delete_current_return_to_display_from_db(current_user.id)
+@shared_task(bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
+def increase_inventory_task(self, my_task_tracker_id):
+  try:
+    task = Task(id=self.request.id, name='increase_inventory', description='Increasing Inventory...', time_added_to_job= datetime.now(), user_id=id)
+    Quantity_of_SKUS = checkInventory( current_user.refresh_token)
+    result = increaseInventory(Quantity_of_SKUS, task.id, my_task_tracker_id, current_user.id,  current_user.refresh_token)
+    print("RESULT of increaseInventory():")
+    print(type(result))
+    print(result)
+    # print(result[1])
+    if result[0] == 'SUCCESS' :
+        flash('Inventory Feed Submitted Successfully! It may take up to 2 hours to load on AmazonSellerCentral.', category='success')
+    elif result[0] == None:
+      flash (f'error. The queue was probably empty: {result} ', category='error')
+    else:
+      flash (f'error: {result} ', category='error')
+    # result = checkInventoryIncrease(Quantity_of_SKUS, result[1], current_user.refresh_token)
+    # print(result)
+    # if result == "Inventory Increased Successfully":
+ 
+  except Exception as e:
+    # Handle exceptions, log them, and roll back the transaction
+    db.session.rollback()
+    self.retry(exc=e)
+
 
 
 
@@ -245,33 +246,47 @@ def print_numbers_task(self, seconds, id):
         db.session.remove()
         print("DEBUG: ROLLBACK ERROR")
         self.retry(exc=e)
+    except Exception as e:
+        # Handle exceptions, log them, and roll back the transaction
+        db.session.rollback()
+        raise e
+    finally:
+        # Close the database connection after each task
+        db.session.remove()
       
     print("Printing Numbers")
     print("Starting num task")
     for num in range(seconds):
-        print(num)
-        time.sleep(1)
-        #Beginning of sequence to update progress
-        self.update_state(state='PROGRESS',
-          meta={'current': num, 'total': seconds, 'status': 'Printing'})
-        progress = (num+1)/seconds * 100 #THIS CHANGES PER FUNCTION
-        print("ID", self.request.id)
-        task = Task.query.get(self.request.id)
-        print(task)
-        task.user.add_notification('task_progress', {'task_id': self.request.id, 'progress': progress})
-        if progress >= 100:
-            task.complete = True
-            print('PROGRESS FINAL', progress)
-        else:
-          print('PROGRESS', progress)
         try:
-          db.session.commit()
+          print(num)
+          time.sleep(1)
+          #Beginning of sequence to update progress
+          self.update_state(state='PROGRESS',
+            meta={'current': num, 'total': seconds, 'status': 'Printing'})
+          progress = (num+1)/seconds * 100 #THIS CHANGES PER FUNCTION
+          print("ID", self.request.id)
+          task = Task.query.get(self.request.id)
+          print(task)
+          task.user.add_notification('task_progress', {'task_id': self.request.id, 'progress': progress})
+          if progress >= 100:
+              task.complete = True
+              print('PROGRESS FINAL', progress)
+          else:
+            print('PROGRESS', progress)
+            db.session.commit()
         except OperationalError as e:
           db.session.rollback()
           db.session.close()
           # Log the error if needed
           print("DEBUG: B")
           self.retry(exc=e)
+        except Exception as e:
+            # Handle exceptions, log them, and roll back the transaction
+            db.session.rollback()
+            raise e
+        finally:
+            # Close the database connection after each task
+            db.session.remove()
         #End of sequence to update progress
         if(self.is_aborted()):
           print("Aborted")
@@ -350,6 +365,8 @@ def delete(tracking):
         return redirect('/')
     except:
         return 'There was a problem deleting that task'
+
+
 
 
 # @views.route('/add_trackingID', methods=['POST', 'GET'])
@@ -614,6 +631,63 @@ def support():
         flash('Suggestion sent. Thank you for your feedback!', category='success')
   return render_template('support.html', user=current_user)
 
+@views.route('/jobs', methods=['GET', 'POST'])
+@login_required
+def jobs():
+  # jobs_list = load_jobs_from_db(current_user.id)
+  jobs_list = load_my_task_trackers_from_db(current_user.id)
+  history = load_history_from_db(current_user.id)
+
+  return render_template('jobs.html', jobs = jobs_list, history=history, user=current_user)
+
+@views.route('/create_job', methods=['GET', 'POST'])
+@login_required
+def create_job():
+    try:
+       # task = Task(id=self.request.id, name='print_numbers_task', description='Printing Numbers...', user_id=id)
+      queue=load_queue_from_db(current_user.id)
+      my_task_tracker = My_task_tracker(name='Increase Inventory' , description='Increasing Inventory...',   time_added_to_jobs = datetime.now(), status='Waiting', user_id=current_user.id)
+      print('MY_TASK_TRACKER:', my_task_tracker)
+      db.session.add(my_task_tracker)
+      db.session.commit()
+      add_queue_to_task_details(queue, my_task_tracker.id, current_user.id) 
+      delete_whole_tracking_id_queue(current_user.id)
+      message = f"Successfully created job with id: {my_task_tracker.id} .      It will execute at 12:00 am Est."
+      flash(message, category='success')
+    except OperationalError as e:
+      db.session.rollback()
+      db.session.close()
+      # Log the error if needed
+      print("DEBUG: A")
+    except PendingRollbackError as e:
+      # Rollback the session and retry the operation after a delay
+        db.session.rollback()
+        db.session.remove()
+        print("DEBUG: ROLLBACK ERROR")
+    except Exception as e:
+        # Handle exceptions, log them, and roll back the transaction
+        db.session.rollback()
+        raise e
+    finally:
+        # Close the database connection after each task
+        db.session.remove()
+    return redirect(url_for('views.jobs'))
+
+@views.route('/jobs/delete/<my_task>')
+@login_required
+def delete_job(my_task):
+    delete_job_db(my_task, current_user.id)
+    return redirect('/jobs')
+
+@views.route('/jobs/info/<my_task>')
+@login_required
+def info_job(my_task):
+    queue = get_info_job_from_db(my_task, current_user.id)
+  
+    return render_template('job_info.html', queue = queue, job_id=my_task, user=current_user)
+
+
+
 # @views.route('/suggestion', methods=['GET', 'POST'])
 # def suggestion():
     
@@ -664,3 +738,12 @@ def rollback_db(self):
   db.session.close()
   print("Tried db rollback")
   return "Rolled back db"
+
+
+#for debugging. Remove later
+
+@views.route('/load_task_details_from_db/<my_task_tracker_id>')
+@login_required
+def load_task_details(my_task_tracker_id):
+  load_task_details_from_db(my_task_tracker_id, current_user.id)
+  return redirect(url_for('views.home'))

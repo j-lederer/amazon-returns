@@ -114,6 +114,8 @@
 </form></div>
 
   <a class="button1" href='/increase_inventory' onclick="return confirm('Are you sure you want to submit and increase inventory? Make sure inventory was not changed on this website or through AmazonSellerCentral in the past 2 hours and that inventory will not be edited in the next 2 hours.');">Submit</a>
+<br>
+<a class="button_add_to_jobs" href='/create_job' onclick="return confirm('Add the queue to your jobs. The increase inventory operation will execute at 12:00 am ET every night.');">Add to Jobs</a>
 	<!--<button class="button1">Submit</button>-->
 	<div class="tester"><p1>Colortester</p1></div>
 	<div class="tester2"><p1>Colortester</p1></div>
@@ -133,12 +135,13 @@
   <br>
   <a class="Clear_Queue_Button" href="/clearQueue"  onclick="return confirm('Are you sure you want to clear the queue?');">Clear Queue</a>
 
+  <a class = "button_go_to_jobs" href="{{url_for('views.jobs')}}">Jobs</a>
 	<!--From youtube flask-->
 	<div class="content">
 		<h1 style="text-align: center; color: black; ">Queue</h1> 
     <a href="{{url_for('views.download_queue')}}">Download a pdf of Queue</a>
     <br>
-    <a href="{{url_for('views.download_queue_and_inventory_change')}}">Download Inventory Change Full</a>
+    <!-- <a href="{{url_for('views.download_queue_and_inventory_change')}}">Download Inventory Change Full</a> -->
     <br>
     <a href="{{url_for('views.download_inventory_to_change_slim')}}">Download Inventory Change Slim</a>
 		{% if tasks|length < 1 %}

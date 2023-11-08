@@ -1,0 +1,92 @@
+{% extends "base.html" %} {% block title %}Jobs{% endblock %} {% block content
+%}
+
+<a href="{{url_for('views.home')}}">Back</a>
+
+<div class="jobs-content">
+  <h1 style="text-align: center; color: black; ">Jobs</h1> 
+  <p>The Jobs Table will execute at 12:00 am Est every day.</p>
+
+  {% if jobs|length < 1 %}
+    <h4 style="text-align: center">There are no upcoming Jobs</h4>
+    {% else %}
+    <table>
+      <tr>
+        <th>Task IDs</th>
+        <th>Name</th>
+        <th>Status</th>
+        <th>Complete</th>
+        <th>Time Created</th>
+        <th>Time Submitted</th>
+        <th>Time Completed</th>
+        <th>Actions</th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <!-- <th>Actions</th>> -->
+      </tr>
+      {% for job in jobs %}
+        <tr>
+          <td>{{ job['id'] }}</td>
+          <td>{{job['name']}}</td>
+          <td>{{job['status']}}</td>
+          <td>{{job['complete']}}</td>
+          <td>{{job['time_added_to_jobs']}}</td>
+          <td></td>
+          <td>{{job['time_completed']}}</td>
+          
+          <td><a href="/jobs/info/{{job.id}}" onclick="return confirm('Info');">Info</a></td>
+          <td><a href="/jobs/edit/{{job.id}}" onclick="return confirm('Edit');" > Edit </a></td>
+          <td><a href="/increase_inventory/{{job.id}}" onclick="return confirm('Execute');" >Execute</a></td>
+          <td><a href="/jobs/delete/{{job.id}}" onclick="return confirm('Delete');" >Delete</a></td>
+            <!-- <br> -->
+            <!-- <a href="/update/{{job.id}}">Update</a>-->
+        </tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+    <h1 style="text-align: center; color: black; ">Saved for Later</h1>
+    <h1 style="text-align: center; color: black; ">History</h1> 
+
+    {% if history|length < 1 %}
+        <h4 style="text-align: center"></h4>
+        {% else %}
+        <table>
+          <tr>
+            <th>Task IDs</th>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Complete</th>
+            <th>Time Created</th>
+            <th>Time Submitted</th>
+            <th>Time Completed</th>
+            <th>Actions</th>
+            <th></th>
+            <th></th>
+            <th></th>
+          </tr>
+          {% for job in jobs %}
+            <tr>
+              <td>{{ job['id'] }}</td>
+              <td>{{job['name']}}</td>
+              <td>{{job['status']}}</td>
+              <td>{{job['complete']}}</td>
+              <td>{{job['time_created']}}</td>
+              <td>{{job['time_submitted']}}</td>
+              <td>{{job['time_completed']}}</td>
+              
+              <td><a href="/info/{{job.id}}" onclick="return confirm('Info');">Info</a></td>
+              <td><a href="/edit/{{job.id}}" onclick="return confirm('Edit');" > Edit </a></td>
+              <td><a href="/execute/{{job.id}}" onclick="return confirm('Execute');" >Execute</a></td>
+              <<td><a href="/delete/{{job['tracking']}}" onclick="return confirm('Delete');" >Delete</a></td>
+
+            </tr>
+          {% endfor %}
+        </table>
+        {% endif %}
+
+
+  
+</div>
+
+{% endblock %}

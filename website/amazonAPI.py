@@ -18,9 +18,9 @@ from sp_api.util import throttle_retry, load_all_pages
 import os
 import sys
 
-from .database import load_queue_from_db, delete_whole_tracking_id_queue
+from .database import load_queue_from_db, delete_whole_tracking_id_queue, move_my_task_tracker_to_history
 from .tasks import  _set_task_progress  #,app
-from .models import User
+from .models import User, Task, My_task_tracker
 
 
 
@@ -56,8 +56,8 @@ def get_all_Returns_data(refresh_token):
         #report_types = ["GET_FLAT_FILE_OPEN_LISTINGS_DATA",]
         res = Reports(credentials=credentials).create_report(
             reportType="GET_XML_RETURNS_DATA_BY_RETURN_DATE",
-            dataStartTime=(datetime.utcnow() - timedelta(days=55)).isoformat(),
-            #**Looks like get an error (FATAL) if startTime is before account was opened or if bad example. I got error with year 2019
+            dataStartTime=(datetime.utcnow() - timedelta(days=100)).isoformat(),
+            #**Looks like get an error (FATAL) if startTime is before account was opened or if bad example. I got error with year 2019 
             #dataEndTime=(datetime.utcnow() - timedelta(days=1)).isoformat(), 
             marketplaceIds=[
                 "ATVPDKIKX0DER",   #US
@@ -222,7 +222,18 @@ def checkInventory(refresh_token):
   return Quantity_of_SKUS
         
 
-def increaseInventory(Quantity_of_SKUS, user_id, refresh_token):
+def increaseInventory(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, refresh_token):
+  #set task status
+  try:
+    task = Task.query.get(task_id)
+    my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+    task.status = 'Began'
+    my_task_tracker.status='Began'
+    db.session.commit()
+  except:
+    printf(f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Began')
+    #end of status update
+    
   result ={}
   credentials = dict(
     refresh_token=refresh_token,
@@ -240,10 +251,13 @@ def increaseInventory(Quantity_of_SKUS, user_id, refresh_token):
   
   try:
     user = User.query.get(user_id)
+    #set task status
     _set_task_progress(0)
     data = []
     task_progress_i = 0
-    queue = load_queue_from_db(user_id)
+    #end of statuts update
+    
+    queue = load_task_details_from_db(my_task_tracker_id, user_id)
     queue_to_increase= {}
     is_duplicate = False
     for track in queue:
@@ -263,6 +277,16 @@ def increaseInventory(Quantity_of_SKUS, user_id, refresh_token):
     print (queue_to_increase)
           #return queue_to_increase
     result[0] = None
+
+    #set task status
+    try:
+      task.status = 'Creating Feed'
+      my_task_tracker.status='Creating Feed'
+      db.session.commit()
+    except:
+      printf(f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Creating Feed')
+    #end of statuts update
+    
     for sku in queue_to_increase.keys():
       # Initialize the Feeds API client
       feeds = Feeds(credentials=credentials)
@@ -286,7 +310,7 @@ def increaseInventory(Quantity_of_SKUS, user_id, refresh_token):
       document_version = ET.SubElement(header, "DocumentVersion")
       document_version.text = "1.02"
       merchant_identifier = ET.SubElement(header, "MerchantIdentifier")
-      merchant_identifier.text = "A2RSMNCJSAU6P5"
+      merchant_identifier.text = "A2RSMNCJSAU6P5"  #Have to update this to make it generic
   
       message_type = ET.SubElement(root, "MessageType")
       message_type.text = message["MessageType"]
@@ -322,7 +346,7 @@ def increaseInventory(Quantity_of_SKUS, user_id, refresh_token):
       feed.seek(0)
 
       task_progress_i = 50
-  
+      
       # Submit the feed
       try:
         document_response, create_feed_response= feeds.submit_feed('POST_INVENTORY_AVAILABILITY_DATA', feed, 'text/xml')
@@ -332,6 +356,15 @@ def increaseInventory(Quantity_of_SKUS, user_id, refresh_token):
         #print(create_feed_response)
         response = create_feed_response
         print("Feed submitted...")
+
+        #set task status
+        try:
+          task.status = 'Submitted Feed'
+          my_task_tracker.status='Submitted Feed'
+          db.session.commit()
+        except:
+          printf(f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Submitted Feed')
+        #end of statuts update
   
         #Check the processing status
         #print(response)
@@ -356,11 +389,33 @@ def increaseInventory(Quantity_of_SKUS, user_id, refresh_token):
                     # return 'SUCCESS'
                     delete_whole_tracking_id_queue(user_id)
                     result[0] = "SUCCESS"
-                    result [1] = queue_to_increase
+                    result [1] = queue_to_increase        
+                    #set task status
                     task_progress_i = 100
+                    try:
+                      task.status = 'SUCCESS'
+                      task.complete = True
+                      task.time_completed = datetime.now()
+                      my_task_tracker.status='SUCCESS'
+                      my_task_tracker.complete = True
+                      my_task_tracker.time_completed = datetime.now()
+                      db.session.commit()
+                    except:
+                      printf(f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: SUCCESS')
+                    #end of statuts update     
+                    move_my_task_tracker_to_history(my_task_tracker_id, user_id)
+                  
                     break
             else:
                 print("Feed processing encountered a fatal error.")
+                #set task status
+                try:
+                  task.status = 'Error. Feed Rejected. Try again.'
+                  my_task_tracker.status='Error. Feed Rejected. Try again.'
+                  db.session.commit()
+                except:
+                  printf(f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Error. Feed Rejected. Try again.')
+                  #End of status update
                 result[0] = 'ERROR'
                 break
             time.sleep(5)
@@ -368,10 +423,26 @@ def increaseInventory(Quantity_of_SKUS, user_id, refresh_token):
       except Exception as e:
           print(f"Error submitting feed: {e}") 
           result[0] = e
+          #set task status
+          try:
+            task.status = 'Error Submitting Feed. Try Again'
+            my_task_tracker.status='Error Submitting Feed. Try Again'
+            db.session.commit()
+          except:
+            printf(f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Error Submitting Feed. Try Again.')
+          #end of statuts update
         
     return result
   except:
     app.logger.error('Unhandled exception', exc_info=sys.exc_info())
+    #set task status
+    try:
+      task.status = 'Unknown Error Code 1'
+      my_task_tracker.status='Unknown Error Code 1'
+      db.session.commit()
+    except:
+      printf(f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Unknown Error Code 1')
+    #end of statuts update
   finally:
     _set_task_progress(100)
 

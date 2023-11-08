@@ -1,0 +1,37 @@
+{% extends "base.html" %} {% block title %}Jobs{% endblock %} {% block content
+%}
+
+<a href="{{url_for('views.jobs')}}">Back</a>
+
+<div class="job-info-content">
+  <h1 style="text-align: center; color: black; ">Job ID: {{job_id}}</h1>
+      {% if queue|length < 1 %}
+        <h4 style="text-align: center">This job is empty</h4>
+        {% else %}
+        <table>
+          <tr>
+            <th>Tracking IDs</th>
+            <th>sku</th>
+            <th>Quantity Returned</th>
+            <!-- <th>Actions</th> -->
+          </tr>
+          {% for task in queue %}
+            <tr>
+              <td>{{ task['tracking'] }}</td>
+              <td>{{task['SKU']}}</td>
+              <td>{{task['return_quantity']}}</td>
+              <!-- <td> <a href="/delete/{{task['tracking']}}">Delete</a>
+                <br> -->
+                <!-- <a href="/update/{{task.id}}">Update</a>-->
+              </td>
+            </tr>
+          {% endfor %}
+        </table>
+        {% endif %}
+
+
+
+
+</div>
+
+{% endblock %}

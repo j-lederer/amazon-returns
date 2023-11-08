@@ -24,9 +24,9 @@ def _set_task_progress(progress):
             task.complete = True
         try:
           db.session.commit()
-        except:
+        except Exception as e:
           db.session.rollback()
-          raise
+          raise e
           print("DEBUG: C")
           return(500)
         
