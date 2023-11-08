@@ -202,6 +202,8 @@ def increase_inventory(my_task_tracker_id):
 def increase_inventory_task(self, my_task_tracker_id, refresh_token, current_user_id):
   try:
     task = Task(id=self.request.id, name='increase_inventory', description='Increasing Inventory...', time_created= datetime.now(), user_id=current_user_id)
+    db.session.add(task)
+    db.session.committ()
     Quantity_of_SKUS = checkInventory(refresh_token)
     result = increaseInventory(Quantity_of_SKUS, task.id, my_task_tracker_id, current_user_id, refresh_token)
     print("RESULT of increaseInventory():")
