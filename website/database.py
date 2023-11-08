@@ -4,6 +4,7 @@ from .models import User, Addresses, All_return_details, Current_return_to_displ
 from . import db
 from flask_sqlalchemy import SQLAlchemy
 import datetime
+from sqlalchemy import desc
 # from sqlalchemy.orm import scoped_session, sessionmaker
 # from sqlalchemy.ext.declarative import declarative_base
 
@@ -49,8 +50,8 @@ def load_my_task_trackers_from_db(user_id):
   jobs_trackers = My_task_tracker.query.filter_by(user_id=user_id).all()
   return [item.__dict__ for item in jobs_trackers]
 
-def load_history_from_db(user_id):
-  history = History.query.filter_by(user_id=user_id).all()
+def load_history_from_db_descending_order(user_id):
+  history = History.query.filter_by(user_id=user_id).order_by(desc(History.created_at)).all()
   return [item.__dict__ for item in history]
 
 def delete_job_db(job_id, user_id):
@@ -467,7 +468,7 @@ def move_my_task_tracker_to_history(my_task_tracker_id, task_id, user_id):
     task = My_task_tracker.query.filter_by(id=task_id, user_id=user_id).first()
     
     if my_task_tracker and task:
-      history_entry = History(name=task.name, description=task.description, user_id=task.user_id, complete=task.complete, status=task.status, time_created= my_task_tracker.time_added_to_jobs, time_celery_launch= task.time_created, time_completed=task.time_completed, my_task_tracker=my_task_tracker_id)
+      history_entry = History(name=task.name, description=task.description, user_id=task.user_id, complete=task.complete, status=task.status, time_added_to_jobs= my_task_tracker.time_added_to_jobs, time_celery_launch= task.time_created, time_completed=task.time_completed, my_task_tracker=my_task_tracker_id)
       db.session.add(history_entry)
       db.session.commit()
       db.session.delete(task)

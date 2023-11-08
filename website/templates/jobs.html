@@ -16,8 +16,8 @@
         <th>Name</th>
         <th>Status</th>
         <th>Complete</th>
-        <th>Time Created</th>
-        <th>Time Submitted</th>
+        <th>Time Added To Jobs</th>
+        <th>Time Launched</th>
         <th>Time Completed</th>
         <th>Actions</th>
         <th></th>
@@ -57,15 +57,15 @@
             <th>Name</th>
             <th>Status</th>
             <th>Complete</th>
-            <th>Time Created</th>
-            <th>Time Submitted</th>
+            <th>Time Added To Jobs</th>
+            <th>Time Launched</th>
             <th>Time Completed</th>
             <th>Actions</th>
             <th></th>
             <th></th>
             <th></th>
           </tr>
-          {% for job in jobs %}
+          {% for job in history %}
             <tr>
               <td>{{ job['id'] }}</td>
               <td>{{job['name']}}</td>
