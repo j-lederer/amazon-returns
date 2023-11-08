@@ -193,17 +193,17 @@ def get_info_on_track():
 @login_required
 def increase_inventory(my_task_tracker_id):
   #take the tracking id's in the queue and increase inventory by the return order amount for each
-  task = increase_inventory_task.delay(my_task_tracker_id, current_user.refresh_token)
+  task = increase_inventory_task.delay(my_task_tracker_id, current_user.refresh_token, current_user.id)
   return redirect('/')
 
 
 
 @shared_task(bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
-def increase_inventory_task(self, my_task_tracker_id, refresh_token):
+def increase_inventory_task(self, my_task_tracker_id, refresh_token, current_user_id):
   try:
-    task = Task(id=self.request.id, name='increase_inventory', description='Increasing Inventory...', time_created= datetime.now(), user_id=id)
+    task = Task(id=self.request.id, name='increase_inventory', description='Increasing Inventory...', time_created= datetime.now(), user_id=current_user_id)
     Quantity_of_SKUS = checkInventory(refresh_token)
-    result = increaseInventory(Quantity_of_SKUS, task.id, my_task_tracker_id, current_user.id, refresh_token)
+    result = increaseInventory(Quantity_of_SKUS, task.id, my_task_tracker_id, current_user_id, refresh_token)
     print("RESULT of increaseInventory():")
     print(type(result))
     print(result)
