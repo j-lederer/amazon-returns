@@ -463,8 +463,8 @@ def load_task_details_from_db(my_task_tracker_id, user_id):
   # print ([item.__dict__ for item in task_details])
 
 def move_my_task_tracker_to_history(my_task_tracker_id, task_id, user_id):
-    my_task_tracker = MyTaskTracker.query.filter_by(id=my_task_tracker_id, user_id=user_id).first()
-    task = MyTaskTracker.query.filter_by(id=task_id, user_id=user_id).first()
+    my_task_tracker = My_task_tracker.query.filter_by(id=my_task_tracker_id, user_id=user_id).first()
+    task = My_task_tracker.query.filter_by(id=task_id, user_id=user_id).first()
     
     if my_task_tracker and task:
       history_entry = History(name=task.name, description=task.description, user_id=task.user_id, complete=task.complete, status=task.status, time_created= my_task_tracker.time_added_to_jobs, time_celery_launch= task.time_created, time_completed=task.time_completed, my_task_tracker=my_task_tracker_id)

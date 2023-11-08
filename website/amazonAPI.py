@@ -18,9 +18,10 @@ from sp_api.util import throttle_retry, load_all_pages
 import os
 import sys
 
-from .database import load_queue_from_db, delete_whole_tracking_id_queue, move_my_task_tracker_to_history
+from .database import load_queue_from_db, delete_whole_tracking_id_queue, load_task_details_from_db, move_my_task_tracker_to_history
 from .tasks import  _set_task_progress  #,app
 from .models import User, Task, My_task_tracker
+from . import db
 
 
 
@@ -231,7 +232,8 @@ def increaseInventory(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, re
     my_task_tracker.status='Began'
     db.session.commit()
   except:
-    printf(f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Began')
+    formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Began'
+    print(formatted_string)
     #end of status update
     
   result ={}
@@ -284,7 +286,8 @@ def increaseInventory(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, re
       my_task_tracker.status='Creating Feed'
       db.session.commit()
     except:
-      printf(f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Creating Feed')
+      formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Creating Feed'
+      print(formatted_string)
     #end of statuts update
     
     for sku in queue_to_increase.keys():
@@ -363,7 +366,8 @@ def increaseInventory(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, re
           my_task_tracker.status='Submitted Feed'
           db.session.commit()
         except:
-          printf(f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Submitted Feed')
+          formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Submitted Feed'
+          print(formatted_string)
         #end of statuts update
   
         #Check the processing status
@@ -401,7 +405,8 @@ def increaseInventory(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, re
                       my_task_tracker.time_completed = datetime.now()
                       db.session.commit()
                     except:
-                      printf(f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: SUCCESS')
+                      formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: SUCCESS'
+                      print(formatted_string)
                     #end of statuts update     
                     move_my_task_tracker_to_history(my_task_tracker_id, user_id)
                   
@@ -414,7 +419,8 @@ def increaseInventory(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, re
                   my_task_tracker.status='Error. Feed Rejected. Try again.'
                   db.session.commit()
                 except:
-                  printf(f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Error. Feed Rejected. Try again.')
+                  formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Error. Feed Rejected. Try again.' 
+                  print(formatted_string)
                   #End of status update
                 result[0] = 'ERROR'
                 break
@@ -429,7 +435,8 @@ def increaseInventory(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, re
             my_task_tracker.status='Error Submitting Feed. Try Again'
             db.session.commit()
           except:
-            printf(f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Error Submitting Feed. Try Again.')
+            formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Error Submitting Feed. Try Again.'
+            print(formatted_string)
           #end of statuts update
         
     return result
@@ -441,7 +448,8 @@ def increaseInventory(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, re
       my_task_tracker.status='Unknown Error Code 1'
       db.session.commit()
     except:
-      printf(f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Unknown Error Code 1')
+      formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Unknown Error Code 1'
+      print(formatted_string)
     #end of statuts update
   finally:
     _set_task_progress(100)
