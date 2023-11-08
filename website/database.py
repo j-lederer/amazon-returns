@@ -51,7 +51,7 @@ def load_my_task_trackers_from_db(user_id):
   return [item.__dict__ for item in jobs_trackers]
 
 def load_history_from_db_descending_order(user_id):
-  history = History.query.filter_by(user_id=user_id).order_by(desc(History.created_at)).all()
+  history = History.query.filter_by(user_id=user_id).order_by(desc(History.time_added_to_jobs)).all()
   return [item.__dict__ for item in history]
 
 def delete_job_db(job_id, user_id):
