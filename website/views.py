@@ -207,6 +207,7 @@ def increase_inventory_task(self, my_task_tracker_id, refresh_token, current_use
     print(task)
     if len(task) > 1:
       print ("BIIIIIIIIGGGGGG ERROR. MULTIPLE TASKS WITH SAME ID")
+      return -1
     elif task:
       task = task[0]
     elif not task:
@@ -222,9 +223,11 @@ def increase_inventory_task(self, my_task_tracker_id, refresh_token, current_use
     if result[0] == 'SUCCESS' :
         flash('Inventory Feed Submitted Successfully! It may take up to 2 hours to load on AmazonSellerCentral.', category='success')
     elif result[0] == None:
-      flash (f'error. The queue was probably empty: {result} ', category='error')
+      # flash (f'error. The queue was probably empty: {result} ', category='error')
+      print(f'error. The queue was probably empty: {result} ')
     else:
-      flash (f'error: {result} ', category='error')
+      # flash (f'error: {result} ', category='error')
+      print(f'error: {result} ')
     # result = checkInventoryIncrease(Quantity_of_SKUS, result[1], current_user.refresh_token)
     # print(result)
     # if result == "Inventory Increased Successfully":
