@@ -203,6 +203,8 @@ def increase_inventory_task(self, my_task_tracker_id, refresh_token, current_use
   #Check if there are tasks with the same id and let the user know the pevious satuses of all of them
   try:
     task = Task.query.filter_by(id=self.request.id, user_id=current_user_id).all()
+    print("CHECK OUT THESE TASKSKSKSKSKSKKSKSKSKSK:")
+    print(task)
     if task is None:
       task = Task(id=self.request.id, name='increase_inventory', description='Increasing Inventory...', time_created= datetime.now(), user_id=current_user_id, my_task_tracker=my_task_tracker_id )
       db.session.add(task)
