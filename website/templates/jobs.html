@@ -35,7 +35,7 @@
           <td></td>
           <td>{{job['time_completed']}}</td>
           
-          <td><a href="/jobs/info/{{job.id}}" onclick="return confirm('Info');">Info</a></td>
+          <td><a href="/jobs/info/{{job.id}}" >Info</a></td>
           <td><a href="/jobs/edit/{{job.id}}" onclick="return confirm('Edit');" > Edit </a></td>
           <td><a href="/increase_inventory/{{job.id}}" onclick="return confirm('Execute');" >Execute</a></td>
           <td><a href="/jobs/delete/{{job.id}}" onclick="return confirm('Delete');" >Delete</a></td>
@@ -75,7 +75,7 @@
               <td>{{job['time_submitted']}}</td>
               <td>{{job['time_completed']}}</td>
               
-              <td><a href="/info/{{job.id}}" onclick="return confirm('Info');">Info</a></td>
+              <td><a href="/info/{{job.id}}">Info</a></td>
               <td><a href="/edit/{{job.id}}" onclick="return confirm('Edit');" > Edit </a></td>
               <td><a href="/execute/{{job.id}}" onclick="return confirm('Execute');" >Execute</a></td>
               <<td><a href="/delete/{{job['tracking']}}" onclick="return confirm('Delete');" >Delete</a></td>
