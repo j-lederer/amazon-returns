@@ -205,7 +205,11 @@ def increase_inventory_task(self, my_task_tracker_id, refresh_token, current_use
     task = Task.query.filter_by(id=self.request.id, user_id=current_user_id).all()
     print("CHECK OUT THESE TASKSKSKSKSKSKKSKSKSKSK:")
     print(task)
-    if task is None:
+    if len(task) > 1:
+      print ("BIIIIIIIIGGGGGG ERROR. MULTIPLE TASKS WITH SAME ID")
+    elif task:
+      task = task[0]
+    elif not task:
       task = Task(id=self.request.id, name='increase_inventory', description='Increasing Inventory...', time_created= datetime.now(), user_id=current_user_id, my_task_tracker=my_task_tracker_id )
       db.session.add(task)
       db.session.commit()
