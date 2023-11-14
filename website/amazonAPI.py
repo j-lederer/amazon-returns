@@ -230,6 +230,7 @@ def increaseInventory(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, re
     my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
     task.status = 'Began'
     my_task_tracker.status='Began'
+    my_task_tracker.time_task_associated_launched = datetime.now()
     db.session.commit()
   except:
     formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Began'
