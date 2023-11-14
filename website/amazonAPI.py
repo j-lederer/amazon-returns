@@ -342,7 +342,10 @@ def increaseInventory(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, re
   
       # Convert the XML structure to a string
       xml_string = ET.tostring(root, encoding="utf-8", method="xml")
-  
+      #debug
+      print(xml_string.decode("utf-8"))
+
+      
       # Submit the feed
       feeds = Feeds(credentials=credentials)
       feed = BytesIO(xml_string)
@@ -391,7 +394,7 @@ def increaseInventory(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, re
                     feed_response = Feeds(credentials=credentials).get_feed_document(document_id) #download=true
                     print(feed_response)
                     # return 'SUCCESS'
-                    delete_whole_tracking_id_queue(user_id)
+                    # delete_whole_tracking_id_queue(user_id)
                     result[0] = "SUCCESS"
                     result [1] = queue_to_increase        
                     #set task status
