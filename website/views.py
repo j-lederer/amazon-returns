@@ -197,8 +197,8 @@ def increase_inventory(my_task_tracker_id):
   return redirect('/jobs')
 
 
-
-@shared_task(bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
+#For automatic retries use these arguments (bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
+@shared_task(bind=True, base=AbortableTask)
 def increase_inventory_task(self, my_task_tracker_id, refresh_token, current_user_id):
   #Check if there are tasks with the same id and let the user know the pevious satuses of all of them
   try:
@@ -236,7 +236,7 @@ def increase_inventory_task(self, my_task_tracker_id, refresh_token, current_use
   except Exception as e:
     # Handle exceptions, log them, and roll back the transaction
     db.session.rollback()
-    self.retry(exc=e)
+    #self.retry(exc=e)     #for automatic retries. Also have to add the arguments above
 
 
 
@@ -787,7 +787,7 @@ def load_task_details(my_task_tracker_id):
 
 
 
-
+#Thos below will just submit everything in the queue
 # @views.route('/increase_inventory_web/<my_task_tracker_id>')
 # @login_required
 # def inventory_web_test(my_task_tracker_id):
