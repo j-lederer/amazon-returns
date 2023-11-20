@@ -475,6 +475,8 @@ def move_my_task_tracker_to_history(my_task_tracker_id, task_id, user_id):
       db.session.commit()
       db.session.delete(task)
       db.session.commit()
+    else: 
+      print('FAILED TO MOVE. Either my_task_tracker empty or task empty')
 
 
 
