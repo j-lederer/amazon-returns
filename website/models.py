@@ -213,7 +213,7 @@ class My_task_tracker(db.Model):
 
 
 class History(db.Model):
-  id = db.Column(db.String(36), primary_key=True, nullable=False)
+  id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String(128), index=True)
   description = db.Column(db.String(128))
   user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
