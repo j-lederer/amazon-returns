@@ -412,7 +412,7 @@ def increaseInventory(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, re
                       formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: SUCCESS'
                       print(formatted_string)
                     #end of statuts update     
-                    move_my_task_tracker_to_history(my_task_tracker_id, user_id)
+                    
                   
                     break
             else:
