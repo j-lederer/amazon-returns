@@ -472,7 +472,7 @@ def move_my_task_tracker_to_history(my_task_tracker_id, task_id, user_id):
     if my_task_tracker and task:
       history_entry = History(name=task.name, description=task.description, user_id=task.user_id, complete=task.complete, status=task.status, time_added_to_jobs= my_task_tracker.time_added_to_jobs, time_celery_launch= task.time_created, time_completed=task.time_completed, my_task_tracker=my_task_tracker_id)
       db.session.add(history_entry)
-      db.session.commit()
+      db.session.delete(my_task_tracker)
       db.session.delete(task)
       db.session.commit()
       print("SUCCESS. Moved my_task_tracker to history")
