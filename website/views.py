@@ -993,7 +993,7 @@ def increaseInventory_web1(Quantity_of_SKUS, my_task_tracker_id, user_id, refres
 def increaseInventory_web2(Quantity_of_SKUS, my_task_tracker_id, user_id, refresh_token):
   result ={}
   credentials = dict(
-    refresh_token=refresh_token,
+    refresh_token= refresh_token,
     lwa_app_id=os.environ['LWA_CLIENT_ID'],
     lwa_client_secret=os.environ['LWA_CLIENT_SECRET'],
     aws_access_key=os.environ['AWS_ACCESS_KEY'],
@@ -1033,7 +1033,7 @@ def increaseInventory_web2(Quantity_of_SKUS, my_task_tracker_id, user_id, refres
     feeds = Feeds(credentials=credentials)
     # Define the inventory update feed message
     message = {
-            "MessageType": "Inventory",
+            "MessageType":"Inventory",
             "MessageID": "1",
             "Inventory": {
                 "SKU": sku,
@@ -1072,7 +1072,8 @@ def increaseInventory_web2(Quantity_of_SKUS, my_task_tracker_id, user_id, refres
     quantity.text = str(inventory_data["Quantity"])
 
     restock_date = ET.SubElement(inventory, "RestockDate")
-    restock_date.text = "2023-05-26"  # Replace with a valid date
+    restock_date.text = datetime.now().strftime("%Y-%m-%d")
+    #restock_date.text = "2023-05-26"  # Replace with a valid date
     fulfillment_latency = ET.SubElement(inventory, "FulfillmentLatency")
     fulfillment_latency.text = "1"  # Replace with a valid integer
     switch_fulfillment_to = ET.SubElement(inventory, "SwitchFulfillmentTo")   #I think can leave this and following line out
