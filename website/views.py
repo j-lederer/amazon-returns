@@ -222,7 +222,7 @@ def increase_inventory_task(self, my_task_tracker_id, refresh_token, current_use
     # print(result[1])
     if result[0] == 'SUCCESS' :
         move_my_task_tracker_to_history(my_task_tracker_id, task.id, current_user_id)
-        print('Moved my task tracker to history')
+        print('Done with trying to move my task tracker to history')
         # flash('Inventory Feed Submitted Successfully! It may take up to 2 hours to load on AmazonSellerCentral.', category='success')
     elif result[0] == None:
       # flash (f'error. The queue was probably empty: {result} ', category='error')
