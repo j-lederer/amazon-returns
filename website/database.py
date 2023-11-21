@@ -47,7 +47,7 @@ def get_info_job_from_db(my_track_jobs_id, user_id):
   return [item.__dict__ for item in queue]
 
 def load_my_task_trackers_from_db(user_id):
-  jobs_trackers = My_task_tracker.query.filter_by(user_id=user_id).all()
+  jobs_trackers = My_task_tracker.query.filter_by(user_id=user_id, moved_to_history=False).all()
   return [item.__dict__ for item in jobs_trackers]
 
 def load_history_from_db_descending_order(user_id):
@@ -472,8 +472,8 @@ def move_my_task_tracker_to_history(my_task_tracker_id, task_id, user_id):
     if my_task_tracker and task:
       history_entry = History(name=task.name, description=task.description, user_id=task.user_id, complete=task.complete, status=task.status, time_added_to_jobs= my_task_tracker.time_added_to_jobs, time_celery_launch= task.time_created, time_completed=task.time_completed, my_task_tracker=my_task_tracker_id)
       db.session.add(history_entry)
-      db.session.delete(my_task_tracker)
-      db.session.delete(task)
+      my_task_tracker.moved_to_history = True
+      task.moved_to_history = True
       db.session.commit()
       print("SUCCESS. Moved my_task_tracker to history")
     else: 

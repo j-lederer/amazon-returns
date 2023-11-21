@@ -166,6 +166,7 @@ class Task(db.Model):
     time_created = db.Column(db.DateTime(timezone=True), default=func.now())
     time_completed = db.Column(db.DateTime(timezone=True))
     my_task_tracker = db.Column(db.Integer)
+    moved_to_history =db.Column(db.Boolean, default=False)
 
 
     def get_rq_job(self):
@@ -210,6 +211,7 @@ class My_task_tracker(db.Model):
   time_added_to_jobs = db.Column(db.DateTime(timezone=True), default=func.now())
   time_task_associated_launched = db.Column(db.DateTime(timezone=True))
   time_completed = db.Column(db.DateTime(timezone=True))
+  moved_to_history =db.Column(db.Boolean, default=False)
 
 
 class History(db.Model):

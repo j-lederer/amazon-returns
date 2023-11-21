@@ -77,8 +77,8 @@
               
               <td><a href="/info/{{job.id}}">Info</a></td>
               <td><a href="/edit/{{job.id}}" onclick="return confirm('Edit');" > Edit </a></td>
-              <td><a href="/execute/{{job.id}}" onclick="return confirm('Execute');" >Execute</a></td>
-              <<td><a href="/delete/{{job['tracking']}}" onclick="return confirm('Delete');" >Delete</a></td>
+              <td><a href="" onclick="return confirm('Move to Jobs');" >Move to Jobs</a></td>
+              <td><a href="/delete/{{job['tracking']}}" onclick="return confirm('Delete');" >Delete</a></td>
 
             </tr>
           {% endfor %}
