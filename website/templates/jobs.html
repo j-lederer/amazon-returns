@@ -71,14 +71,14 @@
               <td>{{job['name']}}</td>
               <td>{{job['status']}}</td>
               <td>{{job['complete']}}</td>
-              <td>{{job['time_task_associated_launched']}}</td>
-              <td>{{job['time_submitted']}}</td>
+              <td>{{job['time_added_to_jobs']}}</td>
+              <td>{{job['time_celery_launch']}}</td>
               <td>{{job['time_completed']}}</td>
               
-              <td><a href="/info/{{job.id}}">Info</a></td>
-              <td><a href="/edit/{{job.id}}" onclick="return confirm('Edit');" > Edit </a></td>
-              <td><a href="" onclick="return confirm('Move to Jobs');" >Move to Jobs</a></td>
-              <td><a href="/delete/{{job['tracking']}}" onclick="return confirm('Delete');" >Delete</a></td>
+              <td><a href="/jobs/info/{{job.my_task_tracker}}">Info</a></td>
+              <td><a href="/edit/{{job.my_task_tracker}}" onclick="return confirm('Edit');" > Edit </a></td>
+              <td><a href="/move_to_jobs/{{job.my_task_tracker}}" onclick="return confirm('Move to Jobs');" >Move to Jobs</a></td>
+              <td><a href="/history/delete/{{job.id}}" onclick="return confirm('Delete');" >Delete</a></td>
 
             </tr>
           {% endfor %}

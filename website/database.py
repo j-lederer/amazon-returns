@@ -60,6 +60,12 @@ def delete_job_db(job_id, user_id):
     db.session.delete(job)
     db.session.commit()
 
+def delete_from_history_db(history_id, user_id): 
+  history = History.query.filter_by(id=history_id).first()
+  if history:
+    db.session.delete(history)
+    db.session.commit()
+
 def delete_trackingID_from_queue_db(trackingID, user_id):
   # with engine.connect() as conn:
   #   query = text(
