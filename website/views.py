@@ -704,7 +704,7 @@ def info_job(my_task):
 
 @views.route('/history/delete/<my_task>')
 @login_required
-def delete_job(my_task):
+def delete_history(my_task):
     delete_from_history_db(my_task, current_user.id)
     return redirect('/jobs')
 
