@@ -36,7 +36,7 @@
           <td>{{job['time_completed']}}</td>
           
           <td><a href="/jobs/info/{{job.id}}" >Info</a></td>
-          <td><a href="/jobs/edit/{{job.id}}" onclick="return confirm('Edit');" > Edit </a></td>
+          <td><a href="/jobs/save_for_later/{{job.id}}" onclick="return confirm('Edit');" > Save for Later </a></td>
           <td><a href="/increase_inventory/{{job.id}}" onclick="return confirm('Execute ?');" >Execute</a></td>
           <td><a href="/jobs/delete/{{job.id}}" onclick="return confirm('Delete');" >Delete</a></td>
             <!-- <br> -->
@@ -46,6 +46,66 @@
     </table>
     {% endif %}
     <h1 style="text-align: center; color: black; ">Saved for Later</h1>
+    
+    {% if saved_for_later|length < 1 %}
+      <h4 style="text-align: center"></h4>
+      {% else %}
+      <table>
+        <tr>
+          <th>Task IDs</th>
+          <th>Name</th>
+          <th>Status</th>
+          <th>Complete</th>
+          <th>Time Added To Jobs</th>
+          <th>Time Launched</th>
+          <th>Time Completed</th>
+          <th>Actions</th>
+          <th></th>
+          <th></th>
+          <th></th>
+          <!-- <th>Actions</th>> -->
+        </tr>
+        {% for job in saved_for_later %}
+          <tr>
+            <td>{{ job['id'] }}</td>
+            <td>{{job['name']}}</td>
+            <td>{{job['status']}}</td>
+            <td>{{job['complete']}}</td>
+            <td>{{job['time_added_to_jobs']}}</td>
+            <td>{{job['time_task_associated_launched']}}</td>
+            <td>{{job['time_completed']}}</td>
+
+            <td><a href="/jobs/info/{{job.id}}" >Info</a></td>
+            <td><a href="/increase_inventory/{{job.id}}" onclick="return confirm('Execute ?');" >Execute</a></td>
+            <td><a href="/jobs/delete/{{job.id}}" onclick="return confirm('Delete');" >Delete</a></td>
+            <td><a href="/jobs/return_from_save_for_later/{{job.id}}" onclick="return confirm('Return to Jobs?');" > Return to Jobs </a></td>
+              <!-- <br> -->
+              <!-- <a href="/update/{{job.id}}">Update</a>-->
+          </tr>
+        {% endfor %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
     <h1 style="text-align: center; color: black; ">History</h1> 
 
     {% if history|length < 1 %}

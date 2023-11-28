@@ -47,7 +47,11 @@ def get_info_job_from_db(my_track_jobs_id, user_id):
   return [item.__dict__ for item in queue]
 
 def load_my_task_trackers_from_db(user_id):
-  jobs_trackers = My_task_tracker.query.filter_by(user_id=user_id, moved_to_history=False).all()
+  jobs_trackers = My_task_tracker.query.filter_by(user_id=user_id, moved_to_history=False, saved_to_later=False).all()
+  return [item.__dict__ for item in jobs_trackers]
+
+def load_saved_for_later_from_db(user_id):
+  jobs_trackers = My_task_tracker.query.filter_by(user_id=user_id, moved_to_history=False, saved_to_later=True).all()
   return [item.__dict__ for item in jobs_trackers]
 
 def load_history_from_db_descending_order(user_id):
