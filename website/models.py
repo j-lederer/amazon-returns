@@ -212,6 +212,7 @@ class My_task_tracker(db.Model):
   time_task_associated_launched = db.Column(db.DateTime(timezone=True))
   time_completed = db.Column(db.DateTime(timezone=True))
   moved_to_history =db.Column(db.Boolean, default=False)
+  saved_for_later = db.Column(db.Boolean, default=False)
 
 
 class History(db.Model):
