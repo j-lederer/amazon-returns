@@ -6,7 +6,7 @@
 <div class="jobs-content">
   <h1 style="text-align: center; color: black; ">Jobs</h1> 
   <p>The Jobs Table will execute at 12:00 am Est every day.</p>
-
+  <a href='/increase_inventory_all_jobs' onclick="return confirm('Execute All Jobs in Jobs Table');">Excecute All in Jobs Table</a>     <!-- style ='position: relative; left:200px' -->
   {% if jobs|length < 1 %}
     <h4 style="text-align: center">There are no upcoming Jobs</h4>
     {% else %}

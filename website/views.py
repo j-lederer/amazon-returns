@@ -189,6 +189,15 @@ def get_info_on_track():
     except:
         return 'There was a problem getting the info for this return'
 
+@views.route('/increase_inventory_all_jobs', methods =[ 'POST', 'GET'])
+@login_required
+def increase_inventory_all_jobs():
+  my_task_trackers = load_my_task_trackers_from_db(current_user.id)
+  for task in my_task_trackers:
+    print("TASK: ", task)
+  return redirect('/jobs')
+
+
 @views.route('/increase_inventory/<my_task_tracker_id>', methods =['POST', 'GET'])
 @login_required
 def increase_inventory(my_task_tracker_id):
