@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from .database import engine, load_queue_from_db, load_all_return_details_from_db, load_tracking_id_to_search, delete_trackingID_from_queue_db, add_tracking_id_to_queue, refresh_all_return_data_in_db, load_current_return_to_display_from_db, add_current_return_to_display_to_db, delete_whole_tracking_id_queue, delete_current_return_to_display_from_db, delete_tracking_id_to_search, add_tracking_id_to_search, check_if_track_in_queue, delete_current_return_to_display_from_db, refresh_addresses_in_db, load_address_from_db, load_users_from_db, load_deleted_users_from_db, delete_user_from_db, delete_deleted_user_from_db, clear_all_users_from_db, clear_all_deleted_users_from_db, add_refresh_token, get_refresh_token, load_restricted, add_request_to_delete_user, load_all_stripe_customers, add_suggestion, delete_refresh_token_and_expiration, load_jobs_from_db, load_history_from_db_descending_order, add_queue_to_task_details, load_my_task_trackers_from_db, delete_job_db, get_info_job_from_db, load_task_details_from_db, move_my_task_tracker_to_history, delete_from_history_db, load_saved_for_later_from_db, add_my_task_tracker_IDS_for_task_to_db, move_my_task_trackers_to_history
 
 from .models import User, Notification, Stripecustomer, Task, My_task_tracker
-from .amazonAPI import get_all_Returns_data, increaseInventory, checkInventory, checkInventoryIncrease, get_addresses_from_GetOrders
+from .amazonAPI import get_all_Returns_data, increaseInventory, checkInventory, checkInventoryIncrease, get_addresses_from_GetOrders, increaseInventory_all_jobs
 
 from flask import Blueprint, render_template, request, flash, jsonify, send_file, make_response, current_app
 # from flask_login import login_required, current_user
@@ -28,6 +28,7 @@ from celery.contrib.abortable import AbortableTask
 from celery.result import AsyncResult
 
 from sqlalchemy.exc import PendingRollbackError, OperationalError
+
 
 views = Blueprint('views', __name__)
 
@@ -242,7 +243,7 @@ def increase_inventory_task(self, my_task_tracker_id, refresh_token,
       task = task[0]
     elif not task:
       task = Task(id=self.request.id,
-                  name='increase_inventory',
+                  name=f'Increase Inventory {self.request.id}',
                   description='Increasing Inventory...',
                   time_created=datetime.now(),
                   user_id=current_user_id,
@@ -280,15 +281,25 @@ def increase_inventory_task(self, my_task_tracker_id, refresh_token,
 @views.route('/increase_inventory_all_jobs', methods=['POST', 'GET'])
 @login_required
 def increase_inventory_all_jobs():
-  my_task_trackers = load_my_task_trackers_from_db(current_user.id)
-  task = increase_inventory_all_jobs_task.delay(my_task_trackers,
+  
+  my_task_trackers= load_my_task_trackers_from_db(current_user.id)
+  my_task_trackers_array_ids = serialize_task_trackers(my_task_trackers)
+  # print('SEREIALIZED:' , my_task_trackers_array_ids)
+  task = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids,
                                                 current_user.refresh_token,
                                                 current_user.id)
   return redirect('/jobs')
 
 
+
+
+
+
+
+
+
 @shared_task(bind=True, base=AbortableTask)
-def increase_inventory_all_jobs_task(self, my_task_trackers, refresh_token,
+def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_token,
                                      current_user_id):
   #Check if there are tasks with the same id and let the user know the pevious satuses of all of them
   try:
@@ -303,22 +314,21 @@ def increase_inventory_all_jobs_task(self, my_task_trackers, refresh_token,
       task = task[0]
     elif not task:
       task = Task(id=self.request.id,
-                  name='increase_inventory',
-                  description='Increasing Inventory...',
+                  name=f'Increase Inventory {self.request.id}',
+                  description='Increasing Inventory All Jobs...',
                   time_created=datetime.now(),
                   user_id=current_user_id)
       db.session.add(task)
       db.session.commit()
-      add_my_task_tracker_IDS_for_task_to_db(my_task_trackers, current_user_id)
+      add_my_task_tracker_IDS_for_task_to_db(my_task_trackers_ids_array, current_user_id)
     Quantity_of_SKUS = checkInventory(refresh_token)
-    result = increaseInventory(Quantity_of_SKUS, task.id, my_task_tracker_id,
-                               current_user_id, refresh_token)
+    result = increaseInventory_all_jobs(Quantity_of_SKUS, task.id, my_task_trackers_ids_array, current_user_id, refresh_token)
     print("RESULT of increaseInventory():")
     print(type(result))
     print(result)
     # print(result[1])
     if result[0] == 'SUCCESS':
-      move_my_task_trackers_to_history(my_task_trackers, task.id,
+      move_my_task_trackers_to_history(my_task_trackers_ids_array, task.id,
                                        current_user_id)
       # print('Done with trying to move my task trackers to history')
       # flash('Inventory Feed Submitted Successfully! It may take up to 2 hours to load on AmazonSellerCentral.', category='success')
@@ -420,6 +430,11 @@ def print_numbers_task(self, seconds, id):
     'status': 'Task completed!',
     'result': 42
   }
+
+
+def serialize_task_trackers(task_trackers):
+  return [item.get('id') for item in task_trackers]
+
 
 
 @views.route('/print_numbers', methods=['POST', 'GET'])
@@ -816,7 +831,7 @@ def jobs():
 def create_job():
   queue = load_queue_from_db(current_user.id)
   if not queue:
-    flash(f'Cannot add an empty queue to JOBS',
+    flash('Cannot add an empty queue to JOBS',
     category='error')
     return redirect(url_for('views.home'))
   else:

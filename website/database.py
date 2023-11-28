@@ -459,8 +459,8 @@ def add_queue_to_task_details(queue_object, my_task_tracker_id, user_id):
     return(500)
 
 def add_my_task_tracker_IDS_for_task_to_db(my_task_trackers, user_id):
-  for my_task_tracker in my_task_trackers:
-    my_task_tracker_ids_for_task = My_task_tracker_ids_for_task(user_id=user_id, my_task_tracker_id=my_task_tracker.id)
+  for my_task_tracker_id in my_task_trackers:
+    my_task_tracker_ids_for_task = My_task_tracker_ids_for_task(user_id=user_id, my_task_tracker_id=my_task_tracker_id)
     db.session.add(my_task_tracker_ids_for_task)
 
     try:
@@ -503,9 +503,9 @@ def move_my_task_tracker_to_history(my_task_tracker_id, task_id, user_id):
       print('FAILED TO MOVE. Either my_task_tracker empty or task empty')
 
 def move_my_task_trackers_to_history(my_task_trackers, task_id, user_id):
-  for my_task_tracker in my_task_trackers:
+  for my_task_tracker_id in my_task_trackers:
     # print(f"Moving task_trackers to history using my_task_tracker: {my_task_tracker_id} and task_id: {task_id}")
-    my_task_tracker = My_task_tracker.query.filter_by(id=my_task_tracker.id, user_id=user_id).first()
+    my_task_tracker = My_task_tracker.query.filter_by(id=my_task_tracker_id, user_id=user_id).first()
     # print("MY TASK TRACKER: ", my_task_tracker)
     task = Task.query.filter_by(id=task_id, user_id=user_id).first()
     print("TASK: ", task)
@@ -513,11 +513,11 @@ def move_my_task_trackers_to_history(my_task_trackers, task_id, user_id):
       history_entry = History(name=task.name, description=task.description, user_id=task.user_id, complete=task.complete, status=task.status, time_added_to_jobs= my_task_tracker.time_added_to_jobs, time_celery_launch= task.time_created, time_completed=task.time_completed, my_task_tracker=my_task_tracker.id)
       db.session.add(history_entry)
       my_task_tracker.moved_to_history = True
-      print("SUCCESS. Moved my_task_tracker to history")
     else: 
       print('FAILED TO MOVE. Either my_task_tracker empty or task empty')
   task.moved_to_history = True
   db.session.commit()
+  print(f"SUCCESS. Moved my_task_trackers: {my_task_trackers} to history")
 
 
 

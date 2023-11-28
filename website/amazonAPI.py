@@ -23,6 +23,8 @@ from .tasks import  _set_task_progress  #,app
 from .models import User, Task, My_task_tracker
 from . import db
 
+from collections import defaultdict
+
 
 
 # credentials = dict(
@@ -457,6 +459,261 @@ def increaseInventory(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, re
     #end of statuts update
   finally:
     _set_task_progress(100)
+
+def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_array, user_id, refresh_token):
+  #set task status
+  try:
+    task = Task.query.get(task_id)
+    task.status = 'Began'
+    for my_task_tracker_id in my_task_trackers_ids_array:
+      my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+      my_task_tracker.status='Began'
+      my_task_tracker.time_task_associated_launched = datetime.now()
+    db.session.commit()
+  except:
+    formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Began'
+    print(formatted_string)
+    #end of status update
+
+  result ={}
+  credentials = dict(
+    refresh_token=refresh_token,
+    lwa_app_id=os.environ['LWA_CLIENT_ID'],
+    lwa_client_secret=os.environ['LWA_CLIENT_SECRET'],
+    aws_access_key=os.environ['AWS_ACCESS_KEY'],
+    aws_secret_key=os.environ['AWS_SECRET_KEY'],  
+    #role_arn="arn:aws:iam::108760843519:role/New_Role"
+)
+  #submitting feed to increase inventory   
+  from io import BytesIO
+  from sp_api.api import Feeds
+  #from sp_api.auth import VendorCredentials
+  import xml.etree.ElementTree as ET
+
+  try:
+    user = User.query.get(user_id)
+    #set task status
+    _set_task_progress(0)
+    data = []
+    task_progress_i = 0
+    #end of statuts update
+                                      
+    queue = defaultdict(list)
+    for my_task_tracker_id in my_task_trackers_ids_array:
+        task_details_list = load_task_details_from_db(my_task_tracker_id, user_id)
+        for task_details in task_details_list:
+            for key, value in task_details.items():
+                queue[key].append(value)                                  
+    queue_to_increase= {}
+    is_duplicate = False
+    for track in queue:
+        track_sku_list = track['SKU'].split(', ')
+        track_return_quantity_list = track['return_quantity'].split(', ') 
+        i = 0
+        for individual_sku in track_sku_list:  
+          for sku in queue_to_increase.keys():
+            if sku == individual_sku:
+              is_duplicate = True
+          if is_duplicate:
+            queue_to_increase[individual_sku] = int(queue_to_increase[individual_sku]) + int(track_return_quantity_list[i])
+            i+=1
+          else:
+            queue_to_increase[individual_sku]= int(track_return_quantity_list[i])
+            i+=1
+    print (queue_to_increase)
+          #return queue_to_increase
+    result[0] = None
+
+    #set task status
+    try:
+      task.status = 'Creating Feed'
+      for my_task_tracker_id in my_task_trackers_ids_array:
+        my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+        my_task_tracker.status='Creating Feed'
+      db.session.commit()
+    except:
+      formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Creating Feed'
+      print(formatted_string)
+    #end of statuts update
+
+    for sku in queue_to_increase.keys():
+      # Initialize the Feeds API client
+      feeds = Feeds(credentials=credentials)
+      # Define the inventory update feed message
+      message = {
+              "MessageType": "Inventory",
+              "MessageID": "1",
+              "Inventory": {
+                  "SKU": sku,
+                  "Quantity": (int(Quantity_of_SKUS[sku])+int(queue_to_increase[sku])),
+                  "FulfillmentCenterID": "DEFAULT"
+              },
+              "Override": "false"
+          }
+
+      # Create the XML structure
+      root = ET.Element("AmazonEnvelope")
+      root.set("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
+      root.set("xsi:noNamespaceSchemaLocation", "amzn-envelope.xsd")
+      header = ET.SubElement(root, "Header")
+      document_version = ET.SubElement(header, "DocumentVersion")
+      document_version.text = "1.02"
+      merchant_identifier = ET.SubElement(header, "MerchantIdentifier")
+      merchant_identifier.text = "A2RSMNCJSAU6P5"  #Have to update this to make it generic
+
+      message_type = ET.SubElement(root, "MessageType")
+      message_type.text = message["MessageType"]
+
+      message_element = ET.SubElement(root, "Message")
+      message_id = ET.SubElement(message_element, "MessageID")
+      message_id.text = message["MessageID"]
+
+      inventory = ET.SubElement(message_element, "Inventory")
+      inventory_data = message["Inventory"]
+      seller_sku = ET.SubElement(inventory, "SKU")
+      seller_sku.text = inventory_data["SKU"]
+      fulfillment_center_id = ET.SubElement(inventory, "FulfillmentCenterID")
+      fulfillment_center_id.text = inventory_data["FulfillmentCenterID"]
+
+      # Choice between Available, Quantity, or Lookup
+      quantity = ET.SubElement(inventory, "Quantity")
+      quantity.text = str(inventory_data["Quantity"])
+
+      restock_date = ET.SubElement(inventory, "RestockDate")
+      restock_date.text = "2023-05-26"  # Replace with a valid date
+      fulfillment_latency = ET.SubElement(inventory, "FulfillmentLatency")
+      fulfillment_latency.text = "1"  # Replace with a valid integer
+      switch_fulfillment_to = ET.SubElement(inventory, "SwitchFulfillmentTo")   #I think can leave this and following line out
+      switch_fulfillment_to.text = "MFN"  # Replace with either "MFN" or "AFN  
+
+      # Convert the XML structure to a string
+      xml_string = ET.tostring(root, encoding="utf-8", method="xml")
+      #debug
+      print(xml_string.decode("utf-8"))
+
+
+      # Submit the feed
+      feeds = Feeds(credentials=credentials)
+      feed = BytesIO(xml_string)
+      feed.seek(0)
+
+      task_progress_i = 50
+
+      # Submit the feed
+      try:
+        document_response, create_feed_response= feeds.submit_feed('POST_INVENTORY_AVAILABILITY_DATA', feed, 'text/xml')
+        #print("RETURNED DOCUMENT RESOPONSE")
+        #print(document_response)
+        #print ("RETURNED CREATE FEED RESPONSE")
+        #print(create_feed_response)
+        response = create_feed_response
+        print("Feed submitted...")
+
+        #set task status
+        try:
+          task.status = 'Submitted Feed'
+          for my_task_tracker_id in my_task_trackers_ids_array:
+            my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+            my_task_tracker.status='Submitted Feed'
+          db.session.commit()
+        except:
+          formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Submitted Feed'
+          print(formatted_string)
+        #end of statuts update
+
+        #Check the processing status
+        #print(response)
+        feed_id = response.payload.get('feedId')   
+        #print (feed_id)
+
+        print("Inventory Feed Processing Status")
+        while True:
+            feed_response = feeds.get_feed(feed_id)
+            #print(feed_response)
+            processing_status = feed_response.payload.get('processingStatus')
+            print(processing_status) 
+            if processing_status in ["DONE", "IN_QUEUE", "IN_PROGRESS"]:
+                #print(f"Processing status: {processing_status}")
+                if processing_status in ["DONE", "DONE_NO_DATA"]:
+                    print(feed_response)
+                    print("Feed processing completed.")
+
+                    document_id = feed_response.payload.get("resultFeedDocumentId")
+                    feed_response = Feeds(credentials=credentials).get_feed_document(document_id) #download=true
+                    print(feed_response)
+                    # return 'SUCCESS'
+                    # delete_whole_tracking_id_queue(user_id)
+                    result[0] = "SUCCESS"
+                    result [1] = queue_to_increase        
+                    #set task status
+                    task_progress_i = 100
+                    try:
+                      task.status = 'SUCCESS'
+                      task.complete = True
+                      task.time_completed = datetime.now()
+                      for my_task_tracker_id in my_task_trackers_ids_array:
+                        my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+                        my_task_tracker.status='SUCCESS'
+                        my_task_tracker.complete = True
+                        my_task_tracker.time_completed = datetime.now()
+                      db.session.commit()
+                    except:
+                      formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: SUCCESS'
+                      print(formatted_string)
+                    #end of statuts update     
+
+
+                    break
+            else:
+                print("Feed processing encountered a fatal error.")
+                #set task status
+                try:
+                  task.status = 'Error. Feed Rejected. Try again.'
+                  for my_task_tracker_id in my_task_trackers_ids_array:
+                    my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+                    my_task_tracker.status='Error. Feed Rejected. Try again.'
+                  db.session.commit()
+                except:
+                  formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Error. Feed Rejected. Try again.' 
+                  print(formatted_string)
+                  #End of status update
+                result[0] = 'ERROR'
+                break
+            time.sleep(5)
+
+      except Exception as e:
+          print(f"Error submitting feed: {e}") 
+          result[0] = e
+          #set task status
+          try:
+            task.status = 'Error Submitting Feed. Try Again'
+            for my_task_tracker_id in my_task_trackers_ids_array:
+              my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+              my_task_tracker.status='Error Submitting Feed. Try Again'
+            db.session.commit()
+          except:
+            formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Error Submitting Feed. Try Again.'
+            print(formatted_string)
+          #end of statuts update
+
+    return result
+  except:
+    app.logger.error('Unhandled exception', exc_info=sys.exc_info())
+    #set task status
+    try:
+      task.status = 'Unknown Error Code 1'
+      for my_task_tracker_id in my_task_trackers_ids_array:
+        my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+        my_task_tracker.status='Unknown Error Code 1'
+      db.session.commit()
+    except:
+      formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Unknown Error Code 1'
+      print(formatted_string)
+    #end of statuts update
+  finally:
+    _set_task_progress(100)
+
+
 
 def produce_pdf_full(user_id, refresh_token):
   credentials = dict(
