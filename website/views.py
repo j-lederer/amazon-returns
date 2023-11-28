@@ -814,39 +814,45 @@ def jobs():
 @views.route('/create_job', methods=['GET', 'POST'])
 @login_required
 def create_job():
-  try:
-    # task = Task(id=self.request.id, name='print_numbers_task', description='Printing Numbers...', user_id=id)
-    queue = load_queue_from_db(current_user.id)
-    my_task_tracker = My_task_tracker(name='Increase Inventory',
-                                      description='Increasing Inventory...',
-                                      time_added_to_jobs=datetime.now(),
-                                      status='Waiting',
-                                      user_id=current_user.id)
-    print('MY_TASK_TRACKER:', my_task_tracker)
-    db.session.add(my_task_tracker)
-    db.session.commit()
-    add_queue_to_task_details(queue, my_task_tracker.id, current_user.id)
-    delete_whole_tracking_id_queue(current_user.id)
-    message = f"Successfully created job with id: {my_task_tracker.id} .      It will execute at 12:00 am Est."
-    flash(message, category='success')
-  except OperationalError as e:
-    db.session.rollback()
-    db.session.close()
-    # Log the error if needed
-    print("DEBUG: A")
-  except PendingRollbackError as e:
-    # Rollback the session and retry the operation after a delay
-    db.session.rollback()
-    db.session.remove()
-    print("DEBUG: ROLLBACK ERROR")
-  except Exception as e:
-    # Handle exceptions, log them, and roll back the transaction
-    db.session.rollback()
-    raise e
-  finally:
-    # Close the database connection after each task
-    db.session.remove()
-  return redirect(url_for('views.jobs'))
+  queue = load_queue_from_db(current_user.id)
+  if not queue:
+    flash(f'Cannot add an empty queue to JOBS',
+    category='error')
+    return redirect(url_for('views.home'))
+  else:
+    try:
+      # task = Task(id=self.request.id, name='print_numbers_task', description='Printing Numbers...', user_id=id)
+      queue = load_queue_from_db(current_user.id)
+      my_task_tracker = My_task_tracker(name='Increase Inventory',
+                                        description='Increasing Inventory...',
+                                        time_added_to_jobs=datetime.now(),
+                                        status='Waiting',
+                                        user_id=current_user.id)
+      print('MY_TASK_TRACKER:', my_task_tracker)
+      db.session.add(my_task_tracker)
+      db.session.commit()
+      add_queue_to_task_details(queue, my_task_tracker.id, current_user.id)
+      delete_whole_tracking_id_queue(current_user.id)
+      message = f"Successfully created job with id: {my_task_tracker.id} .      It will execute at 12:00 am Est."
+      flash(message, category='success')
+    except OperationalError as e:
+      db.session.rollback()
+      db.session.close()
+      # Log the error if needed
+      print("DEBUG: A")
+    except PendingRollbackError as e:
+      # Rollback the session and retry the operation after a delay
+      db.session.rollback()
+      db.session.remove()
+      print("DEBUG: ROLLBACK ERROR")
+    except Exception as e:
+      # Handle exceptions, log them, and roll back the transaction
+      db.session.rollback()
+      raise e
+    finally:
+      # Close the database connection after each task
+      db.session.remove()
+    return redirect(url_for('views.jobs'))
 
 
 @views.route('/jobs/delete/<my_task>')
