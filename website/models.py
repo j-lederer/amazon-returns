@@ -226,3 +226,8 @@ class History(db.Model):
   time_celery_launch = db.Column(db.DateTime(timezone=True))
   time_completed = db.Column(db.DateTime(timezone=True))
   my_task_tracker = db.Column(db.Integer)
+
+class My_task_tracker_ids_for_task(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+  my_task_tracker_id = db.Column(db.Integer)

@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, text
 import os
-from .models import User, Addresses, All_return_details, Current_return_to_display, Tracking_id_to_search, Tracking_ids, Deleted_users, Stripecustomer, Suggestions, Task, History, Task_details, My_task_tracker
+from .models import User, Addresses, All_return_details, Current_return_to_display, Tracking_id_to_search, Tracking_ids, Deleted_users, Stripecustomer, Suggestions, Task, History, Task_details, My_task_tracker, My_task_tracker_ids_for_task
 from . import db
 from flask_sqlalchemy import SQLAlchemy
 import datetime
@@ -458,6 +458,19 @@ def add_queue_to_task_details(queue_object, my_task_tracker_id, user_id):
     print("DEBUG: Error when committing to database: moving queue to task details  add_queue_to_task_details()")
     return(500)
 
+def add_my_task_tracker_IDS_for_task_to_db(my_task_trackers, user_id):
+  for my_task_tracker in my_task_trackers:
+    my_task_tracker_ids_for_task = My_task_tracker_ids_for_task(user_id=user_id, my_task_tracker_id=my_task_tracker.id)
+    db.session.add(my_task_tracker_ids_for_task)
+
+    try:
+      db.session.commit()
+    except Exception as e:
+      db.session.rollback()
+      raise e
+      print("DEBUG: Error when committing to database: moving queue to task details  add_queue_to_task_details()")
+      return(500)
+    
 
 def load_task_details_from_db(my_task_tracker_id, user_id):
   task_details = Task_details.query.filter_by(my_task_tracker= my_task_tracker_id, user_id=user_id).all()
@@ -488,6 +501,23 @@ def move_my_task_tracker_to_history(my_task_tracker_id, task_id, user_id):
       print("SUCCESS. Moved my_task_tracker to history")
     else: 
       print('FAILED TO MOVE. Either my_task_tracker empty or task empty')
+
+def move_my_task_trackers_to_history(my_task_trackers, task_id, user_id):
+  for my_task_tracker in my_task_trackers:
+    # print(f"Moving task_trackers to history using my_task_tracker: {my_task_tracker_id} and task_id: {task_id}")
+    my_task_tracker = My_task_tracker.query.filter_by(id=my_task_tracker.id, user_id=user_id).first()
+    # print("MY TASK TRACKER: ", my_task_tracker)
+    task = Task.query.filter_by(id=task_id, user_id=user_id).first()
+    print("TASK: ", task)
+    if my_task_tracker and task:
+      history_entry = History(name=task.name, description=task.description, user_id=task.user_id, complete=task.complete, status=task.status, time_added_to_jobs= my_task_tracker.time_added_to_jobs, time_celery_launch= task.time_created, time_completed=task.time_completed, my_task_tracker=my_task_tracker.id)
+      db.session.add(history_entry)
+      my_task_tracker.moved_to_history = True
+      print("SUCCESS. Moved my_task_tracker to history")
+    else: 
+      print('FAILED TO MOVE. Either my_task_tracker empty or task empty')
+  task.moved_to_history = True
+  db.session.commit()
 
 
 
