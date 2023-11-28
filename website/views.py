@@ -647,6 +647,11 @@ def support():
         flash('Suggestion sent. Thank you for your feedback!', category='success')
   return render_template('support.html', user=current_user)
 
+@views.route('/tutorial', methods=['GET', 'POST'])
+def tutorial():
+  
+  return render_template('tutorial.html', user=current_user)
+
 @views.route('/jobs', methods=['GET', 'POST'])
 @login_required
 def jobs():
@@ -714,8 +719,11 @@ def delete_history(my_task):
 def save_for_later(my_task):
     job = My_task_tracker.query.filter_by(id=my_task).first()
     if job:
-      job.save_for_later = True
+      print('FOUND')
+      job.saved_for_later = True
       db.session.commit()
+    else:
+      print('NOT FOUND')
     return redirect('/jobs')
 
 @views.route('/jobs/return_from_save_for_later/<my_task>')
@@ -723,7 +731,7 @@ def save_for_later(my_task):
 def return_from_save_for_later(my_task):
     job = My_task_tracker.query.filter_by(id=my_task).first()
     if job:
-      job.save_for_later = False
+      job.saved_for_later = False
       db.session.commit()
     return redirect('/jobs')
 

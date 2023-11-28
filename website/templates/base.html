@@ -43,11 +43,13 @@
           <a class="nav-item nav-link" id="home" href="/">Home</a>
           <a class = "nav-item nav-link" id="jobs" href="{{url_for('views.jobs')}}">Jobs</a>
           <a class="nav-item nav-link" id="account" href="/account">Account</a>
+          <a class="nav-item nav-link" id="tutorial" href="/tutorial">Tutorial</a>
           <a class="nav-item nav-link" id="account" href="/support">Support</a>
           <a class="nav-item nav-link" id="logout" href="/logout" onclick='return confirm("Are you sure you want to logout?");'>Logout </a>
           {% else %}
           <a class="nav-item nav-link" id="login" href="/login">Login</a>
           <a class="nav-item nav-link" id="signUp" href="/sign-up">Sign Up</a>
+          <a class="nav-item nav-link" id="tutorial" href="/tutorial">Tutorial</a>
           <a class="nav-item nav-link" id="account" href="/support">Support</a>
           {% endif %}
         </div>
