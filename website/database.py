@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, text
 import os
-from .models import User, Addresses, All_return_details, Current_return_to_display, Tracking_id_to_search, Tracking_ids, Deleted_users, Stripecustomer, Suggestions, Task, History, Task_details, My_task_tracker, My_task_tracker_ids_for_task
+from .models import User, Addresses, All_return_details, Current_return_to_display, Tracking_id_to_search, Tracking_ids, Deleted_users, Stripecustomer, Suggestions, Task, History, Task_details, My_task_tracker
 from . import db
 from flask_sqlalchemy import SQLAlchemy
 import datetime
@@ -457,19 +457,6 @@ def add_queue_to_task_details(queue_object, my_task_tracker_id, user_id):
     raise e
     print("DEBUG: Error when committing to database: moving queue to task details  add_queue_to_task_details()")
     return(500)
-
-def add_my_task_tracker_IDS_for_task_to_db(my_task_trackers, user_id):
-  for my_task_tracker_id in my_task_trackers:
-    my_task_tracker_ids_for_task = My_task_tracker_ids_for_task(user_id=user_id, my_task_tracker_id=my_task_tracker_id)
-    db.session.add(my_task_tracker_ids_for_task)
-
-    try:
-      db.session.commit()
-    except Exception as e:
-      db.session.rollback()
-      raise e
-      print("DEBUG: Error when committing to database: moving queue to task details  add_queue_to_task_details()")
-      return(500)
     
 
 def load_task_details_from_db(my_task_tracker_id, user_id):

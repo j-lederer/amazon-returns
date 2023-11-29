@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from .database import engine, load_queue_from_db, load_all_return_details_from_db, load_tracking_id_to_search, delete_trackingID_from_queue_db, add_tracking_id_to_queue, refresh_all_return_data_in_db, load_current_return_to_display_from_db, add_current_return_to_display_to_db, delete_whole_tracking_id_queue, delete_current_return_to_display_from_db, delete_tracking_id_to_search, add_tracking_id_to_search, check_if_track_in_queue, delete_current_return_to_display_from_db, refresh_addresses_in_db, load_address_from_db, load_users_from_db, load_deleted_users_from_db, delete_user_from_db, delete_deleted_user_from_db, clear_all_users_from_db, clear_all_deleted_users_from_db, add_refresh_token, get_refresh_token, load_restricted, add_request_to_delete_user, load_all_stripe_customers, add_suggestion, delete_refresh_token_and_expiration, load_jobs_from_db, load_history_from_db_descending_order, add_queue_to_task_details, load_my_task_trackers_from_db, delete_job_db, get_info_job_from_db, load_task_details_from_db, move_my_task_tracker_to_history, delete_from_history_db, load_saved_for_later_from_db, add_my_task_tracker_IDS_for_task_to_db, move_my_task_trackers_to_history
+from .database import engine, load_queue_from_db, load_all_return_details_from_db, load_tracking_id_to_search, delete_trackingID_from_queue_db, add_tracking_id_to_queue, refresh_all_return_data_in_db, load_current_return_to_display_from_db, add_current_return_to_display_to_db, delete_whole_tracking_id_queue, delete_current_return_to_display_from_db, delete_tracking_id_to_search, add_tracking_id_to_search, check_if_track_in_queue, delete_current_return_to_display_from_db, refresh_addresses_in_db, load_address_from_db, load_users_from_db, load_deleted_users_from_db, delete_user_from_db, delete_deleted_user_from_db, clear_all_users_from_db, clear_all_deleted_users_from_db, add_refresh_token, get_refresh_token, load_restricted, add_request_to_delete_user, load_all_stripe_customers, add_suggestion, delete_refresh_token_and_expiration, load_jobs_from_db, load_history_from_db_descending_order, add_queue_to_task_details, load_my_task_trackers_from_db, delete_job_db, get_info_job_from_db, load_task_details_from_db, move_my_task_tracker_to_history, delete_from_history_db, load_saved_for_later_from_db, move_my_task_trackers_to_history
 
 from .models import User, Notification, Stripecustomer, Task, My_task_tracker
 from .amazonAPI import get_all_Returns_data, increaseInventory, checkInventory, checkInventoryIncrease, get_addresses_from_GetOrders, increaseInventory_all_jobs
@@ -278,6 +278,10 @@ def increase_inventory_task(self, my_task_tracker_id, refresh_token,
     #self.retry(exc=e)     #for automatic retries. Also have to add the arguments above
 
 
+
+def serialize_task_trackers(task_trackers):
+  return [item.get('id') for item in task_trackers]
+
 @views.route('/increase_inventory_all_jobs', methods=['POST', 'GET'])
 @login_required
 def increase_inventory_all_jobs():
@@ -292,12 +296,6 @@ def increase_inventory_all_jobs():
 
 
 
-
-
-
-
-
-
 @shared_task(bind=True, base=AbortableTask)
 def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_token,
                                      current_user_id):
@@ -305,8 +303,8 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
   try:
     task = Task.query.filter_by(id=self.request.id,
                                 user_id=current_user_id).all()
-    print("CHECK OUT THESE TASKSKSKSKSKSKKSKSKSKSK:")
-    print(task)
+    # print("CHECK OUT THESE TASKSKSKSKSKSKKSKSKSKSK:")
+    # print(task)
     if len(task) > 1:
       print("BIIIIIIIIGGGGGG ERROR. MULTIPLE TASKS WITH SAME ID")
       return -1
@@ -320,10 +318,12 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
                   user_id=current_user_id)
       db.session.add(task)
       db.session.commit()
-      add_my_task_tracker_IDS_for_task_to_db(my_task_trackers_ids_array, current_user_id)
+      print(f'Added Task to database with task id: {self.request.id}')
+      print('Running checkInventory')
     Quantity_of_SKUS = checkInventory(refresh_token)
+    print("Running increaseInventory_all_jobs ")
     result = increaseInventory_all_jobs(Quantity_of_SKUS, task.id, my_task_trackers_ids_array, current_user_id, refresh_token)
-    print("RESULT of increaseInventory():")
+    print("RESULT of increaseInventory_all_jobs():")
     print(type(result))
     print(result)
     # print(result[1])
@@ -430,10 +430,6 @@ def print_numbers_task(self, seconds, id):
     'status': 'Task completed!',
     'result': 42
   }
-
-
-def serialize_task_trackers(task_trackers):
-  return [item.get('id') for item in task_trackers]
 
 
 

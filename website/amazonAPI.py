@@ -447,7 +447,7 @@ def increaseInventory(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, re
         
     return result
   except:
-    app.logger.error('Unhandled exception', exc_info=sys.exc_info())
+    # app.logger.error('Unhandled exception', exc_info=sys.exc_info())
     #set task status
     try:
       task.status = 'Unknown Error Code 1'
@@ -462,6 +462,7 @@ def increaseInventory(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, re
 
 def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_array, user_id, refresh_token):
   #set task status
+  print("I am in increaseInventory_all_jobs()  AMAZONAPI     !!!!!!!")
   try:
     task = Task.query.get(task_id)
     task.status = 'Began'
@@ -698,7 +699,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
 
     return result
   except:
-    app.logger.error('Unhandled exception', exc_info=sys.exc_info())
+    # app.logger.error('Unhandled exception', exc_info=sys.exc_info())
     #set task status
     try:
       task.status = 'Unknown Error Code 1'
