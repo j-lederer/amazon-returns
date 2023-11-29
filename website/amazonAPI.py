@@ -514,11 +514,17 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
         print('TRACK_SKU_LIST: ', track_sku_list)
         track_return_quantity_list = track['return_quantity'].split(', ') 
         i = 0
+      print('CHECKPOINT 5a')
         for individual_sku in track_sku_list:  
+          print('CHECKPOINT 5b')
           for sku in queue_to_increase.keys():
+            print('CHECKPOINT 5c')
             if sku == individual_sku:
+              print('CHECKPOINT 5d')
               is_duplicate = True
+          print('CHECKPOINT 5e')
           if is_duplicate:
+            print('CHECKPOINT 5f')
             queue_to_increase[individual_sku] = int(queue_to_increase[individual_sku]) + int(track_return_quantity_list[i])
             i+=1
           else:
@@ -715,6 +721,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
       formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Unknown Error Code 1'
       print(formatted_string)
     #end of statuts update
+    result[0] = e
   finally:
     _set_task_progress(100)
 
