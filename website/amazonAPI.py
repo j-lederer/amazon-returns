@@ -657,22 +657,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
                     # delete_whole_tracking_id_queue(user_id)
                     result[0] = "SUCCESS"
                     result [1] = queue_to_increase        
-                    #set task status
-                    task_progress_i = 100
-                    try:
-                      task.status = 'SUCCESS'
-                      task.complete = True
-                      task.time_completed = datetime.now()
-                      for my_task_tracker_id in my_task_trackers_ids_array:
-                        my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-                        my_task_tracker.status='SUCCESS'
-                        my_task_tracker.complete = True
-                        my_task_tracker.time_completed = datetime.now()
-                      db.session.commit()
-                    except:
-                      formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: SUCCESS'
-                      print(formatted_string)
-                    #end of statuts update     
+                       
 
 
                     break
@@ -707,7 +692,22 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
             formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Error Submitting Feed. Try Again.'
             print(formatted_string)
           #end of statuts update
-
+    #set task status
+    task_progress_i = 100
+    try:
+      task.status = 'SUCCESS'
+      task.complete = True
+      task.time_completed = datetime.now()
+      for my_task_tracker_id in my_task_trackers_ids_array:
+        my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+        my_task_tracker.status='SUCCESS'
+        my_task_tracker.complete = True
+        my_task_tracker.time_completed = datetime.now()
+      db.session.commit()
+    except Exception as e:
+      formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: SUCCESS. Error: {e}'
+      print(formatted_string)
+    #end of statuts update  
     return result
   except Exception as e:
     print(e)
