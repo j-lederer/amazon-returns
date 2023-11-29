@@ -475,7 +475,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
     formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Began'
     print(formatted_string)
     #end of status update
-  print('CHECKPOINT 1')
+  
   result ={}
   credentials = dict(
     refresh_token=refresh_token,
@@ -490,7 +490,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
   from sp_api.api import Feeds
   #from sp_api.auth import VendorCredentials
   import xml.etree.ElementTree as ET
-  print('CHECKPOINT 2')
+  
   try:
     user = User.query.get(user_id)
     #set task status
@@ -498,35 +498,27 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
     data = []
     task_progress_i = 0
     #end of statuts update
-    print('CHECKPOINT 3')
+    
     queue = []
-    print('CHECKPOINT 4')
+    
     for my_task_tracker_id in my_task_trackers_ids_array:
         task_details_list = load_task_details_from_db(my_task_tracker_id, user_id)
         queue.extend(task_details_list)
-    print('CHECKPOINT 5')
+    
     queue_to_increase= {}
     print('QUEUE: ', queue)
     for track in queue:
         print('TRACK: ', track['tracking'])
         track_sku_list = track['SKU'].split(', ')
         print('TRACK_SKU_LIST: ', track_sku_list)
-        print('CHECKPOINT 5aa')
         track_return_quantity_list = track['return_quantity'].split(', ')
-        print('CHECKPOINT 5bb')
         i = 0
-        print('CHECKPOINT 5a')
         for individual_sku in track_sku_list:  
           is_duplicate = False
-          print('CHECKPOINT 5b')
           for sku in queue_to_increase.keys():
-            print('CHECKPOINT 5c')
             if sku == individual_sku:
-              print('CHECKPOINT 5d')
               is_duplicate = True
-          print('CHECKPOINT 5e')
           if is_duplicate:
-            print('CHECKPOINT 5f')
             queue_to_increase[individual_sku] = int(queue_to_increase[individual_sku]) + int(track_return_quantity_list[i])
             i+=1
           else:
@@ -535,7 +527,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
     print (queue_to_increase)
           #return queue_to_increase
     result[0] = None
-    print('CHECKPOINT 6')
+    
     #set task status
     try:
       task.status = 'Creating Feed'
@@ -547,7 +539,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
       formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Creating Feed'
       print(formatted_string)
     #end of statuts update
-    print('CHECKPOINT 7')
+    
     for sku in queue_to_increase.keys():
       # Initialize the Feeds API client
       feeds = Feeds(credentials=credentials)
