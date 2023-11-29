@@ -58,6 +58,12 @@ def load_history_from_db_descending_order(user_id):
   history = History.query.filter_by(user_id=user_id).order_by(desc(History.time_added_to_jobs)).all()
   return [item.__dict__ for item in history]
 
+def move_history_to_jobs(my_task_id, user_id):
+  my_task_tracker = My_task_tracker.query.filter_by(id=my_task_id, user_id=user_id).first()
+  if my_task_tracker:
+    my_task_tracker.moved_to_history = False
+    db.session.commit()
+
 def delete_job_db(job_id, user_id):
   job = My_task_tracker.query.filter_by(id=job_id).first()
   if job:
@@ -65,7 +71,7 @@ def delete_job_db(job_id, user_id):
     db.session.commit()
 
 def delete_from_history_db(history_id, user_id): 
-  history = History.query.filter_by(id=history_id).first()
+  history = History.query.filter_by(id=history_id, user_id=user_id).first()
   if history:
     db.session.delete(history)
     db.session.commit()
