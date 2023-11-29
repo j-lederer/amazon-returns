@@ -499,19 +499,17 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
     task_progress_i = 0
     #end of statuts update
     print('CHECKPOINT 3')
-    queue = defaultdict(list)
+    queue = []
     print('CHECKPOINT 4')
     for my_task_tracker_id in my_task_trackers_ids_array:
         task_details_list = load_task_details_from_db(my_task_tracker_id, user_id)
-        for task_details in task_details_list:
-            for key, value in task_details.items():
-                queue[key].append(value)   
+        queue.extend(task_details_list)
     print('CHECKPOINT 5')
     queue_to_increase= {}
     is_duplicate = False
     print('QUEUE: ', queue)
     for track in queue:
-        print('TRACK: ', track)
+        print('TRACK: ', track['tracking'])
         track_sku_list = track['SKU'].split(', ')
         print('TRACK_SKU_LIST: ', track_sku_list)
         track_return_quantity_list = track['return_quantity'].split(', ') 
@@ -703,7 +701,8 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
           #end of statuts update
 
     return result
-  except:
+  except Exception as e:
+    print(e)
     # app.logger.error('Unhandled exception', exc_info=sys.exc_info())
     #set task status
     try:
