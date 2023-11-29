@@ -509,8 +509,11 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
     print('CHECKPOINT 5')
     queue_to_increase= {}
     is_duplicate = False
+    print('QUEUE: ', queue)
     for track in queue:
+        print('TRACK: ', track)
         track_sku_list = track['SKU'].split(', ')
+        print('TRACK_SKU_LIST: ', track_sku_list)
         track_return_quantity_list = track['return_quantity'].split(', ') 
         i = 0
         for individual_sku in track_sku_list:  
