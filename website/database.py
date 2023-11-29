@@ -75,6 +75,10 @@ def delete_from_history_db(history_id, user_id):
   if history:
     db.session.delete(history)
     db.session.commit()
+    
+def delete_whole_history_db(user_id):
+    History.query.filter_by(user_id=user_id).delete()
+    db.session.commit()
 
 def delete_trackingID_from_queue_db(trackingID, user_id):
   # with engine.connect() as conn:
