@@ -93,12 +93,14 @@
     ></script>
 
     {% block scripts %}
+
+    <!-- Below is from he flask tutorial - Notifications -->
     <script>
         function set_task_progress(task_id, progress) {
             $('#' + task_id + '-progress').text(progress);
         }
     </script>
-     <script>
+     <!-- <script>
         // ...
         {% if current_user.is_authenticated %}
         $(function() {
@@ -123,7 +125,7 @@
             }, 1000);
         });
         {% endif %}
-    </script>
+    </script> -->
 {% endblock %}
 
 
