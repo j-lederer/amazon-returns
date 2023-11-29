@@ -516,6 +516,20 @@ def move_my_task_trackers_to_history(my_task_trackers, task_id, user_id):
   db.session.commit()
   print(f"SUCCESS. Moved my_task_trackers: {my_task_trackers} to history")
 
+def update_successful_skus_for_my_task_tracker( my_task_tracker_id, arr_successful_skus, user_id):
+  try:
+    my_task_tracker = My_task_tracker.query.filter_by(id=my_task_tracker_id, user_id=user_id).first()
+    #create string with commas out of arr_successful_skus
+    successful_skus_string = ', '.join(arr_successful_skus)
+    my_task_tracker.skus_successful = successful_skus_string
+    db.session.commit()
+  except Exception as e:
+    db.session.rollback()
+    raise e
+    print(f"DEBUG: Error when updating Successful skus: {successful_skus_string} for my_task_tracker ID: {my_task_tracker_id}")
+    return(500)
+
+
 
 
   

@@ -213,6 +213,7 @@ class My_task_tracker(db.Model):
   time_completed = db.Column(db.DateTime(timezone=True))
   moved_to_history =db.Column(db.Boolean, default=False)
   saved_for_later = db.Column(db.Boolean, default=False)
+  skus_successful = db.Column(db.String(2000))
 
 
 class History(db.Model):
