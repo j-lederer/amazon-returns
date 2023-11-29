@@ -264,12 +264,12 @@ def increaseInventory(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, re
     
     queue = load_task_details_from_db(my_task_tracker_id, user_id)
     queue_to_increase= {}
-    is_duplicate = False
     for track in queue:
         track_sku_list = track['SKU'].split(', ')
         track_return_quantity_list = track['return_quantity'].split(', ') 
         i = 0
         for individual_sku in track_sku_list:  
+          is_duplicate = False
           for sku in queue_to_increase.keys():
             if sku == individual_sku:
               is_duplicate = True
@@ -506,7 +506,6 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
         queue.extend(task_details_list)
     print('CHECKPOINT 5')
     queue_to_increase= {}
-    is_duplicate = False
     print('QUEUE: ', queue)
     for track in queue:
         print('TRACK: ', track['tracking'])
@@ -518,6 +517,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
         i = 0
         print('CHECKPOINT 5a')
         for individual_sku in track_sku_list:  
+          is_duplicate = False
           print('CHECKPOINT 5b')
           for sku in queue_to_increase.keys():
             print('CHECKPOINT 5c')
