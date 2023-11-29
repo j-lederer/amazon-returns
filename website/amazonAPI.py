@@ -512,7 +512,9 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
         print('TRACK: ', track['tracking'])
         track_sku_list = track['SKU'].split(', ')
         print('TRACK_SKU_LIST: ', track_sku_list)
-        track_return_quantity_list = track['return_quantity'].split(', ') 
+        print('CHECKPOINT 5aa')
+        track_return_quantity_list = track['return_quantity'].split(', ')
+        print('CHECKPOINT 5bb')
         i = 0
         print('CHECKPOINT 5a')
         for individual_sku in track_sku_list:  
