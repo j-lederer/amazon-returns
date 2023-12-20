@@ -546,7 +546,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
         my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
         my_task_tracker.status='Creating Feed'
       db.session.commit()
-      print('CREATED FEED')
+      # print('CREATED FEED')
     except:
       formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Creating Feed'
       print(formatted_string)
@@ -617,7 +617,6 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
         feed.seek(0)
   
         task_progress_i = 50
-        print('Continuing FEED 2')
   
         # Submit the feed
         try:
@@ -767,7 +766,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
       except Exception as e:
         formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: SUCCESS. Error: {e}'
         print(formatted_string)
-      else
+    else:
         try:
           task.status = result[0]
           task.complete = True
