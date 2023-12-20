@@ -496,13 +496,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
   import xml.etree.ElementTree as ET
   
   try:
-    user = User.query.get(user_id)
-    #set task status
-    _set_task_progress(0)
-    data = []
-    task_progress_i = 0
-    #end of statuts update
-    
+    user = User.query.get(user_id)  
     queue = []
     
     for my_task_tracker_id in my_task_trackers_ids_array:
@@ -619,137 +613,153 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
         task_progress_i = 50
   
         # Submit the feed
+        document_response, create_feed_response= feeds.submit_feed('POST_INVENTORY_AVAILABILITY_DATA', feed, 'text/xml')
+        #print("RETURNED DOCUMENT RESOPONSE")
+        #print(document_response)
+        #print ("RETURNED CREATE FEED RESPONSE")
+        #print(create_feed_response)
+        response = create_feed_response
+        print("Feed submitted...")
+
+        #set task status
         try:
-          document_response, create_feed_response= feeds.submit_feed('POST_INVENTORY_AVAILABILITY_DATA', feed, 'text/xml')
-          #print("RETURNED DOCUMENT RESOPONSE")
-          #print(document_response)
-          #print ("RETURNED CREATE FEED RESPONSE")
-          #print(create_feed_response)
-          response = create_feed_response
-          print("Feed submitted...")
-  
-          #set task status
-          try:
-            task.status = 'Submitted Feed'
-            for my_task_tracker_id in my_task_trackers_ids_array:
-              my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-              my_task_tracker.status='Submitted Feed'
-            db.session.commit()
-          except:
-            formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Submitted Feed'
-            print(formatted_string)
-          #end of statuts update
-  
-          #Check the processing status
-          #print(response)
-          feed_id = response.payload.get('feedId')   
-          #print (feed_id)
-  
-          print("Inventory Feed Processing Status")
-          g=0
-          while g<1000:
-              feed_response = feeds.get_feed(feed_id)
-              #print(feed_response)
-              processing_status = feed_response.payload.get('processingStatus')
-              print(processing_status) 
-              if processing_status in ["DONE", "IN_QUEUE", "IN_PROGRESS"]:
-                  #print(f"Processing status: {processing_status}")
-                  if processing_status in ["DONE", "DONE_NO_DATA"]:
-                      print(feed_response)
-                      print("Feed processing completed.")
-  
-                      document_id = feed_response.payload.get("resultFeedDocumentId")
-                      feed_response = Feeds(credentials=credentials).get_feed_document(document_id) #download=true
-                      print(feed_response)
-                    
-                      arr_successful_skus.append(sku)
-                      for my_task_tracker_id in my_task_trackers_ids_array:
-                        update_successful_skus_for_my_task_tracker( my_task_tracker_id, arr_successful_skus, user_id)
-                                 
-                      if result[0] == 'FAILED'  or result[0] == 'PARTIAL':
-                        result[0] = 'PARTIAL'
-                      elif result[0]!= 'PARTIAL':     #if result[0] is SUCCESS or None
-                        result[0] = "SUCCESS"
-                      result [1] = queue_to_increase     
-  
-                      #set task status
-                      if result[0] == 'PARTIAL':
-                        try:
-                          task.status = 'PARTIAL'
-                          for my_task_tracker_id in my_task_trackers_ids_array:
-                            my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-                            my_task_tracker.status='PARTIAL'
-                          db.session.commit()
-                        except:
-                          formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Partial' 
-                          print(formatted_string)
-                          #End of status update
-                      break
-             
-              else:
-                  print(f"Feed processing encountered a fatal error for sku: {sku}")
-                  arr_failed_skus.append(sku)
-                  for my_task_tracker_id in my_task_trackers_ids_array:
-                    update_failed_skus_for_my_task_tracker( my_task_tracker_id, arr_failed_skus, user_id)
-                  if result[0] == 'SUCCESS' or result[0] == 'PARTIAL':
-                    result[0] = 'PARTIAL'
-                  else:
-                    result[0] = 'FAILED'
-  
-                #set task status
-                  if result[0] == 'FAILED':
-                    try:
-                      task.status = 'Error. Feed Rejected. Try again.'
-                      for my_task_tracker_id in my_task_trackers_ids_array:
-                        my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-                        my_task_tracker.status='Error. Feed Rejected. Try again.'
-                      db.session.commit()
-                    except:
-                      formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Error. Feed Rejected. Try again.' 
-                      print(formatted_string)
-                      #End of status update
-                  elif result[0] == 'PARTIAL':
-                    try:
-                      task.status = 'PARTIAL'
-                      for my_task_tracker_id in my_task_trackers_ids_array:
-                        my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-                        my_task_tracker.status='PARTIAL'
-                      db.session.commit()
-                    except:
-                      formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Partial' 
-                      print(formatted_string)
-                      #End of status update
-                    
-                
-                  break
-              time.sleep(5)
-              g=g+1
-          if g==1000:
-            arr_failed_skus.append(sku)
-            for my_task_tracker_id in my_task_trackers_ids_array:
-              update_failed_skus_for_my_task_tracker( my_task_tracker_id, arr_failed_skus, user_id)
+          task.status = 'Submitted Feed'
+          for my_task_tracker_id in my_task_trackers_ids_array:
+            my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+            my_task_tracker.status='Submitted Feed'
+          db.session.commit()
+        except:
+          formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Submitted Feed'
+          print(formatted_string)
+        #end of statuts update
+
+        #Check the processing status
+        #print(response)
+        feed_id = response.payload.get('feedId')   
+        #print (feed_id)
+
+        print("Inventory Feed Processing Status")
+        g=0
+        while g<1000:
+            feed_response = feeds.get_feed(feed_id)
+            #print(feed_response)
+            processing_status = feed_response.payload.get('processingStatus')
+            print(processing_status) 
+            if processing_status in ["DONE", "IN_QUEUE", "IN_PROGRESS"]:
+                #print(f"Processing status: {processing_status}")
+                if processing_status in ["DONE", "DONE_NO_DATA"]:
+                    print(feed_response)
+                    print("Feed processing completed.")
+
+                    document_id = feed_response.payload.get("resultFeedDocumentId")
+                    feed_response = Feeds(credentials=credentials).get_feed_document(document_id) #download=true
+                    print(feed_response)
+                  
+                    arr_successful_skus.append(sku)
+                    for my_task_tracker_id in my_task_trackers_ids_array:
+                      update_successful_skus_for_my_task_tracker( my_task_tracker_id, arr_successful_skus, user_id)
+                               
+                    if result[0] == 'FAILED'  or result[0] == 'PARTIAL':
+                      result[0] = 'PARTIAL'
+                    elif result[0]!= 'PARTIAL':     #if result[0] is SUCCESS or None
+                      result[0] = "SUCCESS"
+                    result [1] = queue_to_increase     
+
+                    #set task status
+                    if result[0] == 'PARTIAL':
+                      try:
+                        task.status = 'PARTIAL'
+                        for my_task_tracker_id in my_task_trackers_ids_array:
+                          my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+                          my_task_tracker.status='PARTIAL'
+                        db.session.commit()
+                      except:
+                        formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Partial' 
+                        print(formatted_string)
+                        #End of status update
+                    break
+           
+            else:
+                print(f"Feed processing encountered a fatal error for sku: {sku}")
+                arr_failed_skus.append(sku)
+                for my_task_tracker_id in my_task_trackers_ids_array:
+                  update_failed_skus_for_my_task_tracker( my_task_tracker_id, arr_failed_skus, user_id)
+                if result[0] == 'SUCCESS' or result[0] == 'PARTIAL':
+                  result[0] = 'PARTIAL'
+                else:
+                  result[0] = 'FAILED'
+
+              #set task status
+                if result[0] == 'FAILED':
+                  try:
+                    task.status = 'Error. Feed Rejected. Try again.'
+                    for my_task_tracker_id in my_task_trackers_ids_array:
+                      my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+                      my_task_tracker.status='Error. Feed Rejected. Try again.'
+                    db.session.commit()
+                  except:
+                    formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Error. Feed Rejected. Try again.' 
+                    print(formatted_string)
+                    #End of status update
+                elif result[0] == 'PARTIAL':
+                  try:
+                    task.status = 'PARTIAL'
+                    for my_task_tracker_id in my_task_trackers_ids_array:
+                      my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+                      my_task_tracker.status='PARTIAL'
+                    db.session.commit()
+                  except:
+                    formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Partial' 
+                    print(formatted_string)
+                    #End of status update
+                  
               
-        except Exception as e:
-            print(f"Error submitting feed: {e}") 
-            result[0] = e
-            #set task status
-            try:
-              task.status = 'Error Submitting Feed. Try Again'
-              for my_task_tracker_id in my_task_trackers_ids_array:
-                my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-                my_task_tracker.status='Error Submitting Feed. Try Again'
-              db.session.commit()
-            except:
-              formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Error Submitting Feed. Try Again.'
-              print(formatted_string)
-            #end of statuts update
-    
-      except Exception as e:
-        print(f"Error creating feed for sku: {sku}. Make sure it is an active listing in inventory")
+                break
+            time.sleep(5)
+            g=g+1
+        if g==1000:
+          arr_failed_skus.append(sku)
+          for my_task_tracker_id in my_task_trackers_ids_array:
+            update_failed_skus_for_my_task_tracker( my_task_tracker_id, arr_failed_skus, user_id)
+          if result[0] == 'SUCCESS' or result[0] == 'PARTIAL':
+            result[0] = 'PARTIAL'
+          else:
+            result[0] = 'FAILED'
+            
+       
+        print(f"Error creating or submitting feed for sku: {sku}. Make sure it is an active listing in inventory")
         print(f"Error: {e}")
         arr_failed_skus.append(sku)
         for my_task_tracker_id in my_task_trackers_ids_array:
           update_failed_skus_for_my_task_tracker( my_task_tracker_id, arr_failed_skus, user_id)
+        if result[0] == 'SUCCESS' or result[0] == 'PARTIAL':
+          result[0] = 'PARTIAL'
+        else:
+          result[0] = 'FAILED'
+
+        #set task status
+        if result[0] == 'FAILED':
+          try:
+            task.status = 'Error. Feed Rejected. Try again.'
+            for my_task_tracker_id in my_task_trackers_ids_array:
+              my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+              my_task_tracker.status='Error. Feed Rejected. Try again.'
+            db.session.commit()
+          except:
+            formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Error. Feed Rejected. Try again.' 
+            print(formatted_string)
+            #End of status update
+        elif result[0] == 'PARTIAL':
+          try:
+            task.status = 'PARTIAL'
+            for my_task_tracker_id in my_task_trackers_ids_array:
+              my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+              my_task_tracker.status='PARTIAL'
+            db.session.commit()
+          except:
+            formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Partial' 
+            print(formatted_string)
+            #End of status update
     
     #If result[0] is SUCCESS after all of this then that means all skus were successful
     if result[0] == 'SUCCESS':
@@ -797,8 +807,11 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
       print(formatted_string)
     #end of statuts update
     result[0] = e
+    return result
   # finally:
+  #   pass
   #   _set_task_progress(100)
+
 
 
 
