@@ -508,7 +508,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
     
     queue_to_increase= {}
     print('QUEUE: ', queue)
-    print('BEFROE LOOP')
+    print('BEFORE LOOP')
     for track in queue:
         print('IN LOOP')
         # print('TRACK: ', track['tracking'])
@@ -520,6 +520,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
           print(f'my_task_tracker.skus_successful: {my_task_tracker.skus_successful} ____')
           if my_task_tracker.status=='PARTIAL' and my_task_tracker.skus_successful and individual_sku in my_task_tracker.skus_successful:
             #do nothing
+            print('PARTIAL IS DETECTED')
             pass
           else:
             is_duplicate = False
