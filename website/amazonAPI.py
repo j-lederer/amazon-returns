@@ -508,9 +508,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
     
     queue_to_increase= {}
     print('QUEUE: ', queue)
-    print('BEFORE LOOP')
     for track in queue:
-        print('IN LOOP')
         # print('TRACK: ', track['tracking'])
         track_sku_list = track['SKU'].split(', ')
         # print('TRACK_SKU_LIST: ', track_sku_list)
@@ -544,13 +542,15 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
         my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
         my_task_tracker.status='Creating Feed'
       db.session.commit()
-      print('CRREATED FEED')
+      print('CREATED FEED')
     except:
       formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Creating Feed'
       print(formatted_string)
     #end of statuts update
     arr_successful_skus=[]
     for sku in queue_to_increase.keys():
+      print('Continuing FEED')
+      print('sku:',sku)
       # Initialize the Feeds API client
       feeds = Feeds(credentials=credentials)
       # Define the inventory update feed message
@@ -612,6 +612,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
       feed.seek(0)
 
       task_progress_i = 50
+      print('Continuing FEED 2')
 
       # Submit the feed
       try:
