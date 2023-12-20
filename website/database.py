@@ -531,7 +531,19 @@ def update_successful_skus_for_my_task_tracker( my_task_tracker_id, arr_successf
     db.session.rollback()
     raise e
     print(f"DEBUG: Error when updating Successful skus: {successful_skus_string} for my_task_tracker ID: {my_task_tracker_id}")
-    return(500)
+
+def update_failed_skus_for_my_task_tracker( my_task_tracker_id, arr_failed_skus, user_id):
+  try:
+    my_task_tracker = My_task_tracker.query.filter_by(id=my_task_tracker_id, user_id=user_id).first()
+    #create string with commas out of arr_successful_skus
+    failed_skus_string = ', '.join(arr_failed_skus)
+    my_task_tracker.skus_failed = failed_skus_string
+    db.session.commit()
+  except Exception as e:
+    db.session.rollback()
+    raise e
+    print(f"DEBUG: Error when updating Failed skus: {failed_skus_string} for my_task_tracker ID: {my_task_tracker_id}")
+
 
 
 

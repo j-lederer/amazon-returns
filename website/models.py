@@ -214,6 +214,7 @@ class My_task_tracker(db.Model):
   moved_to_history =db.Column(db.Boolean, default=False)
   saved_for_later = db.Column(db.Boolean, default=False)
   skus_successful = db.Column(db.String(2000))
+  skus_failed = db.Column(db.String(2000))
 
 
 class History(db.Model):
