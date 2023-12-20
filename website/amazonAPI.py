@@ -502,28 +502,34 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
     queue = []
     
     for my_task_tracker_id in my_task_trackers_ids_array:
+        my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
         task_details_list = load_task_details_from_db(my_task_tracker_id, user_id)
         queue.extend(task_details_list)
     
     queue_to_increase= {}
     print('QUEUE: ', queue)
     for track in queue:
-        print('TRACK: ', track['tracking'])
+        # print('TRACK: ', track['tracking'])
         track_sku_list = track['SKU'].split(', ')
-        print('TRACK_SKU_LIST: ', track_sku_list)
+        # print('TRACK_SKU_LIST: ', track_sku_list)
         track_return_quantity_list = track['return_quantity'].split(', ')
         i = 0
         for individual_sku in track_sku_list:  
-          is_duplicate = False
-          for sku in queue_to_increase.keys():
-            if sku == individual_sku:
-              is_duplicate = True
-          if is_duplicate:
-            queue_to_increase[individual_sku] = int(queue_to_increase[individual_sku]) + int(track_return_quantity_list[i])
-            i+=1
+          print(f'my_task_tracker.skus_successful: {my_task_tracker.skus_successful} ____')
+          if my_task_tracker.status=='PARTIAL' and my_task_tracker.skus_successful and individual_sku in my_task_tracker.skus_successful:
+            #do nothing
+            pass
           else:
-            queue_to_increase[individual_sku]= int(track_return_quantity_list[i])
-            i+=1
+            is_duplicate = False
+            for sku in queue_to_increase.keys():
+              if sku == individual_sku:
+                is_duplicate = True
+            if is_duplicate:
+              queue_to_increase[individual_sku] = int(queue_to_increase[individual_sku]) + int(track_return_quantity_list[i])
+              i+=1
+            else:
+              queue_to_increase[individual_sku]= int(track_return_quantity_list[i])
+              i+=1
     print (queue_to_increase)
           #return queue_to_increase
     result[0] = None

@@ -24,11 +24,14 @@
 
           
               {% for task in queue %}
-                  <tr  style="{% if task['SKU'] in my_task_tracker['skus_successful'] %}color: green;{% else %}color: red;{% endif %}">
+                {% set skus = task['SKU'].split(', ') %}
+                {% for sku in skus %}
+                  <tr>
                     <td>{{ task['tracking'] }}</td>
-                    <td>{{task['SKU']}}</td>
+                    <td style="{% if sku in my_task_tracker['skus_successful'] %}color: green;{% else %}color: red;{% endif %}">{{task['SKU']}}</td>
                     <td>{{task['return_quantity']}}</td>  
                   </tr>tr>
+                {% endfor %}   
               {% endfor %}         
           
             {% else %}

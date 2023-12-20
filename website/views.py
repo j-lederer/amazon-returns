@@ -882,7 +882,7 @@ def delete_job(my_task):
 @login_required
 def info_job(my_task_id):
   queue = get_info_job_from_db(my_task_id, current_user.id)
-  my_task_tracker = load_my_task_tracker_from_db(my_task_id, current_user)
+  my_task_tracker = load_my_task_tracker_from_db(my_task_id, current_user.id)
   return render_template('job_info.html',
                          queue=queue,
                          job_id=my_task_id,
