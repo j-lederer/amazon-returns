@@ -508,7 +508,9 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
     
     queue_to_increase= {}
     print('QUEUE: ', queue)
+    print('BEFROE LOOP')
     for track in queue:
+        print('IN LOOP')
         # print('TRACK: ', track['tracking'])
         track_sku_list = track['SKU'].split(', ')
         # print('TRACK_SKU_LIST: ', track_sku_list)
