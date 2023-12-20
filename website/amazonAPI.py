@@ -544,6 +544,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
         my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
         my_task_tracker.status='Creating Feed'
       db.session.commit()
+      print('CRREATED FEED')
     except:
       formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Creating Feed'
       print(formatted_string)
