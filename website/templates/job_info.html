@@ -1,3 +1,5 @@
+<!-- IF the my_task_tracker status is PARTIAL the skus that went through should be in green and the ones that failed should be red -->
+
 {% extends "base.html" %} {% block title %}Jobs{% endblock %} {% block content
 %}
 
@@ -15,17 +17,34 @@
             <th>Quantity Returned</th>
             <!-- <th>Actions</th> -->
           </tr>
-          {% for task in queue %}
-            <tr>
-              <td>{{ task['tracking'] }}</td>
-              <td>{{task['SKU']}}</td>
-              <td>{{task['return_quantity']}}</td>
-              <!-- <td> <a href="/delete/{{task['tracking']}}">Delete</a>
-                <br> -->
-                <!-- <a href="/update/{{task.id}}">Update</a>-->
-              </td>
-            </tr>
-          {% endfor %}
+          {% if my_task_tracker['status'] == 'PARTIAL'%}
+
+          
+          <p>Notice: Green indicates was successfully increased in inventory. Red indicates it failed. Since the status for this task is 'PARTIAL' when this job executes next only the SKUS in red will be executed.</p>
+
+          
+              {% for task in queue %}
+                  <tr  style="{% if task['SKU'] in my_task_tracker['skus_successful'] %}color: green;{% else %}color: red;{% endif %}">
+                    <td>{{ task['tracking'] }}</td>
+                    <td>{{task['SKU']}}</td>
+                    <td>{{task['return_quantity']}}</td>  
+                  </tr>tr>
+              {% endfor %}         
+          
+            {% else %}
+              {% for task in queue %}
+                <tr>
+                  <td>{{ task['tracking'] }}</td>
+                  <td>{{task['SKU']}}</td>
+                  <td>{{task['return_quantity']}}</td>
+                  <!-- <td> <a href="/delete/{{task['tracking']}}">Delete</a>
+                    <br> -->
+                    <!-- <a href="/update/{{task.id}}">Update</a>-->
+                  <!-- </td> -->
+                </tr>
+              {% endfor %}
+            {% endif %}
+          
         </table>
         {% endif %}
 

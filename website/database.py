@@ -50,6 +50,10 @@ def load_my_task_trackers_from_db(user_id):
   jobs_trackers = My_task_tracker.query.filter_by(user_id=user_id, moved_to_history=False, saved_for_later=False).all()
   return [item.__dict__ for item in jobs_trackers]
 
+def load_my_task_tracker_from_db(my_task_id, user_id):
+  jobs_tracker = My_task_tracker.query.filter_by(user_id=user_id, id=my_task_id ).first()
+  return [item.__dict__ for item in jobs_tracker]
+
 def load_saved_for_later_from_db(user_id):
   jobs_trackers = My_task_tracker.query.filter_by(user_id=user_id, moved_to_history=False, saved_for_later=True).all()
   return [item.__dict__ for item in jobs_trackers]
