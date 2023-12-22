@@ -468,15 +468,18 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
     task.status = 'Began'
     for my_task_tracker_id in my_task_trackers_ids_array:
       my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-      my_task_tracker.status='Began'
-      my_task_tracker.complete = None
-      my_task_tracker.skus_successfull = None
-      my_task_tracker.skus_failed = None
-      my_task_tracker.time_task_associated_launched = datetime.now()
-      my_task_tracker.time_complete = None
+      if my_task_tracker.status=='PARTIAL':
+        my_task_tracker.status == 'REDOING PARTIAL'
+      else:
+        my_task_tracker.status='Began'
+        my_task_tracker.complete = None
+        my_task_tracker.skus_successfull = None
+        my_task_tracker.skus_failed = None
+        my_task_tracker.time_task_associated_launched = datetime.now()
+        my_task_tracker.time_complete = None
     db.session.commit()
   except:
-    formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Began. And resetting other fields to None.'
+    formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Began or REDOING PARTIAL. And resetting other fields to None.'
     print(formatted_string)
     #end of status update
   
@@ -515,8 +518,8 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
         for individual_sku in track_sku_list:  
           print(f'my_task_tracker.skus_successful: {my_task_tracker.skus_successful} ____')
           print("status: ", my_task_tracker.status)
-          print(my_task_tracker.status=='PARTIAL')
-          if True:
+          print(my_task_tracker.status=='REDOING PARTIAL')
+          if my_task_tracker.status=='REDOING PARTIAL' and my_task_tracker.skus_successful and (sku not in my_task_tracker.skus_successful):
             #do nothing
             print('PARTIAL IS DETECTED')
             pass
