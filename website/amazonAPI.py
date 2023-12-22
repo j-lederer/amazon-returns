@@ -472,11 +472,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
       print(my_task_tracker.status=='PARTIAL')
       if my_task_tracker.status=='PARTIAL':
         print('IN LOOP')
-        my_task_tracker.complete = None
-        my_task_tracker.skus_successfull = None
-        my_task_tracker.skus_failed = None
-        my_task_tracker.time_task_associated_launched = datetime.now()
-        my_task_tracker.time_complete = None
+        my_task_tracker.status = 'REDOING PARTIAL'
       else:
         my_task_tracker.status='Began'
         my_task_tracker.complete = None
@@ -525,8 +521,8 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
         for individual_sku in track_sku_list:  
           print(f'my_task_tracker.skus_successful: {my_task_tracker.skus_successful} ____')
           print("status: ", my_task_tracker.status)
-          print(my_task_tracker.status=='PARTIAL')
-          if my_task_tracker.status=='PARTIAL' and my_task_tracker.skus_successful and (sku not in my_task_tracker.skus_successful):
+          print(my_task_tracker.status=='REDOING PARTIAL')
+          if my_task_tracker.status=='REDOING PARTIAL' and my_task_tracker.skus_successful and (sku not in my_task_tracker.skus_successful):
             #do nothing
             print('PARTIAL IS DETECTED')
             pass
