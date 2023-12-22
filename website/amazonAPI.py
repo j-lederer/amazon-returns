@@ -469,7 +469,9 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
     for my_task_tracker_id in my_task_trackers_ids_array:
       my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
       print("status_test: ", my_task_tracker.status)
+      print(my_task_tracker.status=='PARTIAL')
       if my_task_tracker.status=='PARTIAL':
+        print('IN LOOP')
         my_task_tracker.status == 'REDOING PARTIAL'
       else:
         my_task_tracker.status='Began'
