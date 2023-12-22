@@ -28,9 +28,9 @@
                 {% for sku in skus %}
                   <tr>
                     <td>{{ task['tracking'] }}</td>
-                    <td style="{% if sku in my_task_tracker['skus_successful'] %}color: green;{% else %}color: red;{% endif %}">{{task['SKU']}}</td>
+                    <td style="{% if sku in my_task_tracker['skus_successful'] %}color: green;{% else %}color: red;{% endif %}">{{sku}}</td>
                     <td>{{task['return_quantity']}}</td>  
-                  </tr>tr>
+                  </tr>
                 {% endfor %}   
               {% endfor %}         
           
