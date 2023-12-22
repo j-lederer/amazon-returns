@@ -514,7 +514,9 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
         i = 0
         for individual_sku in track_sku_list:  
           print(f'my_task_tracker.skus_successful: {my_task_tracker.skus_successful} ____')
-          if my_task_tracker.status=='PARTIAL':
+          print("status: ", my_task_tracker.status)
+          print(my_task_tracker.status=='PARTIAL')
+          if True:
             #do nothing
             print('PARTIAL IS DETECTED')
             pass
