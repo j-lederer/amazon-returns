@@ -522,7 +522,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
           print(f'my_task_tracker.skus_successful: {my_task_tracker.skus_successful} ____')
           print("status: ", my_task_tracker.status)
           print(my_task_tracker.status=='REDOING PARTIAL')
-          if my_task_tracker.status=='REDOING PARTIAL' and my_task_tracker.skus_successful and (individual_sku  not in my_task_tracker.skus_successful):
+          if my_task_tracker.status=='REDOING PARTIAL' and my_task_tracker.skus_successful and (individual_sku  in my_task_tracker.skus_successful):
             #do nothing
             print('PARTIAL IS DETECTED')
             pass
