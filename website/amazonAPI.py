@@ -456,9 +456,9 @@ def increaseInventory(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, re
     except:
       formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory call to: Unknown Error Code 1'
       print(formatted_string)
-    #end of statuts update
-  finally:
-    _set_task_progress(100)
+  #   #end of statuts update
+  # finally:
+  #   _set_task_progress(100)
 
 def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_array, user_id, refresh_token):
   #set task status
@@ -471,12 +471,12 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
     for my_task_tracker_id in my_task_trackers_ids_array:
       my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
       print("status_test: ", my_task_tracker.status)
-      print(my_task_tracker.status=='PARTIAL')
-      if my_task_tracker.status=='PARTIAL':
+      print(my_task_tracker.status=='REDOING PARTIAL')
+      if my_task_tracker.status=='REDOING PARTIAL':
         result[0] = 'REDOING PARTIAL' # Then later when fails check if result[0] is REDOING PARTIAL In which case you will make result[0] Partial and not FAILED. THERE IS AN ISSUE: WHEN A PARTIAL IS SUBMITTED WITH A NON-PARTIAL OR WITH OTHER PARTIALS AND THE SUCCESSFUL SKUS ARE DIFFERENT IT WILL COUNT THE SUCCESSFUL SKUS FOR ALL AND SKIP THEM FOR ALL.    ACTUALLY MAYBE NOT A PROBLEM BECAUSE THE FEED CHECKS THE ASKS BY THEIR MY_TASK_TRACKERS AND CAN TEST THE SKUSSUCCESSFUL FIELDS OF EACH AND THEY WLL BE DIFFERENT SO WILL ADD THEM WHEN THEY ARE NOT IN TH SKU_SUCCESSFUL OF ONE AND THEY WILL IGNORE WHEN THEY ARE IN FOR THE OTHER
-        my_task_tracker.status = 'REDOING PARTIAL'
+        my_task_tracker.status = 'REDOING PARTIAL2'
       else:
-        my_task_tracker.status='Began'
+        my_task_tracker.status='Began2'
         my_task_tracker.complete = None
         my_task_tracker.skus_successfull = None
         my_task_tracker.skus_failed = None

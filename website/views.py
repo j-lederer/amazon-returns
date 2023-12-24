@@ -324,7 +324,24 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
       db.session.add(task)
       db.session.commit()
       print(f'Added Task to database with task id: {self.request.id}')
-      print('Running checkInventory')
+      try:
+        for my_task_tracker_id in my_task_trackers_ids_array:
+          my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+          if my_task_tracker.status=='PARTIAL':
+            result[0] = 'REDOING PARTIAL' 
+            my_task_tracker.status = 'REDOING PARTIAL'
+          else:
+                my_task_tracker.status='Began'
+                my_task_tracker.complete = None
+                my_task_tracker.skus_successfull = None
+                my_task_tracker.skus_failed = None
+                my_task_tracker.time_task_associated_launched = datetime.now()
+                my_task_tracker.time_complete = None
+        db.session.commit()
+      except:
+        formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Began or REDOING PARTIAL. And resetting other fields to None.'
+        print(formatted_string)
+    print('Running checkInventory')
     Quantity_of_SKUS = checkInventory(refresh_token)
     print("Running increaseInventory_all_jobs ")
     result = increaseInventory_all_jobs(Quantity_of_SKUS, task.id, my_task_trackers_ids_array, current_user_id, refresh_token)
