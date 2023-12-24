@@ -524,7 +524,10 @@ def add_successful_sku_for_my_task_tracker( my_task_tracker_id, sku, user_id):
   try:
     my_task_tracker = My_task_tracker.query.filter_by(id=my_task_tracker_id, user_id=user_id).first()
     string_successful_skus= my_task_tracker.skus_successful
-    arr_successful_skus = string_successful_skus.split(',')
+    if string_successful_skus:
+      arr_successful_skus = string_successful_skus.split(',')
+    else:
+      arr_successful_skus = []
     unique_skus = set(arr_successful_skus)
     unique_skus.update(sku)
     arr_successful_skus = list(unique_skus)
@@ -540,7 +543,10 @@ def add_failed_sku_for_my_task_tracker( my_task_tracker_id, sku, user_id):
   try:
     my_task_tracker = My_task_tracker.query.filter_by(id=my_task_tracker_id, user_id=user_id).first()
     string_failed_skus= my_task_tracker.skus_failed
-    arr_failed_skus = string_failed_skus.split(',')
+    if string_failed_skus:
+      arr_failed_skus = string_failed_skus.split(',')
+    else:
+      arr_failed_skus =[]
     unique_skus = set(arr_failed_skus)
     unique_skus.update(sku)
     arr_failed_skus = list(unique_skus)
@@ -557,7 +563,10 @@ def remove_successful_sku_for_my_task_tracker( my_task_tracker_id, sku, user_id)
   try:
     my_task_tracker = My_task_tracker.query.filter_by(id=my_task_tracker_id, user_id=user_id).first()
     string_successful_skus= my_task_tracker.skus_successful
-    arr_successful_skus = string_successful_skus.split(',')
+    if string_successful_skus:
+      arr_successful_skus = string_successful_skus.split(',')
+    else:
+      arr_successful_skus =[]
     if sku in arr_successful_skus:
       arr_successful_skus.remove(sku)
     string_updated_successful_skus = ','.join(arr_successful_skus)
@@ -572,7 +581,10 @@ def remove_failed_sku_for_my_task_tracker( my_task_tracker_id, sku, user_id):
   try:
     my_task_tracker = My_task_tracker.query.filter_by(id=my_task_tracker_id, user_id=user_id).first()
     string_failed_skus= my_task_tracker.skus_failed
-    arr_failed_skus = string_failed_skus.split(',')
+    if string_failed_skus:
+      arr_failed_skus = string_failed_skus.split(',')
+    else:
+      arr_failed_skus =[]
     if sku in arr_failed_skus:
       arr_failed_skus.remove(sku)
     string_updated_failed_skus =  ','.join(arr_failed_skus)
