@@ -529,7 +529,7 @@ def add_successful_sku_for_my_task_tracker( my_task_tracker_id, sku, user_id):
     else:
       arr_successful_skus = []
     unique_skus = set(arr_successful_skus)
-    unique_skus.update(sku)
+    unique_skus.update([sku])
     arr_successful_skus = list(unique_skus)
     string_updated_successful_skus =  ','.join(arr_successful_skus)
     my_task_tracker.skus_successful =   string_updated_successful_skus
@@ -548,7 +548,7 @@ def add_failed_sku_for_my_task_tracker( my_task_tracker_id, sku, user_id):
     else:
       arr_failed_skus =[]
     unique_skus = set(arr_failed_skus)
-    unique_skus.update(sku)
+    unique_skus.update([sku])
     arr_failed_skus = list(unique_skus)
     string_updated_failed_skus =  ','.join(arr_failed_skus)
     my_task_tracker.skus_failed =  string_updated_failed_skus
