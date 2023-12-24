@@ -330,6 +330,10 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
           my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
           if my_task_tracker.status=='PARTIAL':
             my_task_tracker.status = 'REDOING PARTIAL'
+            my_task_tracker.complete = None
+            my_task_tracker.skus_failed = None
+            my_task_tracker.time_task_associated_launched = datetime.now()
+            my_task_tracker.time_complete = None
           else:
                 my_task_tracker.status='Began'
                 my_task_tracker.complete = None

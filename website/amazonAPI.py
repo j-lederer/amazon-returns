@@ -475,6 +475,10 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
       if my_task_tracker.status=='REDOING PARTIAL':
         result[0] = 'REDOING PARTIAL' # Then later when fails check if result[0] is REDOING PARTIAL In which case you will make result[0] Partial and not FAILED. THERE IS AN ISSUE: WHEN A PARTIAL IS SUBMITTED WITH A NON-PARTIAL OR WITH OTHER PARTIALS AND THE SUCCESSFUL SKUS ARE DIFFERENT IT WILL COUNT THE SUCCESSFUL SKUS FOR ALL AND SKIP THEM FOR ALL.    ACTUALLY MAYBE NOT A PROBLEM BECAUSE THE FEED CHECKS THE ASKS BY THEIR MY_TASK_TRACKERS AND CAN TEST THE SKUSSUCCESSFUL FIELDS OF EACH AND THEY WLL BE DIFFERENT SO WILL ADD THEM WHEN THEY ARE NOT IN TH SKU_SUCCESSFUL OF ONE AND THEY WILL IGNORE WHEN THEY ARE IN FOR THE OTHER
         my_task_tracker.status = 'REDOING PARTIAL2'
+        my_task_tracker.complete = None
+        my_task_tracker.skus_failed = None
+        my_task_tracker.time_task_associated_launched = datetime.now()
+        my_task_tracker.time_complete = None
       else:
         my_task_tracker.status='Began2'
         my_task_tracker.complete = None
