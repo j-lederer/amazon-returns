@@ -520,32 +520,68 @@ def move_my_task_trackers_to_history(my_task_trackers, task_id, user_id):
   db.session.commit()
   print(f"SUCCESS. Moved my_task_trackers: {my_task_trackers} to history")
 
-def update_successful_skus_for_my_task_tracker( my_task_tracker_id, arr_successful_skus, user_id):
+def add_successful_sku_for_my_task_tracker( my_task_tracker_id, sku, user_id):
   try:
     my_task_tracker = My_task_tracker.query.filter_by(id=my_task_tracker_id, user_id=user_id).first()
-    #create string with commas out of arr_successful_skus
-    successful_skus_string = ', '.join(arr_successful_skus)
-    my_task_tracker.skus_successful = successful_skus_string
+    string_successful_skus= my_task_tracker.skus_successful
+    arr_successful_skus = string_successful_skus.split(',')
+    unique_skus = set(arr_successful_skus)
+    unique_skus.update(sku)
+    arr_successful_skus = list(unique_skus)
+    string_updated_successful_skus =  ','.join(arr_successful_skus)
+    my_task_tracker.skus_successful =   string_updated_successful_skus
     db.session.commit()
   except Exception as e:
     db.session.rollback()
     raise e
-    print(f"DEBUG: Error when updating Successful skus: {successful_skus_string} for my_task_tracker ID: {my_task_tracker_id}")
+    print(f"DEBUG: Error when updating Successful skus: {string_updated_successful_skus} for my_task_tracker ID: {my_task_tracker_id}. Failed to add sku: {sku}")
 
-def update_failed_skus_for_my_task_tracker( my_task_tracker_id, arr_failed_skus, user_id):
+def add_failed_sku_for_my_task_tracker( my_task_tracker_id, sku, user_id):
   try:
     my_task_tracker = My_task_tracker.query.filter_by(id=my_task_tracker_id, user_id=user_id).first()
-    #create string with commas out of arr_successful_skus
-    failed_skus_string = ', '.join(arr_failed_skus)
-    my_task_tracker.skus_failed = failed_skus_string
+    string_failed_skus= my_task_tracker.skus_failed
+    arr_failed_skus = string_sfailed_skus.split(',')
+    unique_skus = set(arr_failed_skus)
+    unique_skus.update(sku)
+    arr_failed_skus = list(unique_skus)
+    string_updated_failed_skus =  ','.join(arr_failed_skus)
+    my_task_tracker.skus_failed =  string_updated_failed_skus
     db.session.commit()
   except Exception as e:
     db.session.rollback()
     raise e
-    print(f"DEBUG: Error when updating Failed skus: {failed_skus_string} for my_task_tracker ID: {my_task_tracker_id}")
+    print(f"DEBUG: Error when updating Failed skus: {string_updated_failed_skus} for my_task_tracker ID: {my_task_tracker_id}. Failed to add sku: {sku}")
 
 
+def remove_successful_sku_for_my_task_tracker( my_task_tracker_id, sku, user_id):
+  try:
+    my_task_tracker = My_task_tracker.query.filter_by(id=my_task_tracker_id, user_id=user_id).first()
+    string_successful_skus= my_task_tracker.skus_successful
+    arr_successful_skus = string_successful_skus.split(',')
+    if sku in arr_successful_skus:
+      arr_successful_skus.remove(sku)
+    string_updated_successful_skus = ','.join(arr_successful_skus)
+    my_task_tracker.skus_successful =   string_updated_successful_skus
+    db.session.commit()
+  except Exception as e:
+    db.session.rollback()
+    raise e
+    print(f"DEBUG: Error when updating successful skus by removing sku: {sku} from skus_successful: {string_successful_skus}  for  my_task_tracker ID: {my_task_tracker_id}")
 
+def remove_failed_sku_for_my_task_tracker( my_task_tracker_id, sku, user_id):
+  try:
+    my_task_tracker = My_task_tracker.query.filter_by(id=my_task_tracker_id, user_id=user_id).first()
+    string_failed_skus= my_task_tracker.skus_failed
+    arr_failed_skus = string_failed_skus.split(',')
+    if sku in arr_failed_skus:
+      arr_failed_skus.remove(sku)
+    string_updated_failed_skus =  ','.join(arr_failed_skus)
+    my_task_tracker.skus_failed =   string_updated_failed_skus
+    db.session.commit()
+  except Exception as e:
+    db.session.rollback()
+    raise e
+    print(f"DEBUG: Error when updating failed skus by removing sku: {sku} from skus_failed: {string_failed_skus}  for  my_task_tracker ID: {my_task_tracker_id}")
 
 
   

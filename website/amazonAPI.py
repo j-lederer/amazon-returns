@@ -18,7 +18,7 @@ from sp_api.util import throttle_retry, load_all_pages
 import os
 import sys
 
-from .database import load_queue_from_db, delete_whole_tracking_id_queue, load_task_details_from_db, move_my_task_tracker_to_history, update_successful_skus_for_my_task_tracker, update_failed_skus_for_my_task_tracker
+from .database import load_queue_from_db, delete_whole_tracking_id_queue, load_task_details_from_db, move_my_task_tracker_to_history, add_successful_sku_for_my_task_tracker, add_failed_sku_for_my_task_tracker, remove_failed_sku_for_my_task_tracker
 from .tasks import  _set_task_progress  #,app
 from .models import User, Task, My_task_tracker
 from . import db
@@ -462,6 +462,7 @@ def increaseInventory(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, re
 
 def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_array, user_id, refresh_token):
   #set task status
+  result[0] = None
   print("I am in increaseInventory_all_jobs()  AMAZONAPI     !!!!!!!")
   try:
     task = Task.query.get(task_id)
@@ -471,7 +472,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
       print("status_test: ", my_task_tracker.status)
       print(my_task_tracker.status=='PARTIAL')
       if my_task_tracker.status=='PARTIAL':
-        print('IN LOOP')
+        result[0] = 'REDOING PARTIAL' # Then later when fails check if result[0] is REDOING PARTIAL In which case you will make result[0] Partial and not FAILED. THERE IS AN ISSUE: WHEN A PARTIAL IS SUBMITTED WITH A NON-PARTIAL OR WITH OTHER PARTIALS AND THE SUCCESSFUL SKUS ARE DIFFERENT IT WILL COUNT THE SUCCESSFUL SKUS FOR ALL AND SKIP THEM FOR ALL.    ACTUALLY MAYBE NOT A PROBLEM BECAUSE THE FEED CHECKS THE ASKS BY THEIR MY_TASK_TRACKERS AND CAN TEST THE SKUSSUCCESSFUL FIELDS OF EACH AND THEY WLL BE DIFFERENT SO WILL ADD THEM WHEN THEY ARE NOT IN TH SKU_SUCCESSFUL OF ONE AND THEY WILL IGNORE WHEN THEY ARE IN FOR THE OTHER
         my_task_tracker.status = 'REDOING PARTIAL'
       else:
         my_task_tracker.status='Began'
@@ -519,6 +520,8 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
         track_return_quantity_list = track['return_quantity'].split(', ')
         i = 0
         for individual_sku in track_sku_list:  
+          my_task_tracker_id = track['my_task_tracker']
+          my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
           print(f'my_task_tracker.skus_successful: {my_task_tracker.skus_successful} ____')
           print("status: ", my_task_tracker.status)
           print(my_task_tracker.status=='REDOING PARTIAL')
@@ -539,22 +542,30 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
               i+=1
     print (queue_to_increase)
           #return queue_to_increase
-    result[0] = None
+    
     
     #set task status
     try:
       task.status = 'Creating Feed'
       for my_task_tracker_id in my_task_trackers_ids_array:
         my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-        my_task_tracker.status='Creating Feed'
+        if my_task_tracker.status == 'REDOING PARTIAL':
+          my_task_tracker.status = 'Creating Feed for Partial' 
+        else:
+          my_task_tracker.status='Creating Feed'
       db.session.commit()
       # print('CREATED FEED')
     except:
       formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Creating Feed'
       print(formatted_string)
     #end of statuts update
-    arr_successful_skus=[]
-    arr_failed_skus=[]
+    # arr_successful_skus=[]
+    # for my_task_tracker_id in my_task_trackers_ids_array:
+    #   my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+    #   if my_task_tracker.status == 'Creating Feed for Partial' :
+    #     unique_skus = set(arr_successful_skus)
+    #     unique_skus.update(my_task_tracker.skus_successful)
+    #     arr_successful_skus = list(unique_skus)
     for sku in queue_to_increase.keys():
       try:
         print('CREATING Individual FEED for sku: ', sku)
@@ -663,9 +674,10 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
                     feed_response = Feeds(credentials=credentials).get_feed_document(document_id) #download=true
                     print(feed_response)
                   
-                    arr_successful_skus.append(sku)
+                    # arr_successful_skus.append(sku)
                     for my_task_tracker_id in my_task_trackers_ids_array:
-                      update_successful_skus_for_my_task_tracker( my_task_tracker_id, arr_successful_skus, user_id)
+                      add_successful_sku_for_my_task_tracker( my_task_tracker_id, sku, user_id)
+                      remove_failed_sku_for_my_task_tracker( my_task_tracker_id, sku, user_id)
                                
                     if result[0] == 'FAILED'  or result[0] == 'PARTIAL':
                       result[0] = 'PARTIAL'
@@ -689,10 +701,9 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
            
             else:
                 print(f"Feed processing encountered a fatal error for sku: {sku}")
-                arr_failed_skus.append(sku)
                 for my_task_tracker_id in my_task_trackers_ids_array:
-                  update_failed_skus_for_my_task_tracker( my_task_tracker_id, arr_failed_skus, user_id)
-                if result[0] == 'SUCCESS' or result[0] == 'PARTIAL':
+                  add_failed_sku_for_my_task_tracker( my_task_tracker_id, sku, user_id)
+                if result[0] == 'SUCCESS' or result[0] == 'PARTIAL' or result[0] == 'REDOING PARTIAL':
                   result[0] = 'PARTIAL'
                 else:
                   result[0] = 'FAILED'
@@ -726,10 +737,9 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
             time.sleep(5)
             g=g+1
         if g==1000:
-          arr_failed_skus.append(sku)
           for my_task_tracker_id in my_task_trackers_ids_array:
-            update_failed_skus_for_my_task_tracker( my_task_tracker_id, arr_failed_skus, user_id)
-          if result[0] == 'SUCCESS' or result[0] == 'PARTIAL':
+            add_failed_sku_for_my_task_tracker( my_task_tracker_id, sku, user_id)
+          if result[0] == 'SUCCESS' or result[0] == 'PARTIAL' or result[0] == 'REDOING PARTIAL':
             result[0] = 'PARTIAL'
           else:
             result[0] = 'FAILED'
@@ -737,10 +747,9 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
       except Exception as e:
         print(f"Error creating or submitting feed for sku: {sku}. Make sure it is an active listing in inventory")
         print(f"Error: {e}")
-        arr_failed_skus.append(sku)
         for my_task_tracker_id in my_task_trackers_ids_array:
-          update_failed_skus_for_my_task_tracker( my_task_tracker_id, arr_failed_skus, user_id)
-        if result[0] == 'SUCCESS' or result[0] == 'PARTIAL':
+          add_failed_sku_for_my_task_tracker( my_task_tracker_id, sku, user_id)
+        if result[0] == 'SUCCESS' or result[0] == 'PARTIAL' or result[0] == 'REDOING PARTIAL':
           result[0] = 'PARTIAL'
         else:
           result[0] = 'FAILED'
