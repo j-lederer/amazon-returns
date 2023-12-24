@@ -294,6 +294,7 @@ def increase_inventory_all_jobs():
   task = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids,
                                                 current_user.refresh_token,
                                                 current_user.id)
+  print('TASK RESPONSE: ', task)
   return redirect('/jobs')
 
 
