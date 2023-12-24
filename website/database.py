@@ -540,7 +540,7 @@ def add_failed_sku_for_my_task_tracker( my_task_tracker_id, sku, user_id):
   try:
     my_task_tracker = My_task_tracker.query.filter_by(id=my_task_tracker_id, user_id=user_id).first()
     string_failed_skus= my_task_tracker.skus_failed
-    arr_failed_skus = string_sfailed_skus.split(',')
+    arr_failed_skus = string_failed_skus.split(',')
     unique_skus = set(arr_failed_skus)
     unique_skus.update(sku)
     arr_failed_skus = list(unique_skus)
