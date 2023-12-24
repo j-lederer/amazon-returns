@@ -333,7 +333,6 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
           else:
                 my_task_tracker.status='Began'
                 my_task_tracker.complete = None
-                my_task_tracker.skus_successfull = None
                 my_task_tracker.skus_failed = None
                 my_task_tracker.time_task_associated_launched = datetime.now()
                 my_task_tracker.time_complete = None

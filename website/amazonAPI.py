@@ -478,7 +478,6 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
       else:
         my_task_tracker.status='Began2'
         my_task_tracker.complete = None
-        my_task_tracker.skus_successfull = None
         my_task_tracker.skus_failed = None
         my_task_tracker.time_task_associated_launched = datetime.now()
         my_task_tracker.time_complete = None
