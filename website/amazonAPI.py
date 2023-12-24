@@ -462,8 +462,8 @@ def increaseInventory(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, re
 
 def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_array, user_id, refresh_token):
   #set task status
-  result[0] = None
   print("I am in increaseInventory_all_jobs()  AMAZONAPI     !!!!!!!")
+  result[0] = None
   try:
     task = Task.query.get(task_id)
     task.status = 'Began'
