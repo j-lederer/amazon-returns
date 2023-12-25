@@ -186,7 +186,7 @@ def refresh_returns_task(self, refresh_token,
     db.session.commit()
     print('Getting Return Data:')
     all_return_data = get_all_Returns_data(refresh_token)
-    if all_return_data != 'FATAL' or all_return_data != 'CANCELLED' or all_return_data != 'UNKNOWN ERROR':
+    if all_return_data != 'FATAL' and all_return_data != 'CANCELLED' and all_return_data != 'UNKNOWN ERROR':
       my_refresh_returns_tracker.status = 'Checking Inventory'
       db.session.commit()
       print('Checking Inventory:')
