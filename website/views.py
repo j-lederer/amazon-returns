@@ -184,17 +184,21 @@ def refresh_returns_task(self, refresh_token,
     #For debugging below>>
     my_refresh_returns_tracker.status = 'Getting Return Data'
     db.session.commit()
+    print('Getting Return Data:')
     all_return_data = get_all_Returns_data(refresh_token)
     if all_return_data != 'FATAL' or all_return_data != 'CANCELLED' or all_return_data != 'UNKNOWN ERROR':
       my_refresh_returns_tracker.status = 'Checking Inventory'
       db.session.commit()
+      print('Checking Inventory:')
       inventory_data = checkInventory(refresh_token)
       if inventory_data != 'FATAL' or inventory_data != 'CANCELLED' or inventory_data != 'UNKNOWN ERROR':
         my_refresh_returns_tracker.status = 'Retrieving Final Info'
         db.session.commit()
+        print('Getting Addresses:')
         addressData = get_addresses_from_GetOrders(refresh_token)
         # print("ADDRESS DATA:")
         # print(addressData)
+        print('Updating db')
         refresh_all_return_data_in_db(all_return_data, inventory_data,
                                       current_user_id)
         refresh_addresses_in_db(addressData, current_user_id)
@@ -217,7 +221,7 @@ def refresh_returns_task(self, refresh_token,
       return f'ERROR with get_all_returns() outout_data: {all_return_data}'
   except Exception as e:
     print('Error with refresh_returns_task: ', e)
-    my_refresh_returns_tracker.status = 'ERROR: ' + e
+    my_refresh_returns_tracker.status = 'ERROR'
     db.session.commit()
     return e
 
