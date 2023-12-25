@@ -22,8 +22,8 @@ def create_app():
   app.config["CELERY_CONFIG"] = {"broker_url": os.environ['REDIS_URL'], "result_backend": os.environ['REDIS_URL'], "beat_schedule": {
                                     "every-day-at 12am" : {
                                         "task": "website.views.every_day",
-                                      'schedule':20
-                                        # "schedule": crontab(hour=2, minute=25, day_of_week=2),
+                                      # 'schedule':20
+                                        "schedule": crontab(hour=5, minute=47, day_of_week='0-6'),
                                         #"args": (1, 2)
                                     }
                                 }}
