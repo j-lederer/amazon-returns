@@ -20,7 +20,7 @@ import sys
 
 from .database import load_queue_from_db, delete_whole_tracking_id_queue, load_task_details_from_db, move_my_task_tracker_to_history, add_successful_sku_for_my_task_tracker, add_failed_sku_for_my_task_tracker, remove_failed_sku_for_my_task_tracker
 from .tasks import  _set_task_progress  #,app
-from .models import User, Task, My_task_tracker
+from .models import User, Task, My_task_tracker, My_refresh_returns_tracker
 from . import db
 
 from collections import defaultdict
@@ -167,7 +167,8 @@ def get_all_Returns_data(refresh_token):
         elif processing_status == "FATAL":
             print("An error occurred during report processing. (FATAL)")  
             output_data= "FATAL"
-        
+        else:
+          output_data= "UNKNOWN ERROR"
         return output_data
 
 
@@ -195,8 +196,9 @@ def checkInventory(refresh_token):
   res = Reports(credentials=credentials).get_report(res.payload.get("reportId"))
   report_id = res.payload.get("reportId")
   processing_status = res.payload.get("processingStatus")
-  
-  while processing_status not in ["DONE", "CANCELLED", "FATAL"]:
+
+  g=0
+  while g<1000:
     # Wait for a short duration before checking again
     time.sleep(5)  
     
@@ -218,11 +220,24 @@ def checkInventory(refresh_token):
         print(line['sku'], line['asin'], line['price'], line['quantity'])
         Quantity_of_SKUS[line['sku']]=line['quantity']
       print("Quantity left of skus is:")
-      print(Quantity_of_SKUS)    
+      print(Quantity_of_SKUS)  
       return Quantity_of_SKUS
+      
+    elif processing_status == "CANCELLED":
+        print("Inventory Report processing was cancelled.")
+        Quantity_of_SKUS= "CANCELLED"
+        return Quantity_of_SKUS
+    elif processing_status == "FATAL":
+        print("An error occurred during checkInvenory report processing. (FATAL)")  
+        Quantity_of_SKUS= "FATAL"
+        return Quantity_of_SKUS
+    g=g+1
     
-  Quantity_of_SKUS = processing_status
-  return Quantity_of_SKUS
+  if  g==1000:
+     Quantity_of_SKUS = 'g=1000. Waittime too long.'
+  else:
+    Quantity_of_SKUS = "UNKNOWN ERROR"
+    return Quantity_of_SKUS
         
 
 def increaseInventory_single_job(Quantity_of_SKUS, task_id, my_task_tracker_id, user_id, refresh_token):
@@ -437,12 +452,11 @@ def increaseInventory_single_job(Quantity_of_SKUS, task_id, my_task_tracker_id, 
                     if result[0] == 'PARTIAL':
                       try:
                         task.status = 'PARTIAL'
-                        for my_task_tracker_id in my_task_trackers_ids_array:
-                          my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-                          my_task_tracker.status='PARTIAL'
+                        my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+                        my_task_tracker.status='PARTIAL'
                         db.session.commit()
                       except:
-                        formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Partial' 
+                        formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_tracker_id} in increaseInventory_single_job to: Partial' 
                         print(formatted_string)
                         #End of status update
                       break
@@ -464,7 +478,7 @@ def increaseInventory_single_job(Quantity_of_SKUS, task_id, my_task_tracker_id, 
                     my_task_tracker.status='Error. Feed Rejected. Try again.'
                     db.session.commit()
                   except:
-                    formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_trackers_id} in increaseInventory_single_job to: Error. Feed Rejected. Try again.' 
+                    formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory_single_job to: Error. Feed Rejected. Try again.' 
                     print(formatted_string)
                     #End of status update
                 elif result[0] == 'PARTIAL':
@@ -474,7 +488,7 @@ def increaseInventory_single_job(Quantity_of_SKUS, task_id, my_task_tracker_id, 
                     my_task_tracker.status='PARTIAL'
                     db.session.commit()
                   except:
-                    formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_trackers_id} in increaseInventory_single_job call to: Partial' 
+                    formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory_single_job call to: Partial' 
                     print(formatted_string)
                     #End of status update
 
@@ -507,7 +521,7 @@ def increaseInventory_single_job(Quantity_of_SKUS, task_id, my_task_tracker_id, 
               my_task_tracker.status='Error. Feed Rejected. Try again.'
               db.session.commit()
             except:
-              formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_trackers_id} in increaseInventory_single_job to: Error. Feed Rejected. Try again.' 
+              formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory_single_job to: Error. Feed Rejected. Try again.' 
               print(formatted_string)
               #End of status update
           elif result[0] == 'PARTIAL':
@@ -517,7 +531,7 @@ def increaseInventory_single_job(Quantity_of_SKUS, task_id, my_task_tracker_id, 
               my_task_tracker.status='PARTIAL'
               db.session.commit()
             except:
-              formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_trackers_id} in increaseInventory_single_job call to: Partial' 
+              formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory_single_job call to: Partial' 
               print(formatted_string)
               #End of status update
 
@@ -533,7 +547,7 @@ def increaseInventory_single_job(Quantity_of_SKUS, task_id, my_task_tracker_id, 
         my_task_tracker.time_completed = datetime.now()
         db.session.commit()
       except Exception as e:
-        formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_trackers_id} in increaseInventory_single_job call to: SUCCESS. Error: {e}'
+        formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory_single_job call to: SUCCESS. Error: {e}'
         print(formatted_string)
     else:
       try:

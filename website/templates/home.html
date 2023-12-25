@@ -130,10 +130,39 @@
 		{% endif %}	
 		 </div>
 
-  <a class="Refresh_Button" href="/refresh_returns_and_inventory">Refresh Returns and Inventory Data</a>
+<a class="Clear_Search_Button" href="/clearSearch">Clear Search</a>
+<br>
+ <a class="Refresh_Button" href="/refresh_returns_and_inventory" style="position: relative;
+   top:-500px;
+   left:50px;">Refresh Returns and Inventory Data </a>
+
+<div style="max-width: 300px; margin: 0 auto; padding: 10px; text-align: left; position: relative;
+    top:-510px;
+    left:-370px;">
+ 
+  <table class="Refresh_Table" style="max-width: 100%; margin-top: 5px; margin-bottom: 0;text-align: center;">
+  <tr>
+    <th>Refresh Status</th>
+    <th style ='padding: 5px 10px;''> Complete</th>
+    <th>Last Refresh</th>
+  </tr>
+    {% if my_refresh_tracker %}
+    <tr>
+      <td>{{ my_refresh_tracker['status'] }}</td>
+      <td>{{ my_refresh_tracker['complete'] }}</td>
+      <td>{{ my_refresh_tracker['time_completed'] }}</td>
+    </tr>
+    {% else %}
+      <tr>
+        <td>None</td>
+        <td>None</td>
+        <td>None</td>
+      </tr>
+    {% endif %}	
+</table>
+</div>
   <br>
-  <a class="Clear_Search_Button" href="/clearSearch">Clear Search</a>
-  <br>
+ 
   <a class="Clear_Queue_Button" href="/clearQueue"  onclick="return confirm('Are you sure you want to clear the queue?');">Clear Queue</a>
 
   <!-- <a class = "button_go_to_jobs" href="{{url_for('views.jobs')}}">Jobs</a> -->
