@@ -358,8 +358,8 @@ def increaseInventory_single_job(Quantity_of_SKUS, task_id, my_task_tracker_id, 
         header = ET.SubElement(root, "Header")
         document_version = ET.SubElement(header, "DocumentVersion")
         document_version.text = "1.02"
-        merchant_identifier = ET.SubElement(header, "MerchantIdentifier")
-        merchant_identifier.text = "A2RSMNCJSAU6P5"  #Have to update this to make it generic
+        # merchant_identifier = ET.SubElement(header, "MerchantIdentifier")
+        # merchant_identifier.text = "A2RSMNCJSAU6P5"  #Have to update this to make it apply to everyone
     
         message_type = ET.SubElement(root, "MessageType")
         message_type.text = message["MessageType"]
@@ -717,8 +717,8 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
         header = ET.SubElement(root, "Header")
         document_version = ET.SubElement(header, "DocumentVersion")
         document_version.text = "1.02"
-        merchant_identifier = ET.SubElement(header, "MerchantIdentifier")
-        merchant_identifier.text = "A2RSMNCJSAU6P5"  #Have to update this to make it generic
+        # merchant_identifier = ET.SubElement(header, "MerchantIdentifier")
+        # merchant_identifier.text = "A2RSMNCJSAU6P5"  #Have to update this to make it generic
   
         message_type = ET.SubElement(root, "MessageType")
         message_type.text = message["MessageType"]
