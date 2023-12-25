@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from .database import engine, load_queue_from_db, load_all_return_details_from_db, load_tracking_id_to_search, delete_trackingID_from_queue_db, add_tracking_id_to_queue, refresh_all_return_data_in_db, load_current_return_to_display_from_db, add_current_return_to_display_to_db, delete_whole_tracking_id_queue, delete_current_return_to_display_from_db, delete_tracking_id_to_search, add_tracking_id_to_search, check_if_track_in_queue, delete_current_return_to_display_from_db, refresh_addresses_in_db, load_address_from_db, load_users_from_db, load_deleted_users_from_db, delete_user_from_db, delete_deleted_user_from_db, clear_all_users_from_db, clear_all_deleted_users_from_db, add_refresh_token, get_refresh_token, load_restricted, add_request_to_delete_user, load_all_stripe_customers, add_suggestion, delete_refresh_token_and_expiration, load_jobs_from_db, load_history_from_db_descending_order, add_queue_to_task_details, load_my_task_trackers_from_db, delete_job_db, get_info_job_from_db, load_task_details_from_db, move_my_task_tracker_to_history, delete_from_history_db, load_saved_for_later_from_db, move_my_task_trackers_to_history, move_history_to_jobs, delete_whole_history_db, load_my_task_tracker_from_db
 
 from .models import User, Notification, Stripecustomer, Task, My_task_tracker
-from .amazonAPI import get_all_Returns_data, increaseInventory, checkInventory, checkInventoryIncrease, get_addresses_from_GetOrders, increaseInventory_all_jobs
+from .amazonAPI import get_all_Returns_data, increaseInventory_single_job, checkInventory, checkInventoryIncrease, get_addresses_from_GetOrders, increaseInventory_all_jobs
 
 from flask import Blueprint, render_template, request, flash, jsonify, send_file, make_response, current_app
 # from flask_login import login_required, current_user
@@ -218,7 +218,7 @@ def get_info_on_track():
 @views.route('/increase_inventory/<my_task_tracker_id>',
              methods=['POST', 'GET'])
 @login_required
-def increase_inventory(my_task_tracker_id):
+def increase_inventory_single_job(my_task_tracker_id):
   #take the tracking id's in the queue and increase inventory by the return order amount for each
   task = increase_inventory_task.delay(my_task_tracker_id,
                                        current_user.refresh_token,
@@ -230,7 +230,6 @@ def increase_inventory(my_task_tracker_id):
 @shared_task(bind=True, base=AbortableTask)
 def increase_inventory_task(self, my_task_tracker_id, refresh_token,
                             current_user_id):
-  # Have to change this  to check if status is partial and if so then only increase the skus that are not in 'skus_successful' field of My_task_tracker
   
   #Check if there are tasks with the same id and let the user know the pevious satuses of all of them
   try:
@@ -252,8 +251,29 @@ def increase_inventory_task(self, my_task_tracker_id, refresh_token,
                   my_task_tracker=my_task_tracker_id)
       db.session.add(task)
       db.session.commit()
+    print(f'Added Task to database with task id: {self.request.id}')
+    try:
+          my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+          if my_task_tracker.status=='PARTIAL':
+            my_task_tracker.status = 'REDOING PARTIAL'
+            my_task_tracker.complete = None
+            my_task_tracker.skus_failed = None
+            my_task_tracker.time_task_associated_launched = datetime.now()
+            my_task_tracker.time_completed = None
+          else:
+                my_task_tracker.status='Began'
+                my_task_tracker.complete = None
+                my_task_tracker.skus_failed = None
+                my_task_tracker.time_task_associated_launched = datetime.now()
+                my_task_tracker.time_completed = None
+          db.session.commit()
+    except:
+        formatted_string = f'Error updating status of my_task_tracker_id: {my_task_tracker_id} in increaseInventory_all_jobs call to: Began or REDOING PARTIAL. And resetting other fields to None.'
+        print(formatted_string)
+    print('Running checkInventory')
     Quantity_of_SKUS = checkInventory(refresh_token)
-    result = increaseInventory(Quantity_of_SKUS, task.id, my_task_tracker_id,
+    print("Running increase_inventory_single_job ")
+    result = increaseInventory_single_job(Quantity_of_SKUS, task.id, my_task_tracker_id,
                                current_user_id, refresh_token)
     print("RESULT of increaseInventory():")
     print(type(result))
@@ -302,8 +322,6 @@ def increase_inventory_all_jobs():
 @shared_task(bind=True, base=AbortableTask)
 def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_token,
                                      current_user_id):
-
-# Have to change this and the function that only executes one job to check if status is partial and if so then only increas the skus that are not in 'skus_successful' field of My_task_tracker
   
   #Check if there are tasks with the same id and let the user know the previous satuses of all of them
   try:
@@ -342,7 +360,7 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
                 my_task_tracker.time_completed = None
         db.session.commit()
       except:
-        formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Began or REDOING PARTIAL. And resetting other fields to None.'
+        formatted_string = f'Error updating status of my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Began or REDOING PARTIAL. And resetting other fields to None.'
         print(formatted_string)
     print('Running checkInventory')
     Quantity_of_SKUS = checkInventory(refresh_token)
