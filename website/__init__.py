@@ -13,12 +13,20 @@ import rq
 import rq_dashboard
 
 from .utils import make_celery
+from celery.schedules import crontab
 
 db = SQLAlchemy()
 
 def create_app():
   app = Flask(__name__)
-  app.config["CELERY_CONFIG"] = {"broker_url": os.environ['REDIS_URL'], "result_backend": os.environ['REDIS_URL']}
+  app.config["CELERY_CONFIG"] = {"broker_url": os.environ['REDIS_URL'], "result_backend": os.environ['REDIS_URL'], "beat_schedule": {
+                                    "every-day-at 12am" : {
+                                        "task": "website.views.every_day",
+                                      'schedule':20
+                                        # "schedule": crontab(hour=2, minute=25, day_of_week=2),
+                                        #"args": (1, 2)
+                                    }
+                                }}
   
   app.config['RQ_DASHBOARD_REDIS_URL'] =os.environ['REDIS_URL']
   app.config.from_object(rq_dashboard.default_settings)

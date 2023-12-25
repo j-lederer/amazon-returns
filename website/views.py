@@ -1133,6 +1133,11 @@ def rollback_db(self):
   print("Tried db rollback")
   return "Rolled back db"
 
+@shared_task()
+def every_day():
+  print("RUNNING EVERY DAY!")
+  print('The time now is: ' + datetime.now())
+
 
 @views.route('/load_task_details_from_db/<my_task_tracker_id>')
 @login_required
