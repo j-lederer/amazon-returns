@@ -1136,7 +1136,8 @@ def rollback_db(self):
 @shared_task()
 def every_day():
   print("RUNNING EVERY DAY!")
-  print('The time now is: ' + datetime.now())
+  print('The time now is: ')
+  print(datetime.now())
 
 
 @views.route('/load_task_details_from_db/<my_task_tracker_id>')
