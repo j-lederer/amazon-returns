@@ -250,23 +250,23 @@ def increaseInventory_single_job(Quantity_of_SKUS, task_id, my_task_tracker_id, 
     task.status = 'Began'
     my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
     print("status_test: ", my_task_tracker.status)
-    print(my_task_tracker.status=='REDOING PARTIAL')
-    if my_task_tracker.status=='REDOING PARTIAL':
+    print(my_task_tracker.status=='Sent Request: REDOING PARTIAL')
+    if my_task_tracker.status=='Sent Request: REDOING PARTIAL':
         result[0] = 'REDOING PARTIAL'
-        my_task_tracker.status = 'REDOING PARTIAL2'
+        my_task_tracker.status = 'REDOING PARTIAL'
         my_task_tracker.complete = None
         my_task_tracker.skus_failed = None
         my_task_tracker.time_task_associated_launched = datetime.now()
         my_task_tracker.time_completed = None
     else:
-        my_task_tracker.status='Began2'
+        my_task_tracker.status='Began'
         my_task_tracker.complete = None
         my_task_tracker.skus_failed = None
         my_task_tracker.time_task_associated_launched = datetime.now()
         my_task_tracker.time_completed = None
     db.session.commit()
   except:
-    formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_tracker_id} in increaseInventory_single_job to: Began2 or REDOING PARTIAL2. And resetting other fields to None.'
+    formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_tracker_id} in increaseInventory_single_job to: Began or REDOING PARTIAL. And resetting other fields to None.'
     print(formatted_string)
     #end of status update
 
@@ -299,8 +299,8 @@ def increaseInventory_single_job(Quantity_of_SKUS, task_id, my_task_tracker_id, 
           my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
           # print(f'my_task_tracker.skus_successful: {my_task_tracker.skus_successful} ____')
           print("status: ", my_task_tracker.status)
-          print(my_task_tracker.status=='REDOING PARTIAL2')
-          if my_task_tracker.status=='REDOING PARTIAL2' and my_task_tracker.skus_successful and (individual_sku  in my_task_tracker.skus_successful):
+          print(my_task_tracker.status=='REDOING PARTIAL')
+          if my_task_tracker.status=='REDOING PARTIAL' and my_task_tracker.skus_successful and (individual_sku  in my_task_tracker.skus_successful):
             #do nothing
             print('PARTIAL IS DETECTED')
             pass
@@ -594,23 +594,23 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
     for my_task_tracker_id in my_task_trackers_ids_array:
       my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
       print("status_test: ", my_task_tracker.status)
-      print(my_task_tracker.status=='REDOING PARTIAL')
-      if my_task_tracker.status=='REDOING PARTIAL':
+      print(my_task_tracker.status=='Sent Request: REDOING PARTIAL')
+      if my_task_tracker.status=='Sent Request: REDOING PARTIAL':
         result[0] = 'REDOING PARTIAL'
-        my_task_tracker.status = 'REDOING PARTIAL2'
+        my_task_tracker.status = 'REDOING PARTIAL'
         my_task_tracker.complete = None
         my_task_tracker.skus_failed = None
         my_task_tracker.time_task_associated_launched = datetime.now()
         my_task_tracker.time_completed = None
       else:
-        my_task_tracker.status='Began2'
+        my_task_tracker.status='Began'
         my_task_tracker.complete = None
         my_task_tracker.skus_failed = None
         my_task_tracker.time_task_associated_launched = datetime.now()
         my_task_tracker.time_completed = None
     db.session.commit()
   except:
-    formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Began2 or REDOING PARTIAL2. And resetting other fields to None.'
+    formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Began or REDOING PARTIAL. And resetting other fields to None.'
     print(formatted_string)
     #end of status update
   
@@ -651,8 +651,8 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
           my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
           # print(f'my_task_tracker.skus_successful: {my_task_tracker.skus_successful} ____')
           print("status: ", my_task_tracker.status)
-          print(my_task_tracker.status=='REDOING PARTIAL2')
-          if my_task_tracker.status=='REDOING PARTIAL2' and my_task_tracker.skus_successful and (individual_sku  in my_task_tracker.skus_successful):
+          print(my_task_tracker.status=='REDOING PARTIAL')
+          if my_task_tracker.status=='REDOING PARTIAL' and my_task_tracker.skus_successful and (individual_sku  in my_task_tracker.skus_successful):
             #do nothing
             print('PARTIAL IS DETECTED')
             pass

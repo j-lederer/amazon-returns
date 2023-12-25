@@ -223,10 +223,10 @@ def refresh_returns_task(self, refresh_token,
       return f'ERROR with get_all_returns() outout_data: {all_return_data}'
   except Exception as e:
     print('Error with refresh_returns_task: ', e)
-     my_refresh_returns_tracker = My_refresh_returns_tracker.query.get(my_refresh_returns_tracker_id)
-     if my_refresh_returns_tracker
+    my_refresh_returns_tracker = My_refresh_returns_tracker.query.get(my_refresh_returns_tracker_id)
+    if my_refresh_returns_tracker:
        my_refresh_returns_tracker.status = 'ERROR'
-      db.session.commit()
+       db.session.commit()
     return e
 
 
@@ -353,20 +353,20 @@ def increase_inventory_single_task(self, my_task_tracker_id, refresh_token,
     try:
           my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
           if my_task_tracker.status=='PARTIAL' or my_task_tracker.status == 'Error with checkInventory when Redoing Partial':
-            my_task_tracker.status = 'REDOING PARTIAL'
+            my_task_tracker.status = 'Sent Request: REDOING PARTIAL'
             my_task_tracker.complete = None
             my_task_tracker.skus_failed = None
             my_task_tracker.time_task_associated_launched = datetime.now()
             my_task_tracker.time_completed = None
           else:
-                my_task_tracker.status='Began'
+                my_task_tracker.status='Sent Request'
                 my_task_tracker.complete = None
                 my_task_tracker.skus_failed = None
                 my_task_tracker.time_task_associated_launched = datetime.now()
                 my_task_tracker.time_completed = None
           db.session.commit()
     except:
-        formatted_string = f'Error updating status of my_task_tracker_id: {my_task_tracker_id} in increaseInventory_all_jobs call to: Began or REDOING PARTIAL. And resetting other fields to None.'
+        formatted_string = f'Error updating status of my_task_tracker_id: {my_task_tracker_id} in increaseInventory_all_jobs call to: Sent Request or Sent Request: REDOING PARTIAL. And resetting other fields to None.'
         print(formatted_string)
     print('Running checkInventory')
     Quantity_of_SKUS = checkInventory(refresh_token)
@@ -454,20 +454,20 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
         for my_task_tracker_id in my_task_trackers_ids_array:
           my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
           if my_task_tracker.status=='PARTIAL' or my_task_tracker.status == 'Error with checkInventory when Redoing Partial':
-            my_task_tracker.status = 'REDOING PARTIAL'
+            my_task_tracker.status = 'Sent Request: REDOING PARTIAL'
             my_task_tracker.complete = None
             my_task_tracker.skus_failed = None
             my_task_tracker.time_task_associated_launched = datetime.now()
             my_task_tracker.time_completed = None
           else:
-                my_task_tracker.status='Began'
+                my_task_tracker.status='Sent Request'
                 my_task_tracker.complete = None
                 my_task_tracker.skus_failed = None
                 my_task_tracker.time_task_associated_launched = datetime.now()
                 my_task_tracker.time_completed = None
         db.session.commit()
       except:
-        formatted_string = f'Error updating status of my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Began or REDOING PARTIAL. And resetting other fields to None.'
+        formatted_string = f'Error updating status of my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Sent Request or Sent Request:REDOING PARTIAL. And resetting other fields to None.'
         print(formatted_string)
     print('Running checkInventory')
     Quantity_of_SKUS = checkInventory(refresh_token)
