@@ -223,10 +223,14 @@ def refresh_returns_task(self, refresh_token,
       return f'ERROR with get_all_returns() outout_data: {all_return_data}'
   except Exception as e:
     print('Error with refresh_returns_task: ', e)
-    my_refresh_returns_tracker = My_refresh_returns_tracker.query.get(my_refresh_returns_tracker_id)
-    if my_refresh_returns_tracker:
-       my_refresh_returns_tracker.status = 'ERROR'
-       db.session.commit()
+    try:
+      my_refresh_returns_tracker = My_refresh_returns_tracker.query.get(my_refresh_returns_tracker_id)
+      if my_refresh_returns_tracker:
+         my_refresh_returns_tracker.status = 'ERROR'
+         db.session.commit()
+    except Exception as e:
+      print(f'Error updating refresh_tracker status to ERROR: {e}')
+      db.session.rollback()
     return e
 
 
