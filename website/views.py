@@ -199,6 +199,8 @@ def refresh_returns_task(self, refresh_token,
         # print("ADDRESS DATA:")
         # print(addressData)
         print('Updating db')
+        my_refresh_returns_tracker.status = 'Updating DB'
+        db.session.commit()
         refresh_all_return_data_in_db(all_return_data, inventory_data,
                                       current_user_id)
         refresh_addresses_in_db(addressData, current_user_id)
@@ -221,8 +223,10 @@ def refresh_returns_task(self, refresh_token,
       return f'ERROR with get_all_returns() outout_data: {all_return_data}'
   except Exception as e:
     print('Error with refresh_returns_task: ', e)
-    my_refresh_returns_tracker.status = 'ERROR'
-    db.session.commit()
+     my_refresh_returns_tracker = My_refresh_returns_tracker.query.get(my_refresh_returns_tracker_id)
+     if my_refresh_returns_tracker
+       my_refresh_returns_tracker.status = 'ERROR'
+      db.session.commit()
     return e
 
 
