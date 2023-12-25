@@ -218,7 +218,7 @@ def refresh_returns_task(self, refresh_token,
         return f'ERROR with checkInventory() outout: {inventory_data}'
     else: 
       print(f'ERROR with get_all_returns() outout_data: {all_return_data}')
-      my_refresh_returns_tracker.status = 'UNKNOWN ERROR'
+      my_refresh_returns_tracker.status = 'ERROR: ' + all_return_data
       db.session.commit()
       return f'ERROR with get_all_returns() outout_data: {all_return_data}'
   except Exception as e:
