@@ -15,6 +15,7 @@ from io import BytesIO
 import os
 from collections import Counter
 from datetime import datetime
+# from zoneinfo import ZoneInfo
 import re
 
 from .download_pdf_queue import download_queue_data
@@ -1138,6 +1139,7 @@ def every_day():
   print("RUNNING EVERY DAY!")
   print('The time now is: ')
   print(datetime.now())
+  # print(datetime.now(ZoneInfo("America/New_York")))
 
 
 @views.route('/load_task_details_from_db/<my_task_tracker_id>')
