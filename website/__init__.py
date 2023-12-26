@@ -23,7 +23,7 @@ def create_app():
                                     "every-day-at 12am" : {
                                         "task": "website.views.every_day",
                                       # 'schedule':20
-                                        "schedule": crontab(hour=20, minute=18, day_of_week='0-6')
+                                        "schedule": crontab(hour=20, minute=40, day_of_week='0-6')
                                         #"args": (1, 2)
                                     }
                                 }}
