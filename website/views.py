@@ -332,6 +332,7 @@ def increase_inventory_single_job(my_task_tracker_id):
       my_task_tracker.status = 'SENT REQUEST: PARTIAL'
     else:
       my_task_tracker.status = 'Sent Request'
+    db.session.commit()
   except:
     print(f'Error updating status of my_task_tracker_id: {my_task_trackers_id} in increaseInventory_single_task to: Sent Request or SENT REQUEST: PARTIAL.')
   task = increase_inventory_task.delay(my_task_tracker_id,
@@ -442,6 +443,7 @@ def increase_inventory_all_jobs():
         my_task_tracker.status = 'SENT REQUEST: PARTIAL'
       else:
         my_task_tracker.status = 'Sent Request'
+      db.session.commit()
   except:
     print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL.')
   
@@ -1182,6 +1184,17 @@ def every_day_function():
         my_task_trackers= load_my_task_trackers_from_db(user.id)
         my_task_trackers_array_ids = serialize_task_trackers(my_task_trackers)
         # print('SEREIALIZED:' , my_task_trackers_array_ids)
+        try:
+          for my_task_tracker_id in my_task_trackers_ids_array:
+            my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+            if my_task_tracker.status=='PARTIAL' or my_task_tracker.status == 'Error with checkInventory when Redoing Partial':
+              my_task_tracker.status = 'SENT REQUEST: PARTIAL'
+            else:
+              my_task_tracker.status = 'Sent Request'
+            db.session.commit()
+        except:
+          print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL.')
+        
         task1 = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids, user.refresh_token, user.id)
         print(f"TASK LAUNCHED: increase_inventory_all_jobs_task - TASK_ID: {task1.id} for userID: {user.id}")
       except Exception as e:
