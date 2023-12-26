@@ -333,7 +333,7 @@ def increase_inventory_single_job(my_task_tracker_id):
     else:
       my_task_tracker.status = 'Sent Request'
   except:
-  print(f'Error updating status of my_task_tracker_id: {my_task_trackers_id} in increaseInventory_single_task to: Sent Request or SENT REQUEST: PARTIAL.')
+    print(f'Error updating status of my_task_tracker_id: {my_task_trackers_id} in increaseInventory_single_task to: Sent Request or SENT REQUEST: PARTIAL.')
   task = increase_inventory_task.delay(my_task_tracker_id,
                                        current_user.refresh_token,
                                        current_user.id)
@@ -369,7 +369,7 @@ def increase_inventory_single_task(self, my_task_tracker_id, refresh_token,
     print(f'Added Task to database with task id: {self.request.id}')
     try:
           my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-          if my_task_tracker.status=='SENT REQUEST: PARTIAL'
+          if my_task_tracker.status=='SENT REQUEST: PARTIAL':
             my_task_tracker.status = 'REDOING PARTIAL'
             my_task_tracker.complete = None
             my_task_tracker.skus_failed = None
@@ -443,7 +443,7 @@ def increase_inventory_all_jobs():
       else:
         my_task_tracker.status = 'Sent Request'
   except:
-  print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None.')
+    print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL.')
   
   task = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids,
                                                 current_user.refresh_token,
