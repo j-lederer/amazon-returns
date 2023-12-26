@@ -452,7 +452,7 @@ def load_token_expiration(user_id):
     print("error with database call get_refresh_token")
     return'error'
 def create_token_expiration(user_id):
-  current_date = datetime.datetime.now(pytz.timezone('America/New_York'))
+  current_date = datetime.now(pytz.timezone('America/New_York'))
   end_date = current_date + datetime.timedelta(days=364)
   user = User.query.get(user_id)
   if user:

@@ -14,7 +14,7 @@ import json
 from io import BytesIO
 import os
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timedelta
 # from zoneinfo import ZoneInfo
 import pytz
 import re
@@ -34,7 +34,15 @@ from sqlalchemy.exc import PendingRollbackError, OperationalError
 
 views = Blueprint('views', __name__)
 
-
+@views.route('/test')
+def test():
+    
+    current_date = datetime.now(pytz.timezone('America/New_York'))
+    print("current date:", current_date)
+    end_date = current_date + timedelta(days=364)
+    print("end date:", end_date)
+    return redirect('/')
+    
 @views.route('/', methods=['POST', 'GET'])
 @login_required
 def home():
