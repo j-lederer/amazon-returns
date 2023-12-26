@@ -62,6 +62,7 @@ def home():
   token = current_user.token_expiration
   print(token)
   if token is not None:
+    eastern_timezone = pytz.timezone('America/New_York')
     token_aware = eastern_timezone.localize(token)
     current_date = datetime.now(pytz.timezone('America/New_York'))
     if (token_aware < current_date):
