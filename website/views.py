@@ -33,16 +33,6 @@ from sqlalchemy.exc import PendingRollbackError, OperationalError
 
 
 views = Blueprint('views', __name__)
-
-#delete this
-@views.route('/test')
-def test():
-    
-    current_date = datetime.now(pytz.timezone('America/New_York'))
-    print("current date:", current_date)
-    end_date = current_date + timedelta(days=364)
-    print("end date:", end_date)
-    return redirect('/')
     
 @views.route('/', methods=['POST', 'GET'])
 @login_required
@@ -69,11 +59,12 @@ def home():
     current_user.id)
   queue = load_queue_from_db(current_user.id)
   print("TOKEN EXPIRATION:")
-  print(current_user.token_expiration)
-  if current_user.token_expiration is not None:
+  token = current_user.token_expiration
+  print(token)
+  if token is not None:
+    token_aware = eastern_timezone.localize(token)
     current_date = datetime.now(pytz.timezone('America/New_York'))
-    token_expiration = current_user.token_expiration
-    if (token_expiration < current_date):
+    if (token_aware < current_date):
       delete_refresh_token_and_expiration(current_user.id)
 
   customer = Stripecustomer.query.filter_by(user_id=current_user.id).order_by(
