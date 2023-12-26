@@ -234,7 +234,7 @@ def refresh_returns_task(self, refresh_token,
     except Exception as e:
       print(f'Error updating refresh_tracker status to ERROR: {e}')
       db.session.rollback()
-    return e
+      return e
 
 
 
@@ -1123,7 +1123,7 @@ def extract_tracking_id(trackingID):
 #for debugging. Remove later
 @views.route('/rollback')
 def rollback():
-
+  db.session.rollback()
   task = rollback_db.delay()
   print("TASK LAUNCHED: rollback_db_task - TASK_ID", task.id)
   return redirect(url_for('views.home'))
@@ -1160,9 +1160,6 @@ def every_day_function():
       except Exception as e:
         print(f"ERROR every_day_increase for userID: {user.id}. Error: {e}")
         db.session.rollback()
-
-
-
       
       try:
         print(f"Starting Refresh Operation for userID: {user.id}")
@@ -1190,6 +1187,11 @@ def every_day_function():
   except Exception as e:
     print(f"ERROR something went wrong with the overall every_day_function for all users. Error: {e}")
     db.session.rollback()
+
+@views.route('/everyday_onweb')
+def every_day_function_on_web():
+  every_day_function()
+  return 'every_day_function_on_web'
 
 
 @views.route('/load_task_details_from_db/<my_task_tracker_id>')

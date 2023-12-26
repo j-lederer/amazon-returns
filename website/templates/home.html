@@ -144,12 +144,14 @@
   <tr>
     <th>Refresh Status</th>
     <th style ='padding: 5px 10px;''> Complete</th>
-    <th>Last Refresh</th>
+    <th>Last Refresh Attempt</th>
+    <th>Last Refresh Successful</th>
   </tr>
     {% if my_refresh_tracker %}
     <tr>
       <td>{{ my_refresh_tracker['status'] }}</td>
       <td>{{ my_refresh_tracker['complete'] }}</td>
+      <td>{{ my_refresh_tracker['time_clicked'] }}</td>
       <td>{{ my_refresh_tracker['time_completed'] }}</td>
     </tr>
     {% else %}

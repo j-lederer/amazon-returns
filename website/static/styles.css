@@ -87,7 +87,7 @@ button {
 .tester{
     width:100px;
     position: relative;
-    top:-100px;
+    top:-50px;
     left:150px;
     background-color:#5F9EA0;
     color:;
@@ -97,7 +97,7 @@ button {
 .tester2{
     width:100px;
     position: relative;
-    top:-100px;
+    top:-50px;
     left:150px;
     background-color:#AFEEEE;
     color:;
@@ -107,7 +107,7 @@ button {
 .tester3{
     width:100px;
     position: relative;
-    top:-100px;
+    top:-50px;
     left:150px;
     background-color:#00FFFF;
     color:;
@@ -117,7 +117,7 @@ button {
 .tester4{
     width:100px;
     position: relative;
-    top:-100px;
+    top:-50px;
     left:150px;
     background-color:#008080;
     color:;
