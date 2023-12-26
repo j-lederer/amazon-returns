@@ -177,6 +177,7 @@ def refresh_returns_task(self, refresh_token,
                   status = 'Began',
                   my_task_tracker=None)
     db.session.add(task)
+    db.session.commit()
     my_refresh_returns_tracker = My_refresh_returns_tracker.query.get(my_refresh_returns_tracker_id)
     my_refresh_returns_tracker.status = 'Began'
     my_refresh_returns_tracker.time_task_associated_launched = datetime.now(pytz.timezone('America/New_York'))
