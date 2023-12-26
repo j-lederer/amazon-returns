@@ -1192,11 +1192,17 @@ def every_day_function():
             my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
             if my_task_tracker.status=='PARTIAL' or my_task_tracker.status == 'Error with checkInventory when Redoing Partial':
               my_task_tracker.status = 'SENT REQUEST: PARTIAL'
+              my_task_tracker.complete = None
+              my_task_tracker.skus_failed = None
+              my_task_tracker.time_completed = None
             else:
               my_task_tracker.status = 'Sent Request'
+              my_task_tracker.complete = None
+              my_task_tracker.skus_failed = None
+              my_task_tracker.time_completed = None
             db.session.commit()
         except:
-          print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL.')
+          print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None')
         
         task1 = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids, user.refresh_token, user.id)
         print(f"TASK LAUNCHED: increase_inventory_all_jobs_task - TASK_ID: {task1.id} for userID: {user.id}")
