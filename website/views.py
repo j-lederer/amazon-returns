@@ -982,16 +982,18 @@ def jobs():
     jobs_list = load_my_task_trackers_from_db(current_user.id)
     history = load_history_from_db_descending_order(current_user.id)
     saved_for_later = load_saved_for_later_from_db(current_user.id)
+    return render_template('jobs.html',
+       jobs=jobs_list,
+       history=history,
+       saved_for_later=saved_for_later,
+       user=current_user)
 
   except Exception as e:
     print(e)
     db.session.rollback()
+    return f'Error: {e}'
 
-  return render_template('jobs.html',
-                         jobs=jobs_list,
-                         history=history,
-                         saved_for_later=saved_for_later,
-                         user=current_user)
+  
 
 
 @views.route('/create_job', methods=['GET', 'POST'])
