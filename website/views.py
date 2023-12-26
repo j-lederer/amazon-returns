@@ -169,7 +169,6 @@ def refresh():
 def refresh_returns_task(self, refresh_token,
                             current_user_id, my_refresh_returns_tracker_id):
   try: 
-    db.session.rollback()
     task = Task(id=self.request.id,
                   name=f'Increase Inventory {self.request.id}',
                   description='Increasing Inventory...',
