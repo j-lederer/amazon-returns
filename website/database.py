@@ -3,7 +3,7 @@ import os
 from .models import User, Addresses, All_return_details, Current_return_to_display, Tracking_id_to_search, Tracking_ids, Deleted_users, Stripecustomer, Suggestions, Task, History, Task_details, My_task_tracker
 from . import db
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timedelta
 # from zoneinfo import ZoneInfo
 import pytz
 from sqlalchemy import desc
@@ -453,7 +453,7 @@ def load_token_expiration(user_id):
     return'error'
 def create_token_expiration(user_id):
   current_date = datetime.now(pytz.timezone('America/New_York'))
-  end_date = current_date + datetime.timedelta(days=364)
+  end_date = current_date + timedelta(days=364)
   user = User.query.get(user_id)
   if user:
     user.token_expiration = end_date
