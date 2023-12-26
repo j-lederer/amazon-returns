@@ -15,7 +15,7 @@ from io import BytesIO
 import os
 from collections import Counter
 from datetime import datetime
-# from zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo
 import re
 
 from .download_pdf_queue import download_queue_data
@@ -61,7 +61,7 @@ def home():
   print("TOKEN EXPIRATION:")
   print(current_user.token_expiration)
   if current_user.token_expiration is not None:
-    current_date = datetime.now()
+    current_date = datetime.now(ZoneInfo("America/New_York"))
     token_expiration = current_user.token_expiration
     if (token_expiration < current_date):
       delete_refresh_token_and_expiration(current_user.id)
@@ -144,7 +144,7 @@ import time
 def refresh():
   my_refresh_returns_tracker = My_refresh_returns_tracker.query.filter_by(user_id=current_user.id).first()
   if my_refresh_returns_tracker:
-      my_refresh_returns_tracker.time_clicked=datetime.now()
+      my_refresh_returns_tracker.time_clicked=datetime.now(ZoneInfo("America/New_York"))
       my_refresh_returns_tracker.status = 'Sent Request'
       my_refresh_returns_tracker.complete = False
       my_refresh_returns_tracker.time_completed = None
@@ -152,7 +152,7 @@ def refresh():
       
   else: 
       my_refresh_returns_tracker =   My_refresh_returns_tracker(user_id=current_user.id,
-      time_clicked=datetime.now(),
+      time_clicked=datetime.now(ZoneInfo("America/New_York")),
       status = 'Sent Request')
       db.session.add(my_refresh_returns_tracker)
   db.session.commit()
@@ -169,14 +169,14 @@ def refresh_returns_task(self, refresh_token,
     task = Task(id=self.request.id,
                   name=f'Increase Inventory {self.request.id}',
                   description='Increasing Inventory...',
-                  time_created=datetime.now(),
+                  time_created=datetime.now(ZoneInfo("America/New_York")),
                   user_id=current_user_id,
                   status = 'Began',
                   my_task_tracker=None)
     db.session.add(task)
     my_refresh_returns_tracker = My_refresh_returns_tracker.query.get(my_refresh_returns_tracker_id)
     my_refresh_returns_tracker.status = 'Began'
-    my_refresh_returns_tracker.time_task_associated_launched = datetime.now()
+    my_refresh_returns_tracker.time_task_associated_launched = datetime.now(ZoneInfo("America/New_York"))
     my_refresh_returns_tracker.task_associated = task.id
     db.session.commit()
     print(f'Added Task refresh_returns to database with task id: {self.request.id}')
@@ -206,9 +206,9 @@ def refresh_returns_task(self, refresh_token,
                                       current_user_id)
         refresh_addresses_in_db(addressData, current_user_id)
         task.status = 'SUCCESSFUL'
-        task.time_completed = datetime.now()
+        task.time_completed = datetime.now(ZoneInfo("America/New_York"))
         my_refresh_returns_tracker.status = 'SUCCESSFUL'
-        my_refresh_returns_tracker.time_completed = datetime.now()
+        my_refresh_returns_tracker.time_completed = datetime.now(ZoneInfo("America/New_York"))
         my_refresh_returns_tracker.complete = True
         db.session.commit()
         return "Done"
@@ -349,7 +349,7 @@ def increase_inventory_single_task(self, my_task_tracker_id, refresh_token,
       task = Task(id=self.request.id,
                   name=f'Increase Inventory {self.request.id}',
                   description='Increasing Inventory...',
-                  time_created=datetime.now(),
+                  time_created=datetime.now(ZoneInfo("America/New_York")),
                   user_id=current_user_id,
                   my_task_tracker=my_task_tracker_id)
       db.session.add(task)
@@ -361,13 +361,13 @@ def increase_inventory_single_task(self, my_task_tracker_id, refresh_token,
             my_task_tracker.status = 'Sent Request: REDOING PARTIAL'
             my_task_tracker.complete = None
             my_task_tracker.skus_failed = None
-            my_task_tracker.time_task_associated_launched = datetime.now()
+            my_task_tracker.time_task_associated_launched = datetime.now(ZoneInfo("America/New_York"))
             my_task_tracker.time_completed = None
           else:
                 my_task_tracker.status='Sent Request'
                 my_task_tracker.complete = None
                 my_task_tracker.skus_failed = None
-                my_task_tracker.time_task_associated_launched = datetime.now()
+                my_task_tracker.time_task_associated_launched = datetime.now(ZoneInfo("America/New_York"))
                 my_task_tracker.time_completed = None
           db.session.commit()
     except:
@@ -450,7 +450,7 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
       task = Task(id=self.request.id,
                   name=f'Increase Inventory {self.request.id}',
                   description='Increasing Inventory All Jobs...',
-                  time_created=datetime.now(),
+                  time_created=datetime.now(ZoneInfo("America/New_York")),
                   user_id=current_user_id)
       db.session.add(task)
       db.session.commit()
@@ -462,13 +462,13 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
             my_task_tracker.status = 'Sent Request: REDOING PARTIAL'
             my_task_tracker.complete = None
             my_task_tracker.skus_failed = None
-            my_task_tracker.time_task_associated_launched = datetime.now()
+            my_task_tracker.time_task_associated_launched = datetime.now(ZoneInfo("America/New_York"))
             my_task_tracker.time_completed = None
           else:
                 my_task_tracker.status='Sent Request'
                 my_task_tracker.complete = None
                 my_task_tracker.skus_failed = None
-                my_task_tracker.time_task_associated_launched = datetime.now()
+                my_task_tracker.time_task_associated_launched = datetime.now(ZoneInfo("America/New_York"))
                 my_task_tracker.time_completed = None
         db.session.commit()
       except:
@@ -999,7 +999,7 @@ def create_job():
       queue = load_queue_from_db(current_user.id)
       my_task_tracker = My_task_tracker(name='Increase Inventory',
                                         description='Increasing Inventory...',
-                                        time_added_to_jobs=datetime.now(),
+                                        time_added_to_jobs=datetime.now(ZoneInfo("America/New_York")),
                                         status='Waiting',
                                         user_id=current_user.id)
       print('MY_TASK_TRACKER:', my_task_tracker)
@@ -1138,8 +1138,8 @@ def rollback_db(self):
 def every_day():
   print("RUNNING EVERY DAY!")
   print('The time now is: ')
-  print(datetime.now())
   # print(datetime.now(ZoneInfo("America/New_York")))
+  print(datetime.now(ZoneInfo("America/New_York")))
 
 
 @views.route('/load_task_details_from_db/<my_task_tracker_id>')
@@ -1294,7 +1294,7 @@ def delete_whole_history():
 #     quantity.text = str(inventory_data["Quantity"])
 
 #     restock_date = ET.SubElement(inventory, "RestockDate")
-#     restock_date.text = datetime.now().strftime("%Y-%m-%d")
+#     restock_date.text = datetime.now(ZoneInfo("America/New_York")).strftime("%Y-%m-%d")
 #     #restock_date.text = "2023-05-26"  # Replace with a valid date
 #     fulfillment_latency = ET.SubElement(inventory, "FulfillmentLatency")
 #     fulfillment_latency.text = "1"  # Replace with a valid integer

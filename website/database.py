@@ -3,7 +3,8 @@ import os
 from .models import User, Addresses, All_return_details, Current_return_to_display, Tracking_id_to_search, Tracking_ids, Deleted_users, Stripecustomer, Suggestions, Task, History, Task_details, My_task_tracker
 from . import db
 from flask_sqlalchemy import SQLAlchemy
-import datetime
+from datetime import datetime
+from zoneinfo import ZoneInfo
 from sqlalchemy import desc
 # from sqlalchemy.orm import scoped_session, sessionmaker
 # from sqlalchemy.ext.declarative import declarative_base
@@ -450,7 +451,7 @@ def load_token_expiration(user_id):
     print("error with database call get_refresh_token")
     return'error'
 def create_token_expiration(user_id):
-  current_date = datetime.datetime.now()
+  current_date = datetime.datetime.now(ZoneInfo("America/New_York"))
   end_date = current_date + datetime.timedelta(days=364)
   user = User.query.get(user_id)
   if user:

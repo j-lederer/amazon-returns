@@ -12,6 +12,7 @@ from sp_api.base import SellingApiException
 
 
 from datetime import datetime, timedelta, date
+from zoneinfo import ZoneInfo
 from sp_api.base import Marketplaces
 from sp_api.api import Orders
 from sp_api.util import throttle_retry, load_all_pages
@@ -256,13 +257,13 @@ def increaseInventory_single_job(Quantity_of_SKUS, task_id, my_task_tracker_id, 
         my_task_tracker.status = 'REDOING PARTIAL'
         my_task_tracker.complete = None
         my_task_tracker.skus_failed = None
-        my_task_tracker.time_task_associated_launched = datetime.now()
+        my_task_tracker.time_task_associated_launched = datetime.now(ZoneInfo("America/New_York"))
         my_task_tracker.time_completed = None
     else:
         my_task_tracker.status='Began'
         my_task_tracker.complete = None
         my_task_tracker.skus_failed = None
-        my_task_tracker.time_task_associated_launched = datetime.now()
+        my_task_tracker.time_task_associated_launched = datetime.now(ZoneInfo("America/New_York"))
         my_task_tracker.time_completed = None
     db.session.commit()
   except:
@@ -541,11 +542,11 @@ def increaseInventory_single_job(Quantity_of_SKUS, task_id, my_task_tracker_id, 
       try:
         task.status = 'SUCCESS'
         task.complete = True
-        task.time_completed = datetime.now()       
+        task.time_completed = datetime.now(ZoneInfo("America/New_York"))       
         my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
         my_task_tracker.status='SUCCESS'
         my_task_tracker.complete = True
-        my_task_tracker.time_completed = datetime.now()
+        my_task_tracker.time_completed = datetime.now(ZoneInfo("America/New_York"))
         db.session.commit()
       except Exception as e:
         formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory_single_job call to: SUCCESS. Error: {e}'
@@ -554,11 +555,11 @@ def increaseInventory_single_job(Quantity_of_SKUS, task_id, my_task_tracker_id, 
       try:
         task.status = result[0]
         task.complete = True
-        task.time_completed = datetime.now()        
+        task.time_completed = datetime.now(ZoneInfo("America/New_York"))        
         my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
         my_task_tracker.status= result[0]
         my_task_tracker.complete = True
-        my_task_tracker.time_completed = datetime.now()
+        my_task_tracker.time_completed = datetime.now(ZoneInfo("America/New_York"))
         db.session.commit()
       except Exception as e:
         formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_id: {my_task_tracker_id} in increaseInventory_single_job call to: result[0]. Error: {e}'
@@ -601,13 +602,13 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
         my_task_tracker.status = 'REDOING PARTIAL'
         my_task_tracker.complete = None
         my_task_tracker.skus_failed = None
-        my_task_tracker.time_task_associated_launched = datetime.now()
+        my_task_tracker.time_task_associated_launched = datetime.now(ZoneInfo("America/New_York"))
         my_task_tracker.time_completed = None
       else:
         my_task_tracker.status='Began'
         my_task_tracker.complete = None
         my_task_tracker.skus_failed = None
-        my_task_tracker.time_task_associated_launched = datetime.now()
+        my_task_tracker.time_task_associated_launched = datetime.now(ZoneInfo("America/New_York"))
         my_task_tracker.time_completed = None
     db.session.commit()
   except:
@@ -911,12 +912,12 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
       try:
         task.status = 'SUCCESS'
         task.complete = True
-        task.time_completed = datetime.now()
+        task.time_completed = datetime.now(ZoneInfo("America/New_York"))
         for my_task_tracker_id in my_task_trackers_ids_array:
           my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
           my_task_tracker.status='SUCCESS'
           my_task_tracker.complete = True
-          my_task_tracker.time_completed = datetime.now()
+          my_task_tracker.time_completed = datetime.now(ZoneInfo("America/New_York"))
         db.session.commit()
       except Exception as e:
         formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: SUCCESS. Error: {e}'
@@ -925,12 +926,12 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
       try:
         task.status = result[0]
         task.complete = True
-        task.time_completed = datetime.now()
+        task.time_completed = datetime.now(ZoneInfo("America/New_York"))
         for my_task_tracker_id in my_task_trackers_ids_array:
           my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
           my_task_tracker.status= result[0]
           my_task_tracker.complete = True
-          my_task_tracker.time_completed = datetime.now()
+          my_task_tracker.time_completed = datetime.now(ZoneInfo("America/New_York"))
         db.session.commit()
       except Exception as e:
         formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: result[0]. Error: {e}'
