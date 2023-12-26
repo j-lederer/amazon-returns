@@ -1163,11 +1163,15 @@ def every_day_function():
         my_task_trackers= load_my_task_trackers_from_db(user.id)
         my_task_trackers_array_ids = serialize_task_trackers(my_task_trackers)
         # print('SEREIALIZED:' , my_task_trackers_array_ids)
-        task = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids, user.refresh_token, user.id)
-        print(f"TASK LAUNCHED: increase_inventory_all_jobs_task - TASK_ID: {task.id} for userID: {user.id}")
+        task1 = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids, user.refresh_token, user.id)
+        print(f"TASK LAUNCHED: increase_inventory_all_jobs_task - TASK_ID: {task1.id} for userID: {user.id}")
       except Exception as e:
         print(f"ERROR every_day_increase for userID: {user.id}. Error: {e}")
-  
+        db.session.rollback()
+
+
+
+      
       try:
         print(f"Starting Refresh Operation for userID: {user.id}")
         my_refresh_returns_tracker = My_refresh_returns_tracker.query.filter_by(user_id=user.id).first()
@@ -1184,14 +1188,16 @@ def every_day_function():
             status = 'Sent Request')
             db.session.add(my_refresh_returns_tracker)
         db.session.commit()
-        task = refresh_returns_task.delay(user.refresh_token, user.id, my_refresh_returns_tracker.id)
-        print(f"TASK LAUNCHED: refresh_returns_task - TASK_ID: {task.id} for userID: {user.id}")
+        task2 = refresh_returns_task.delay(user.refresh_token, user.id, my_refresh_returns_tracker.id)
+        print(f"TASK LAUNCHED: refresh_returns_task - TASK_ID: {task2.id} for userID: {user.id}")
   
       except Exception as e:
         print(f"ERROR every_day_refresh for userID: {user.id}. Error: {e}")
+        db.session.rollback()
       
   except Exception as e:
     print(f"ERROR something went wrong with the overall every_day_function for all users. Error: {e}")
+    db.session.rollback()
 
 
 @views.route('/load_task_details_from_db/<my_task_tracker_id>')
