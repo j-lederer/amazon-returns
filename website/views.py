@@ -977,10 +977,15 @@ def tutorial():
 @views.route('/jobs', methods=['GET', 'POST'])
 @login_required
 def jobs():
-  # jobs_list = load_jobs_from_db(current_user.id)
-  jobs_list = load_my_task_trackers_from_db(current_user.id)
-  history = load_history_from_db_descending_order(current_user.id)
-  saved_for_later = load_saved_for_later_from_db(current_user.id)
+  try:
+    # jobs_list = load_jobs_from_db(current_user.id)
+    jobs_list = load_my_task_trackers_from_db(current_user.id)
+    history = load_history_from_db_descending_order(current_user.id)
+    saved_for_later = load_saved_for_later_from_db(current_user.id)
+
+  except Exception as e:
+    print(e)
+    db.session.rollback()
 
   return render_template('jobs.html',
                          jobs=jobs_list,
