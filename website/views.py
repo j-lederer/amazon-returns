@@ -144,6 +144,7 @@ import time
 @views.route('/refresh_returns_and_inventory')
 @login_required
 def refresh():
+
   my_refresh_returns_tracker = My_refresh_returns_tracker.query.filter_by(user_id=current_user.id).first()
   if my_refresh_returns_tracker:
       my_refresh_returns_tracker.time_clicked=datetime.now(pytz.timezone('America/New_York'))
@@ -162,12 +163,13 @@ def refresh():
                                        current_user.id, my_refresh_returns_tracker.id)
   print("RESPONSE BY TASK: ", task)
   return redirect('/')
-
+    
 
 @shared_task(bind=True, base=AbortableTask)
 def refresh_returns_task(self, refresh_token,
                             current_user_id, my_refresh_returns_tracker_id):
   try: 
+    db.session.rollback()
     task = Task(id=self.request.id,
                   name=f'Increase Inventory {self.request.id}',
                   description='Increasing Inventory...',
@@ -234,7 +236,7 @@ def refresh_returns_task(self, refresh_token,
     except Exception as e:
       print(f'Error updating refresh_tracker status to ERROR: {e}')
       db.session.rollback()
-      return e
+      
 
 
 
