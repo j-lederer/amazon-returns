@@ -12,9 +12,11 @@ from .database import add_refresh_token
 connectAmazon = Blueprint('connectAmazon', __name__)
 
 @connectAmazon.route('/connect_amazon')
+@login_required
 def connect_amazon():
    # Redirect the user to Amazon LWA authorization endpoint
     redirect_url_parameter= url_for('connectAmazon.callback',_external=True )
+  
     final_redirect_url = (
       'https://sellercentral.amazon.com/apps/authorize/consent?'
         f'application_id=amzn1.sp.solution.eba8a784-ea8a-424b-8aa3-58cd53c36768&'
@@ -26,6 +28,7 @@ def connect_amazon():
 
 
 @connectAmazon.route('/callback')
+@login_required
 def callback():
     state = request.args.get('state')
     selling_partner_id = request.args.get('selling_partner_id')
