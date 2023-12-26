@@ -23,7 +23,7 @@ def create_app():
                                     "every-day-at 12am" : {
                                         "task": "website.views.every_day",
                                       # 'schedule':20
-                                        "schedule": crontab(hour=5, minute=20, day_of_week='0-6') #timezone is 5 hours ahead of est. It is UTC. So 5 will be 12am
+                                        "schedule": crontab(hour=5, minute=50, day_of_week='0-6') #timezone is 5 hours ahead of est. It is UTC. So 5 will be 12am
                                         #"args": (1, 2) 
                                     }
                                 }}

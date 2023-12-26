@@ -34,6 +34,7 @@ from sqlalchemy.exc import PendingRollbackError, OperationalError
 
 views = Blueprint('views', __name__)
 
+#delete this
 @views.route('/test')
 def test():
     
@@ -1144,7 +1145,7 @@ def rollback_db(self):
   return "Rolled back db"
 
 @shared_task(bind=True, base=AbortableTask)
-def every_day():
+def every_day(self):
   print("RUNNING EVERY DAY!")
   print('The time now is: ')
   # print(datetime.now(pytz.timezone('America/New_York')))
