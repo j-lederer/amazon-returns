@@ -326,6 +326,14 @@ def get_info_on_track():
 @login_required
 def increase_inventory_single_job(my_task_tracker_id):
   #take the tracking id's in the queue and increase inventory by the return order amount for each
+  try:   
+    my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+    if my_task_tracker.status=='PARTIAL' or my_task_tracker.status == 'Error with checkInventory when Redoing Partial':
+      my_task_tracker.status = 'SENT REQUEST: PARTIAL'
+    else:
+      my_task_tracker.status = 'Sent Request'
+  except:
+  print(f'Error updating status of my_task_tracker_id: {my_task_trackers_id} in increaseInventory_single_task to: Sent Request or SENT REQUEST: PARTIAL.')
   task = increase_inventory_task.delay(my_task_tracker_id,
                                        current_user.refresh_token,
                                        current_user.id)
@@ -361,21 +369,21 @@ def increase_inventory_single_task(self, my_task_tracker_id, refresh_token,
     print(f'Added Task to database with task id: {self.request.id}')
     try:
           my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-          if my_task_tracker.status=='PARTIAL' or my_task_tracker.status == 'Error with checkInventory when Redoing Partial':
-            my_task_tracker.status = 'Sent Request: REDOING PARTIAL'
+          if my_task_tracker.status=='SENT REQUEST: PARTIAL'
+            my_task_tracker.status = 'REDOING PARTIAL'
             my_task_tracker.complete = None
             my_task_tracker.skus_failed = None
             my_task_tracker.time_task_associated_launched = datetime.now(pytz.timezone('America/New_York'))
             my_task_tracker.time_completed = None
           else:
-                my_task_tracker.status='Sent Request'
+                my_task_tracker.status='Began'
                 my_task_tracker.complete = None
                 my_task_tracker.skus_failed = None
                 my_task_tracker.time_task_associated_launched = datetime.now(pytz.timezone('America/New_York'))
                 my_task_tracker.time_completed = None
           db.session.commit()
     except:
-        formatted_string = f'Error updating status of my_task_tracker_id: {my_task_tracker_id} in increaseInventory_all_jobs call to: Sent Request or Sent Request: REDOING PARTIAL. And resetting other fields to None.'
+        formatted_string = f'Error updating status of my_task_tracker_id: {my_task_tracker_id} in increaseInventory_all_jobs call to: Began or Redoing Partial. And resetting other fields to None.'
         print(formatted_string)
     print('Running checkInventory')
     Quantity_of_SKUS = checkInventory(refresh_token)
@@ -427,6 +435,16 @@ def increase_inventory_all_jobs():
   my_task_trackers= load_my_task_trackers_from_db(current_user.id)
   my_task_trackers_array_ids = serialize_task_trackers(my_task_trackers)
   # print('SEREIALIZED:' , my_task_trackers_array_ids)
+  try:
+    for my_task_tracker_id in my_task_trackers_ids_array:
+      my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+      if my_task_tracker.status=='PARTIAL' or my_task_tracker.status == 'Error with checkInventory when Redoing Partial':
+        my_task_tracker.status = 'SENT REQUEST: PARTIAL'
+      else:
+        my_task_tracker.status = 'Sent Request'
+  except:
+  print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None.')
+  
   task = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids,
                                                 current_user.refresh_token,
                                                 current_user.id)
@@ -462,21 +480,21 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
       try:
         for my_task_tracker_id in my_task_trackers_ids_array:
           my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-          if my_task_tracker.status=='PARTIAL' or my_task_tracker.status == 'Error with checkInventory when Redoing Partial':
-            my_task_tracker.status = 'Sent Request: REDOING PARTIAL'
+          if my_task_tracker.status=='SENT REQUEST: PARTIAL':
+            my_task_tracker.status = 'REDOING PARTIAL'
             my_task_tracker.complete = None
             my_task_tracker.skus_failed = None
             my_task_tracker.time_task_associated_launched = datetime.now(pytz.timezone('America/New_York'))
             my_task_tracker.time_completed = None
           else:
-                my_task_tracker.status='Sent Request'
+                my_task_tracker.status='Began'
                 my_task_tracker.complete = None
                 my_task_tracker.skus_failed = None
                 my_task_tracker.time_task_associated_launched = datetime.now(pytz.timezone('America/New_York'))
                 my_task_tracker.time_completed = None
         db.session.commit()
       except:
-        formatted_string = f'Error updating status of my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Sent Request or Sent Request:REDOING PARTIAL. And resetting other fields to None.'
+        formatted_string = f'Error updating status of my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Began or REDOING PARTIAL. And resetting other fields to None.'
         print(formatted_string)
     print('Running checkInventory')
     Quantity_of_SKUS = checkInventory(refresh_token)
