@@ -4,7 +4,8 @@ from .models import User, Addresses, All_return_details, Current_return_to_displ
 from . import db
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from zoneinfo import ZoneInfo
+# from zoneinfo import ZoneInfo
+import pytz
 from sqlalchemy import desc
 # from sqlalchemy.orm import scoped_session, sessionmaker
 # from sqlalchemy.ext.declarative import declarative_base
@@ -451,7 +452,7 @@ def load_token_expiration(user_id):
     print("error with database call get_refresh_token")
     return'error'
 def create_token_expiration(user_id):
-  current_date = datetime.datetime.now(ZoneInfo("America/New_York"))
+  current_date = datetime.datetime.now(pytz.timezone('America/New_York'))
   end_date = current_date + datetime.timedelta(days=364)
   user = User.query.get(user_id)
   if user:
