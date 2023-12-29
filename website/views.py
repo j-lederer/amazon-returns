@@ -1227,7 +1227,8 @@ def every_day_function():
             status = 'Sent Request')
             db.session.add(my_refresh_returns_tracker)
         db.session.commit()
-        task2 = refresh_returns_task.delay(user.refresh_token, user.id, my_refresh_returns_tracker.id)
+        my_refresh_returns_tracker_id =my_refresh_returns_tracker.id
+        task2 = refresh_returns_task.delay(user.refresh_token, user.id, my_refresh_returns_tracker_id )
         print(f"TASK LAUNCHED: refresh_returns_task - TASK_ID: {task2.id} for userID: {user.id}")
   
       except Exception as e:
