@@ -1202,7 +1202,7 @@ def every_day_function():
               my_task_tracker.time_completed = None
             db.session.commit()
         except:
-          print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None')
+          print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_array_ids} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None')
         
         task1 = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids, user.refresh_token, user.id)
         print(f"TASK LAUNCHED: increase_inventory_all_jobs_task - TASK_ID: {task1.id} for userID: {user.id}")
@@ -1262,6 +1262,19 @@ def move_history_job_to_jobs(my_task_id):
 def delete_whole_history():
   delete_whole_history_db(current_user.id)
   return redirect('/jobs')
+
+@views.route('edit_name', methods=['POST', 'GET'] )
+@login_required
+def edit_name():
+  if request.method == 'POST':
+    name = request.form['name']
+    user = User.query.filter_by(id=current_user.id).first()
+    current_user.first_name = name
+    db.session.commit()
+    return redirect('/account')
+  return render_template('edit_name.html', user=current_user )
+
+
 
 
 
