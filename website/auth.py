@@ -118,7 +118,7 @@ def forgot_password():
         print("RESET TOKEN GENEREATED:")
         print(reset_token)
         
-        password_reset_link = f"https://amaze-software/reset_password?token={reset_token}"
+        password_reset_link = f"https://amaze-software.com/reset_password?token={reset_token}"
         context = {
             'reset_link': password_reset_link,
             'reset_token': reset_token,
