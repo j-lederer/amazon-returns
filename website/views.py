@@ -1174,9 +1174,7 @@ def every_day(self):
   print('The time now is: ')
   # print(datetime.now(pytz.timezone('America/New_York')))
   print(datetime.now(pytz.timezone('America/New_York')))
-  every_day_function()
-
-def every_day_function():
+  #BELOW IS THE every_day function
   try:
     print('In every_day_function')
     all_users = User.query.all()
@@ -1203,7 +1201,7 @@ def every_day_function():
             db.session.commit()
         except:
           print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_array_ids} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None')
-        
+
         task1 = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids, user.refresh_token, user.id)
         print(f"TASK LAUNCHED: increase_inventory_all_jobs_task - TASK_ID: {task1.id} for userID: {user.id}")
       except Exception as e:
@@ -1220,7 +1218,7 @@ def every_day_function():
             my_refresh_returns_tracker.complete = False
             my_refresh_returns_tracker.time_completed = None
             my_refresh_returns_tracker.task_associated  =None    
-    
+
         else: 
             my_refresh_returns_tracker =   My_refresh_returns_tracker(user_id=user.id,
             time_clicked=datetime.now(pytz.timezone('America/New_York')),
@@ -1230,18 +1228,80 @@ def every_day_function():
         my_refresh_returns_tracker_id =my_refresh_returns_tracker.id
         task2 = refresh_returns_task.delay(user.refresh_token, user.id, my_refresh_returns_tracker_id )
         print(f"TASK LAUNCHED: refresh_returns_task - TASK_ID: {task2.id} for userID: {user.id}")
-  
+
       except Exception as e:
         print(f"ERROR every_day_refresh for userID: {user.id}. Error: {e}")
         db.session.rollback()
-      
+
   except Exception as e:
     print(f"ERROR something went wrong with the overall every_day_function for all users. Error: {e}")
     db.session.rollback()
 
+ 
+
 @views.route('/everyday_onweb')
 def every_day_function_on_web():
-  every_day_function()
+  try:
+    print('In every_day_function')
+    all_users = User.query.all()
+    for user in all_users:
+      print("USER: ", user.id)
+      #Increase Inventory Operation
+      try:
+        print(f"Starting Increase Inventory Operation for userID: {user.id}")
+        my_task_trackers= load_my_task_trackers_from_db(user.id)
+        my_task_trackers_array_ids = serialize_task_trackers(my_task_trackers)
+        try:
+          for my_task_tracker_id in my_task_trackers_array_ids:
+            my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+            if my_task_tracker.status=='PARTIAL' or my_task_tracker.status == 'Error with checkInventory when Redoing Partial':
+              my_task_tracker.status = 'SENT REQUEST: PARTIAL'
+              my_task_tracker.complete = None
+              my_task_tracker.skus_failed = None
+              my_task_tracker.time_completed = None
+            else:
+              my_task_tracker.status = 'Sent Request'
+              my_task_tracker.complete = None
+              my_task_tracker.skus_failed = None
+              my_task_tracker.time_completed = None
+            db.session.commit()
+        except:
+          print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_array_ids} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None')
+
+        task1 = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids, user.refresh_token, user.id)
+        print(f"TASK LAUNCHED: increase_inventory_all_jobs_task - TASK_ID: {task1.id} for userID: {user.id}")
+      except Exception as e:
+        print(f"ERROR every_day_increase for userID: {user.id}. Error: {e}")
+        db.session.rollback()
+
+      #Refresh Returns Operation  
+      try:
+        print(f"Starting Refresh Operation for userID: {user.id}")
+        my_refresh_returns_tracker = My_refresh_returns_tracker.query.filter_by(user_id=user.id).first()
+        if my_refresh_returns_tracker:
+            my_refresh_returns_tracker.time_clicked=datetime.now(pytz.timezone('America/New_York'))
+            my_refresh_returns_tracker.status = 'Sent Request'
+            my_refresh_returns_tracker.complete = False
+            my_refresh_returns_tracker.time_completed = None
+            my_refresh_returns_tracker.task_associated  =None    
+
+        else: 
+            my_refresh_returns_tracker =   My_refresh_returns_tracker(user_id=user.id,
+            time_clicked=datetime.now(pytz.timezone('America/New_York')),
+            status = 'Sent Request')
+            db.session.add(my_refresh_returns_tracker)
+        db.session.commit()
+        my_refresh_returns_tracker_id =my_refresh_returns_tracker.id
+        task2 = refresh_returns_task.delay(user.refresh_token, user.id, my_refresh_returns_tracker_id )
+        print(f"TASK LAUNCHED: refresh_returns_task - TASK_ID: {task2.id} for userID: {user.id}")
+
+      except Exception as e:
+        print(f"ERROR every_day_refresh for userID: {user.id}. Error: {e}")
+        db.session.rollback()
+
+  except Exception as e:
+    print(f"ERROR something went wrong with the overall every_day_function for all users. Error: {e}")
+    db.session.rollback()
   return 'every_day_function_on_web'
 
 
