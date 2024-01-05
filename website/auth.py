@@ -47,44 +47,53 @@ def login():
 @auth.route('/logout')
 @login_required
 def logout():
-  logout_user()
-  return redirect(url_for('auth.login'))
+  try: 
+    logout_user()
+    return redirect(url_for('auth.login'))
+  except Exception as e:
+    print('ERROR: ' + str(e))
+    db.session.rollback()
+    return str(e)
 
 
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
-  if request.method == 'POST':
-    email = request.form.get('email')
-    first_name = request.form.get('firstName')
-    password1 = request.form.get('password1')
-    password2 = request.form.get('password2')
-
-    user = User.query.filter_by(email=email).first()
-    if user:
-      flash('Email already exists.', category='error')
-    elif len(email) < 4:
-      flash('Email must be greater than 3 characters.', category='error')
-    elif len(first_name) < 2:
-      flash('First name must be greater than 1 character.', category='error')
-    elif password1 != password2:
-      flash('Passwords don\'t match.', category='error')
-    elif len(password1) < 7:
-      flash('Password must be at least 7 characters.', category='error')
-    else:
-      print(_user_datastore)
-      new_user = _user_datastore.create_user(email=email,
-                                             password=hash_password(password1),
-                                             first_name=first_name)
-      # new_user = User(email=email, first_name=first_name, password=generate_password_hash(
-      #     password1, method='sha256'))
-      # db.session.add(new_user)
-      db.session.commit()
-      login_user(new_user, remember=True)
-      flash('Account created!', category='success')
-      return redirect(url_for('views.home'))
-
-  return render_template("sign_up.html", user=current_user)
-
+  try:
+    if request.method == 'POST':
+      email = request.form.get('email')
+      first_name = request.form.get('firstName')
+      password1 = request.form.get('password1')
+      password2 = request.form.get('password2')
+  
+      user = User.query.filter_by(email=email).first()
+      if user:
+        flash('Email already exists.', category='error')
+      elif len(email) < 4:
+        flash('Email must be greater than 3 characters.', category='error')
+      elif len(first_name) < 2:
+        flash('First name must be greater than 1 character.', category='error')
+      elif password1 != password2:
+        flash('Passwords don\'t match.', category='error')
+      elif len(password1) < 7:
+        flash('Password must be at least 7 characters.', category='error')
+      else:
+        print(_user_datastore)
+        new_user = _user_datastore.create_user(email=email,
+                                               password=hash_password(password1),
+                                               first_name=first_name)
+        # new_user = User(email=email, first_name=first_name, password=generate_password_hash(
+        #     password1, method='sha256'))
+        # db.session.add(new_user)
+        db.session.commit()
+        login_user(new_user, remember=True)
+        flash('Account created!', category='success')
+        return redirect(url_for('views.home'))
+  
+    return render_template("sign_up.html", user=current_user)
+  except Exception as e:
+    print('ERROR: ' + str(e))
+    db.session.rollback()
+    return str(e)
 
 from flask_security import password_reset
 
@@ -127,7 +136,6 @@ def forgot_password():
 
     # Render the template and pass the form to the context
     return render_template('forgot_password.html', forgot_password_form=forgot_password_form)
-
   except Exception as e:
     print('ERROR: ' + str(e))
     db.session.rollback()
@@ -142,6 +150,7 @@ import urllib.parse
 
 @auth.route('/reset_password', methods=['GET', 'POST'])
 def reset_password():
+  try:
     reset_password_form = ResetPasswordForm()
   
     reset_token = request.args.get('token')
@@ -184,6 +193,10 @@ def reset_password():
 
     reset_password_link = f"https://amaze-software/reset_password?token={reset_token}"
     return render_template('reset_password.html', reset_password_link=reset_password_link, reset_password_form=reset_password_form)
+  except Exception as e:
+    print('ERROR: ' + str(e))
+    db.session.rollback()
+    return str(e)
 
 
 def generate_reset_password_token(user):
@@ -196,6 +209,7 @@ def generate_reset_password_token(user):
     return current_app.security.reset_serializer.dumps(data)
 
 def reset_password_token_status(token):
+  try:
     """Returns the expired status, invalid status, and user of a password reset
     token. For example::
 
@@ -217,5 +231,8 @@ def reset_password_token_status(token):
                 invalid = True
 
     return expired, invalid, user, data
-
+  except Exception as e:
+    print('ERROR: ' + str(e))
+    db.session.rollback()
+    return str(e)
 
