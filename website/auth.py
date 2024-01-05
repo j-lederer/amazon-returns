@@ -89,6 +89,7 @@ from flask_security.utils import config_value, get_token_status, hash_data, hash
 
 @auth.route('/forgot_password', methods=['GET', 'POST'])
 def forgot_password():
+  try:
     forgot_password_form = ForgotPasswordForm()
     if forgot_password_form.validate_on_submit():
       email = forgot_password_form.email.data
@@ -121,6 +122,11 @@ def forgot_password():
 
     # Render the template and pass the form to the context
     return render_template('forgot_password.html', forgot_password_form=forgot_password_form)
+
+  except Exception as e:
+    print('ERROR: ' + str(e))
+    db.session.rollback()
+    return str(e)
 
 
 from flask import Blueprint, render_template, request, flash, redirect, url_for
