@@ -21,22 +21,27 @@ def init_user_datastore(user_datastore):
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
-  if request.method == 'POST':
-    email = request.form.get('email')
-    password = request.form.get('password')
-
-    user = User.query.filter_by(email=email).first()
-    if user:
-      if verify_password(password, user.password):
-        flash('Logged in successfully!', category='success')
-        login_user(user, remember=True)
-        return redirect(url_for('views.home'))
+  try: 
+    if request.method == 'POST':
+      email = request.form.get('email')
+      password = request.form.get('password')
+  
+      user = User.query.filter_by(email=email).first()
+      if user:
+        if verify_password(password, user.password):
+          flash('Logged in successfully!', category='success')
+          login_user(user, remember=True)
+          return redirect(url_for('views.home'))
+        else:
+          flash('Incorrect password, try again.', category='error')
       else:
-        flash('Incorrect password, try again.', category='error')
-    else:
-      flash('Email does not exist.', category='error')
-
-  return render_template("login.html", user=current_user)
+        flash('Email does not exist.', category='error')
+  
+    return render_template("login.html", user=current_user)
+  except Exception as e:
+    print('ERROR: ' + str(e))
+    db.session.rollback()
+    return str(e)
 
 
 @auth.route('/logout')
