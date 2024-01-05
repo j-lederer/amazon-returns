@@ -151,13 +151,17 @@ import urllib.parse
 @auth.route('/reset_password', methods=['GET', 'POST'])
 def reset_password():
   try:
+    print('Test1')
     reset_password_form = ResetPasswordForm()
-  
+    print('Test2')
     reset_token = request.args.get('token')
+    print('Test3')
     # reset_token = 'a'
     print("RECEIVED RESET_TOKEN:")
     print(reset_token)
+    print('Test4')
     expired, invalid, user, data = reset_password_token_status(reset_token)
+    print('Test5')
     print("TOKEN STATUS:")
     print("Expired_value: " + str(expired))
     print("invalid_value " + str(invalid))
@@ -210,6 +214,7 @@ def generate_reset_password_token(user):
 
 def reset_password_token_status(token):
   try:
+    print('TestA')
     """Returns the expired status, invalid status, and user of a password reset
     token. For example::
 
@@ -221,6 +226,7 @@ def reset_password_token_status(token):
         token, 'reset', 'RESET_PASSWORD', return_data=True
     )
     print(get_token_status(token, 'reset', 'RESET_PASSWORD', return_data=True))
+    print('TestB')
     userID= None
     if data:
       userID = data[0]
