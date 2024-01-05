@@ -41,7 +41,7 @@ def login():
   except Exception as e:
     print('ERROR: ' + str(e))
     db.session.rollback()
-    return str(e)
+    return 'Error: ' + str(e)
 
 
 @auth.route('/logout')
@@ -53,7 +53,7 @@ def logout():
   except Exception as e:
     print('ERROR: ' + str(e))
     db.session.rollback()
-    return str(e)
+    return 'Error: ' + str(e)
 
 
 @auth.route('/sign-up', methods=['GET', 'POST'])
@@ -93,7 +93,7 @@ def sign_up():
   except Exception as e:
     print('ERROR: ' + str(e))
     db.session.rollback()
-    return str(e)
+    return 'Error: ' + str(e)
 
 from flask_security import password_reset
 
@@ -139,7 +139,7 @@ def forgot_password():
   except Exception as e:
     print('ERROR: ' + str(e))
     db.session.rollback()
-    return str(e)
+    return 'Error: ' + str(e)
 
 
 from flask import Blueprint, render_template, request, flash, redirect, url_for
@@ -196,7 +196,7 @@ def reset_password():
   except Exception as e:
     print('ERROR: ' + str(e))
     db.session.rollback()
-    return str(e)
+    return 'Error: ' + str(e)
 
 
 def generate_reset_password_token(user):
@@ -234,5 +234,5 @@ def reset_password_token_status(token):
   except Exception as e:
     print('ERROR: ' + str(e))
     db.session.rollback()
-    return str(e)
+    return 'Error: ' + str(e)
 
