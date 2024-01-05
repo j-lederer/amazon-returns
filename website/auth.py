@@ -195,7 +195,7 @@ def reset_password():
       else:
         flash('Passwords do not match. Please try again.')
 
-    reset_password_link = f"https://amaze-software/reset_password?token={reset_token}"
+    reset_password_link = f"https://amaze-software.com/reset_password?token={reset_token}"
     return render_template('reset_password.html', reset_password_link=reset_password_link, reset_password_form=reset_password_form)
   except Exception as e:
     print('ERROR: ' + str(e))
