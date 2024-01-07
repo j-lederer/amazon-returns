@@ -118,10 +118,10 @@
 <br>
 <a class="button_add_to_jobs" href='/create_job' onclick="return confirm('Add the queue to your jobs. The increase inventory operation will execute at 12:00 am ET every night.');">Add to Jobs</a>
 	<!--<button class="button1">Submit</button>-->
-	<div class="tester"><p1>Colortester</p1></div>
+	<!-- <div class="tester"><p1>Colortester</p1></div>
 	<div class="tester2"><p1>Colortester</p1></div>
 	<div class="tester3"><p1>Colortester</p1></div>
-	<div class="tester4"><p1>Colortester</p1></div>
+	<div class="tester4"><p1>Colortester</p1></div> -->
 	<script src='C:\Users\jlede\OneDrive\Documents\My Code\Coding Projects\Amazon (1)\Website\templates\script.js'></script>
 
 	<div class="trackingID">
@@ -133,11 +133,11 @@
 <a class="Clear_Search_Button" href="/clearSearch">Clear Search</a>
 <br>
  <a class="Refresh_Button" href="/refresh_returns_and_inventory" style="position: relative;
-   top:-500px;
+   top:-350px;
    left:50px;">Refresh Returns and Inventory Data </a>
 
 <div style="max-width: 300px; margin: 0 auto; padding: 10px; text-align: left; position: relative;
-    top:-510px;
+    top:-360px;
     left:-370px;">
  
   <table class="Refresh_Table" style="max-width: 100%; margin-top: 5px; margin-bottom: 0;text-align: center;">
@@ -166,16 +166,19 @@
   <br>
  
   <a class="Clear_Queue_Button" href="/clearQueue"  onclick="return confirm('Are you sure you want to clear the queue?');">Clear Queue</a>
+<a class="Download_pdf" href="{{url_for('views.download_queue')}}">Download a pdf of Queue</a>
+<a class="Download_slim" href="{{url_for('views.download_inventory_to_change_slim')}}">Download Inventory Change Slim</a>
+
+
+<!-- <a href="{{url_for('views.download_queue_and_inventory_change')}}">Download Inventory Change Full</a> -->
 
   <!-- <a class = "button_go_to_jobs" href="{{url_for('views.jobs')}}">Jobs</a> -->
 	<!--From youtube flask-->
 	<div class="content">
 		<h1 style="text-align: center; color: black; ">Queue</h1> 
-    <a href="{{url_for('views.download_queue')}}">Download a pdf of Queue</a>
-    <br>
-    <!-- <a href="{{url_for('views.download_queue_and_inventory_change')}}">Download Inventory Change Full</a> -->
-    <br>
-    <a href="{{url_for('views.download_inventory_to_change_slim')}}">Download Inventory Change Slim</a>
+  
+
+
 		{% if tasks|length < 1 %}
 		<h4 style="text-align: center">There are no Tracking ID's in the queue. Add one now!</h4>
 		{% else %}

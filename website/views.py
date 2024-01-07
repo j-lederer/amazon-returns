@@ -32,10 +32,14 @@ from celery.result import AsyncResult
 from sqlalchemy.exc import PendingRollbackError, OperationalError
 import logging
 
-def log_retry(request, **kwargs):
-    logger = logging.getLogger(__name__)
-    exc = kwargs['exc']
-    logger.warning('Retrying task with args: %s (exc: %r)', request.args, exc)
+# def log_retry(request, **kwargs):
+#     logger = logging.getLogger(__name__)
+#     exc = kwargs['exc']
+#     logger.warning('Retrying task with args: %s (exc: %r)', request.args, exc)
+def log_retry(request=None, reason=None, **kwargs):
+  logger = logging.getLogger(__name__)
+  exc = kwargs.get('exc')
+  logger.warning('Retrying task with args: %s (exc: %r)', request.args, exc)
 
 
 views = Blueprint('views', __name__)
