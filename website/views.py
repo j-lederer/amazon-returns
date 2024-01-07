@@ -30,6 +30,12 @@ from celery.contrib.abortable import AbortableTask
 from celery.result import AsyncResult
 
 from sqlalchemy.exc import PendingRollbackError, OperationalError
+import logging
+
+def log_retry(request, **kwargs):
+    logger = logging.getLogger(__name__)
+    exc = kwargs['exc']
+    logger.warning('Retrying task with args: %s (exc: %r)', request.args, exc)
 
 
 views = Blueprint('views', __name__)
@@ -1174,7 +1180,7 @@ def rollback_db(self):
   print("Tried db rollback")
   return "Rolled back db"
 
-@shared_task(bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
+@shared_task(bind=True, base=AbortableTask, max_retries=3, on_retry=log_retry)
 def every_day(self):
   print("RUNNING EVERY DAY!")
   print('The time now is: ')
@@ -1243,7 +1249,7 @@ def every_day(self):
   except Exception as e:
     print(f"ERROR something went wrong with the overall every_day_function for all users. Error: {e}")
     db.session.rollback()
-    self.retry(exc=e) 
+    self.retry(exc=e, countdown=5) 
 
  
 
