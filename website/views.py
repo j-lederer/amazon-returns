@@ -228,6 +228,7 @@ def refresh_returns_task(self, refresh_token,
       return f'ERROR with get_all_returns() output_data: {all_return_data}'
   except Exception as e:
     print('Error with refresh_returns_task: ', e)
+    self.retry(exc=e) 
     try:
       my_refresh_returns_tracker = My_refresh_returns_tracker.query.get(my_refresh_returns_tracker_id)
       if my_refresh_returns_tracker:
@@ -340,8 +341,8 @@ def increase_inventory_single_job(my_task_tracker_id):
       my_task_tracker.time_completed = None
     db.session.commit()
   except:
-    print(f'Error updating status of my_task_tracker_id: {my_task_trackers_id} in increaseInventory_single_task to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None.')
-  task = increase_inventory_task.delay(my_task_tracker_id,
+    print(f'Error updating status of my_task_tracker_id: {my_task_tracker_id} in increaseInventory_single_task to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None.')
+  task = increase_inventory_single_task.delay(my_task_tracker_id,
                                        current_user.refresh_token,
                                        current_user.id)
   print("RESPONSE BY TASK: ", task)
@@ -349,11 +350,12 @@ def increase_inventory_single_job(my_task_tracker_id):
 
 
 #For automatic retries use these arguments (bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
-@shared_task(bind=True, base=AbortableTask)
+@shared_task(bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
 def increase_inventory_single_task(self, my_task_tracker_id, refresh_token,
                             current_user_id):
   
   #Check if there are tasks with the same id and let the user know the pevious satuses of all of them
+  skip = False
   try:
     task = Task.query.filter_by(id=self.request.id,
                                 user_id=current_user_id).all()
@@ -376,55 +378,58 @@ def increase_inventory_single_task(self, my_task_tracker_id, refresh_token,
     print(f'Added Task to database with task id: {self.request.id}')
     try:
           my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-          if my_task_tracker.status=='SENT REQUEST: PARTIAL':
+          if my_task_tracker.status == 'SUCCESS':
+            skip = True
+          if my_task_tracker.status=='SENT REQUEST: PARTIAL' and skip==False:
             my_task_tracker.status = 'REDOING PARTIAL'
     
             my_task_tracker.time_task_associated_launched = datetime.now(pytz.timezone('America/New_York'))
      
-          else:
+          elif skip==False:
             my_task_tracker.status='Began'
             my_task_tracker.time_task_associated_launched = datetime.now(pytz.timezone('America/New_York'))
           db.session.commit()
     except:
         formatted_string = f'Error updating status of my_task_tracker_id: {my_task_tracker_id} in increaseInventory_all_jobs call to: Began or Redoing Partial.'
         print(formatted_string)
-    print('Running checkInventory')
-    Quantity_of_SKUS = checkInventory(refresh_token)
-    if Quantity_of_SKUS == 'FATAL' or Quantity_of_SKUS == 'CANCELLED' or Quantity_of_SKUS == 'UNKNOWN ERROR':
-      print("ERROR with checkInventory")
-      if my_task_tracker.status=='PARTIAL':
-        my_task_tracker.status='Error with checkInventory when redoing partial'
+    if skip==False:
+      print('Running checkInventory')
+      Quantity_of_SKUS = checkInventory(refresh_token)
+      if Quantity_of_SKUS == 'FATAL' or Quantity_of_SKUS == 'CANCELLED' or Quantity_of_SKUS == 'UNKNOWN ERROR':
+        print("ERROR with checkInventory")
+        if my_task_tracker.status=='PARTIAL':
+          my_task_tracker.status='Error with checkInventory when redoing partial'
+        else:
+          my_task_tracker.status='Error with checkInventory'
+        db.session.commit()
+        
       else:
-        my_task_tracker.status='Error with checkInventory'
-      db.session.commit()
-      
-    else:
-      print("Running increase_inventory_single_job ")
-      result = increaseInventory_single_job(Quantity_of_SKUS, task.id, my_task_tracker_id,
-                                 current_user_id, refresh_token)
-      print("RESULT of increaseInventory():")
-      print(type(result))
-      print(result)
-      # print(result[1])
-      if result[0] == 'SUCCESS':
-        move_my_task_tracker_to_history(my_task_tracker_id, task.id,
-                                        current_user_id)
-        print('Done with trying to move my task tracker to history')
-        # flash('Inventory Feed Submitted Successfully! It may take up to 2 hours to load on AmazonSellerCentral.', category='success')
-      elif result[0] == None:
-        # flash (f'error. The queue was probably empty: {result} ', category='error')
-        print(f'error. The queue was probably empty: {result} ')
-      else:
-        # flash (f'error: {result} ', category='error')
-        print(f'error: {result} ')
-      # result = checkInventoryIncrease(Quantity_of_SKUS, result[1], current_user.refresh_token)
-      # print(result)
-      # if result == "Inventory Increased Successfully":
+        print("Running increase_inventory_single_job ")
+        result = increaseInventory_single_job(Quantity_of_SKUS, task.id, my_task_tracker_id,
+                                   current_user_id, refresh_token)
+        print("RESULT of increaseInventory():")
+        print(type(result))
+        print(result)
+        # print(result[1])
+        if result[0] == 'SUCCESS':
+          move_my_task_tracker_to_history(my_task_tracker_id, task.id,
+                                          current_user_id)
+          print('Done with trying to move my task tracker to history')
+          # flash('Inventory Feed Submitted Successfully! It may take up to 2 hours to load on AmazonSellerCentral.', category='success')
+        elif result[0] == None:
+          # flash (f'error. The queue was probably empty: {result} ', category='error')
+          print(f'error. The queue was probably empty: {result} ')
+        else:
+          # flash (f'error: {result} ', category='error')
+          print(f'error: {result} ')
+        # result = checkInventoryIncrease(Quantity_of_SKUS, result[1], current_user.refresh_token)
+        # print(result)
+        # if result == "Inventory Increased Successfully":
   
   except Exception as e:
     # Handle exceptions, log them, and roll back the transaction
     db.session.rollback()
-    #self.retry(exc=e)     #for automatic retries. Also have to add the arguments above
+    self.retry(exc=e)     #for automatic retries. Also have to add the arguments above
 
 
 
@@ -439,7 +444,7 @@ def increase_inventory_all_jobs():
   my_task_trackers_array_ids = serialize_task_trackers(my_task_trackers)
   # print('SEREIALIZED:' , my_task_trackers_array_ids)
   try:
-    for my_task_tracker_id in my_task_trackers_ids_array:
+    for my_task_tracker_id in my_task_trackers_array_ids:
       my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
       if my_task_tracker.status=='PARTIAL' or my_task_tracker.status == 'Error with checkInventory when Redoing Partial':
         my_task_tracker.status = 'SENT REQUEST: PARTIAL'
@@ -454,7 +459,7 @@ def increase_inventory_all_jobs():
         my_task_tracker.time_completed = None
       db.session.commit()
   except:
-    print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None.')
+    print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_array_ids} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None.')
   
   task = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids,
                                                 current_user.refresh_token,
@@ -464,78 +469,79 @@ def increase_inventory_all_jobs():
 
 
 
-@shared_task(bind=True, base=AbortableTask)
+@shared_task(bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
 def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_token,
                                      current_user_id):
-  
   #Check if there are tasks with the same id and let the user know the previous satuses of all of them
-  try:
-    task = Task.query.filter_by(id=self.request.id,
-                                user_id=current_user_id).all()
-    # print("CHECK OUT THESE TASKSKSKSKSKSKKSKSKSKSK:")
-    # print(task)
-    if len(task) > 1:
-      print("BIIIIIIIIGGGGGG ERROR. MULTIPLE TASKS WITH SAME ID")
-      return -1
-    elif task:
-      task = task[0]
-    elif not task:
-      task = Task(id=self.request.id,
-                  name=f'Increase Inventory {self.request.id}',
-                  description='Increasing Inventory All Jobs...',
-                  time_created=datetime.now(pytz.timezone('America/New_York')),
-                  user_id=current_user_id)
-      db.session.add(task)
-      db.session.commit()
-      print(f'Added Task to database with task id: {self.request.id}')
-      try:
-        for my_task_tracker_id in my_task_trackers_ids_array:
-          my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-          if my_task_tracker.status=='SENT REQUEST: PARTIAL':
-            my_task_tracker.status = 'REDOING PARTIAL'
-            my_task_tracker.time_task_associated_launched = datetime.now(pytz.timezone('America/New_York'))
-          else:
-            my_task_tracker.time_task_associated_launched = datetime.now(pytz.timezone('America/New_York'))
-       
-          db.session.commit()
-      except:
-        formatted_string = f'Error updating status of my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Began or REDOING PARTIAL.'
-        print(formatted_string)
-    print('Running checkInventory')
-    Quantity_of_SKUS = checkInventory(refresh_token)
-    if Quantity_of_SKUS == 'FATAL' or Quantity_of_SKUS == 'CANCELLED' or Quantity_of_SKUS == 'UNKNOWN ERROR':
-      print("ERROR with checkInventory")
-      if my_task_tracker.status=='PARTIAL':
-        my_task_tracker.status='Error with checkInventory when Redoing Partial'
+    try:
+      task = Task.query.filter_by(id=self.request.id,
+                                  user_id=current_user_id).all()
+      # print("CHECK OUT THESE TASKSKSKSKSKSKKSKSKSKSK:")
+      # print(task)
+      if len(task) > 1:
+        print("BIIIIIIIIGGGGGG ERROR. MULTIPLE TASKS WITH SAME ID")
+        return -1
+      elif task:
+        task = task[0]
+      elif not task:
+        task = Task(id=self.request.id,
+                    name=f'Increase Inventory {self.request.id}',
+                    description='Increasing Inventory All Jobs...',
+                    time_created=datetime.now(pytz.timezone('America/New_York')),
+                    user_id=current_user_id)
+        db.session.add(task)
+        db.session.commit()
+        print(f'Added Task to database with task id: {self.request.id}')
+        try:
+          for my_task_tracker_id in my_task_trackers_ids_array:
+            my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+            if my_task_tracker.status=='SENT REQUEST: PARTIAL':
+              my_task_tracker.status = 'REDOING PARTIAL'
+              my_task_tracker.time_task_associated_launched = datetime.now(pytz.timezone('America/New_York'))
+            else:
+              my_task_tracker.time_task_associated_launched = datetime.now(pytz.timezone('America/New_York'))
+         
+            db.session.commit()
+        except:
+          formatted_string = f'Error updating status of my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Began or REDOING PARTIAL.'
+          print(formatted_string)
+      print('Running checkInventory')
+      Quantity_of_SKUS = checkInventory(refresh_token)
+      if Quantity_of_SKUS == 'FATAL' or Quantity_of_SKUS == 'CANCELLED' or Quantity_of_SKUS == 'UNKNOWN ERROR':
+        print("ERROR with checkInventory")
+        if my_task_tracker.status=='PARTIAL':
+          my_task_tracker.status='Error with checkInventory when Redoing Partial'
+        else:
+          my_task_tracker.status='Error with checkInventory'
+        db.session.commit()
       else:
-        my_task_tracker.status='Error with checkInventory'
-      db.session.commit()
-    else:
-      print("Running increaseInventory_all_jobs ")
-      result = increaseInventory_all_jobs(Quantity_of_SKUS, task.id, my_task_trackers_ids_array, current_user_id, refresh_token)
-      print("RESULT of increaseInventory_all_jobs():")
-      print(type(result))
-      print(result)
-      # print(result[1])
-      if result[0] == 'SUCCESS':
-        move_my_task_trackers_to_history(my_task_trackers_ids_array, task.id,
-                                         current_user_id)
-        # print('Done with trying to move my task trackers to history')
-        # flash('Inventory Feed Submitted Successfully! It may take up to 2 hours to load on AmazonSellerCentral.', category='success')
-      elif result[0] == None:
-        # flash (f'error. The queue was probably empty: {result} ', category='error')
-        print(f'error. The queue was probably empty: {result} ')
-      else:
-        # flash (f'error: {result} ', category='error')
-        print(f'error: {result} ')
-      # result = checkInventoryIncrease(Quantity_of_SKUS, result[1], current_user.refresh_token)
-      # print(result)
-      # if result == "Inventory Increased Successfully":
+        print("Running increaseInventory_all_jobs ")
+        result = increaseInventory_all_jobs(Quantity_of_SKUS, task.id, my_task_trackers_ids_array, current_user_id, refresh_token)
+        print("RESULT of increaseInventory_all_jobs():")
+        print(type(result))
+        print(result)
+        # print(result[1])
+        if result[0] == 'SUCCESS':
+          move_my_task_trackers_to_history(my_task_trackers_ids_array, task.id,
+                                           current_user_id)
+          # print('Done with trying to move my task trackers to history')
+          # flash('Inventory Feed Submitted Successfully! It may take up to 2 hours to load on AmazonSellerCentral.', category='success')
+        elif result[0] == None:
+          # flash (f'error. The queue was probably empty: {result} ', category='error')
+          print(f'error. The queue was probably empty: {result} ')
+        else:
+          # flash (f'error: {result} ', category='error')
+          print(f'error: {result} ')
+        # result = checkInventoryIncrease(Quantity_of_SKUS, result[1], current_user.refresh_token)
+        # print(result)
+        # if result == "Inventory Increased Successfully":
+  
+    except Exception as e:
+      # Handle exceptions, log them, and roll back the transaction
+      db.session.rollback()
+      print(str(e))
+      self.retry(exc=e)     #for automatic retries. Also have to add the arguments above
 
-  except Exception as e:
-    # Handle exceptions, log them, and roll back the transaction
-    db.session.rollback()
-    #self.retry(exc=e)     #for automatic retries. Also have to add the arguments above
 
 
 @shared_task(bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
@@ -1168,7 +1174,7 @@ def rollback_db(self):
   print("Tried db rollback")
   return "Rolled back db"
 
-@shared_task(bind=True, base=AbortableTask)
+@shared_task(bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
 def every_day(self):
   print("RUNNING EVERY DAY!")
   print('The time now is: ')
@@ -1207,6 +1213,7 @@ def every_day(self):
       except Exception as e:
         print(f"ERROR every_day_increase for userID: {user.id}. Error: {e}")
         db.session.rollback()
+        
 
       #Refresh Returns Operation  
       try:
@@ -1236,6 +1243,7 @@ def every_day(self):
   except Exception as e:
     print(f"ERROR something went wrong with the overall every_day_function for all users. Error: {e}")
     db.session.rollback()
+    self.retry(exc=e) 
 
  
 
@@ -1303,6 +1311,17 @@ def every_day_function_on_web():
     print(f"ERROR something went wrong with the overall every_day_function for all users. Error: {e}")
     db.session.rollback()
   return 'every_day_function_on_web'
+
+
+@views.route('/everyday_onweb2')
+def every_day_function_on_web2():
+  try:
+    task = every_day.delay()
+    return 'every_day_function_on_web2'
+  except Exception as e:
+    print(f"ERROR something went wrong with the overall every_day_function for all users. Error: {e}")
+    db.session.rollback()
+    return str(e)
 
 
 @views.route('/load_task_details_from_db/<my_task_tracker_id>')
