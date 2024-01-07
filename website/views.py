@@ -175,7 +175,7 @@ def refresh():
   return redirect('/')
     
 
-@shared_task(bind=True, base=AbortableTask)
+@shared_task(bind=True, base=AbortableTask, max_retries=3)
 def refresh_returns_task(self, refresh_token,
                             current_user_id, my_refresh_returns_tracker_id):
   try: 
@@ -238,7 +238,7 @@ def refresh_returns_task(self, refresh_token,
       return f'ERROR with get_all_returns() output_data: {all_return_data}'
   except Exception as e:
     print('Error with refresh_returns_task: ', e)
-    self.retry(exc=e) 
+    self.retry(exc=e, countdown=5)  
     try:
       my_refresh_returns_tracker = My_refresh_returns_tracker.query.get(my_refresh_returns_tracker_id)
       if my_refresh_returns_tracker:
@@ -360,7 +360,7 @@ def increase_inventory_single_job(my_task_tracker_id):
 
 
 #For automatic retries use these arguments (bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
-@shared_task(bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
+@shared_task(bind=True, base=AbortableTask, max_retries=3)
 def increase_inventory_single_task(self, my_task_tracker_id, refresh_token,
                             current_user_id):
   
@@ -439,7 +439,7 @@ def increase_inventory_single_task(self, my_task_tracker_id, refresh_token,
   except Exception as e:
     # Handle exceptions, log them, and roll back the transaction
     db.session.rollback()
-    self.retry(exc=e)     #for automatic retries. Also have to add the arguments above
+    self.retry(exc=e, countdown=5)      #for automatic retries. Also have to add the arguments above
 
 
 
@@ -478,8 +478,7 @@ def increase_inventory_all_jobs():
   return redirect('/jobs')
 
 
-
-@shared_task(bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
+@shared_task(bind=True, base=AbortableTask, max_retries=3)
 def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_token,
                                      current_user_id):
   #Check if there are tasks with the same id and let the user know the previous satuses of all of them
@@ -550,11 +549,11 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
       # Handle exceptions, log them, and roll back the transaction
       db.session.rollback()
       print(str(e))
-      self.retry(exc=e)     #for automatic retries. Also have to add the arguments above
+      self.retry(exc=e, countdown=5)      #for automatic retries. Also have to add the arguments above
 
 
 
-@shared_task(bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
+@shared_task(bind=True, base=AbortableTask, max_retries=3)
 def print_numbers_task(self, seconds, id):
   # db.session.rollback()
   try:
@@ -570,13 +569,13 @@ def print_numbers_task(self, seconds, id):
     db.session.close()
     # Log the error if needed
     print("DEBUG: A")
-    self.retry(exc=e)
+    self.retry(exc=e, countdown=5) 
   except PendingRollbackError as e:
     # Rollback the session and retry the operation after a delay
     db.session.rollback()
     db.session.remove()
     print("DEBUG: ROLLBACK ERROR")
-    self.retry(exc=e)
+    self.retry(exc=e, countdown=5) 
   except Exception as e:
     # Handle exceptions, log them, and roll back the transaction
     db.session.rollback()
@@ -617,7 +616,7 @@ def print_numbers_task(self, seconds, id):
       db.session.close()
       # Log the error if needed
       print("DEBUG: B")
-      self.retry(exc=e)
+      self.retry(exc=e, countdown=5) 
     except Exception as e:
       # Handle exceptions, log them, and roll back the transaction
       db.session.rollback()
@@ -1184,7 +1183,7 @@ def rollback_db(self):
   print("Tried db rollback")
   return "Rolled back db"
 
-@shared_task(bind=True, base=AbortableTask, max_retries=3, on_retry=log_retry)
+@shared_task(bind=True, base=AbortableTask, max_retries=3)
 def every_day(self):
   print("RUNNING EVERY DAY!")
   print('The time now is: ')
