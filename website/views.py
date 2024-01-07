@@ -1154,7 +1154,7 @@ def notifications():
 
 def extract_tracking_id(trackingID):
   # Define the patterns for the consecutive digits
-  patterns = ['9400', '9205', '9407', '9303', '9208', '9202']
+  patterns = ['9400', '9205', '9407', '9303', '9208', '9202', '9302']
 
   # Check if the trackingID matches any of the patterns
   for pattern in patterns:
