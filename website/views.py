@@ -151,7 +151,7 @@ def home():
   except Exception as e:
     print(e)
     db.session.rollback()
-    return "Error with DB. Try refreshing the page."
+    return "Error loading page. Try refreshing the page."
   
 
 
