@@ -49,104 +49,110 @@ views = Blueprint('views', __name__)
 def home():
   # print(current_user)
   # print(current_user.id)  #returnDetails = load_returnDetails_from_db()
-
-  All_Return_Details = load_all_return_details_from_db(current_user.id)
-  tracking_id = None
-  return_details_to_display = None
-  Address = 'No Data'
-  queueChecker = "NO"
-  my_refresh_returns_tracker = My_refresh_returns_tracker.query.filter_by(user_id=current_user.id).first()
-
-  if load_tracking_id_to_search(current_user.id):
-    tracking_id = load_tracking_id_to_search(current_user.id)
-    if check_if_track_in_queue(tracking_id, current_user.id):
-      queueChecker = "YES"
-
-    addresses = load_address_from_db(current_user.id)
-
-    add_current_return_to_display_to_db(tracking_id, current_user.id)
-  return_details_to_display = load_current_return_to_display_from_db(
-    current_user.id)
-  queue = load_queue_from_db(current_user.id)
-  print("TOKEN EXPIRATION:")
-  token = current_user.token_expiration
-  print(token)
-  if token is not None:
-    eastern_timezone = pytz.timezone('America/New_York')
-    token_aware = eastern_timezone.localize(token)
-    current_date = datetime.now(pytz.timezone('America/New_York'))
-    if (token_aware < current_date):
-      delete_refresh_token_and_expiration(current_user.id)
-
-  customer = Stripecustomer.query.filter_by(user_id=current_user.id).order_by(
-    Stripecustomer.id.desc()).first()
-  subscription = None
-  if customer:
-    subscription = stripe.Subscription.retrieve(customer.stripeSubscriptionId)
-    product = stripe.Product.retrieve(subscription.plan.product)
-    context = {
-      "subscription": subscription,
-      "product": product,
-    }
-
-  if (not load_restricted(current_user.id)):
-    if (get_refresh_token(current_user.id)
-        and current_user.token_expiration is not None):
-      if (subscription and
-          (subscription.status == 'active' or subscription.status
-           == 'trialing')) or (current_user.email
-                               == os.environ['ADMIN_EMAIL']):
-        if ((return_details_to_display and tracking_id
-             and customer)):  #if they exist
-          print(return_details_to_display)
-          orderID = return_details_to_display['order_id']
-          for data in addresses:
-            if data['OrderID'] == orderID:
-              Address = data['Address']
-              #print(Address)
-          return render_template('home.html',
-                                 tasks=queue,
-                                 passed_value=return_details_to_display,
-                                 tracking_id=tracking_id,
-                                 queue_checker=queueChecker,
-                                 address=Address,
-                                 my_refresh_tracker =my_refresh_returns_tracker,
-                                 user=current_user,
-                                 **context)
-        elif (return_details_to_display and tracking_id
-              and current_user.email == os.environ['ADMIN_EMAIL']):
-          print(return_details_to_display)
-          orderID = return_details_to_display['order_id']
-          for data in addresses:
-            if data['OrderID'] == orderID:
-              Address = data['Address']
-              #print(Address)
-          return render_template('home.html',
-                                 tasks=queue,
-                                 passed_value=return_details_to_display,
-                                 tracking_id=tracking_id,
-                                 queue_checker=queueChecker,
-                                 address=Address,
-                                 my_refresh_tracker =my_refresh_returns_tracker,
-                                 user=current_user)
+  try:
+    All_Return_Details = load_all_return_details_from_db(current_user.id)
+    tracking_id = None
+    return_details_to_display = None
+    Address = 'No Data'
+    queueChecker = "NO"
+    my_refresh_returns_tracker = My_refresh_returns_tracker.query.filter_by(user_id=current_user.id).first()
+  
+    if load_tracking_id_to_search(current_user.id):
+      tracking_id = load_tracking_id_to_search(current_user.id)
+      if check_if_track_in_queue(tracking_id, current_user.id):
+        queueChecker = "YES"
+  
+      addresses = load_address_from_db(current_user.id)
+  
+      add_current_return_to_display_to_db(tracking_id, current_user.id)
+    return_details_to_display = load_current_return_to_display_from_db(
+      current_user.id)
+    queue = load_queue_from_db(current_user.id)
+    print("TOKEN EXPIRATION:")
+    token = current_user.token_expiration
+    print(token)
+    if token is not None:
+      eastern_timezone = pytz.timezone('America/New_York')
+      token_aware = eastern_timezone.localize(token)
+      current_date = datetime.now(pytz.timezone('America/New_York'))
+      if (token_aware < current_date):
+        delete_refresh_token_and_expiration(current_user.id)
+  
+    customer = Stripecustomer.query.filter_by(user_id=current_user.id).order_by(
+      Stripecustomer.id.desc()).first()
+    subscription = None
+    if customer:
+      subscription = stripe.Subscription.retrieve(customer.stripeSubscriptionId)
+      product = stripe.Product.retrieve(subscription.plan.product)
+      context = {
+        "subscription": subscription,
+        "product": product,
+      }
+  
+    if (not load_restricted(current_user.id)):
+      if (get_refresh_token(current_user.id)
+          and current_user.token_expiration is not None):
+        if (subscription and
+            (subscription.status == 'active' or subscription.status
+             == 'trialing')) or (current_user.email
+                                 == os.environ['ADMIN_EMAIL']):
+          if ((return_details_to_display and tracking_id
+               and customer)):  #if they exist
+            print(return_details_to_display)
+            orderID = return_details_to_display['order_id']
+            for data in addresses:
+              if data['OrderID'] == orderID:
+                Address = data['Address']
+                #print(Address)
+            return render_template('home.html',
+                                   tasks=queue,
+                                   passed_value=return_details_to_display,
+                                   tracking_id=tracking_id,
+                                   queue_checker=queueChecker,
+                                   address=Address,
+                                   my_refresh_tracker =my_refresh_returns_tracker,
+                                   user=current_user,
+                                   **context)
+          elif (return_details_to_display and tracking_id
+                and current_user.email == os.environ['ADMIN_EMAIL']):
+            print(return_details_to_display)
+            orderID = return_details_to_display['order_id']
+            for data in addresses:
+              if data['OrderID'] == orderID:
+                Address = data['Address']
+                #print(Address)
+            return render_template('home.html',
+                                   tasks=queue,
+                                   passed_value=return_details_to_display,
+                                   tracking_id=tracking_id,
+                                   queue_checker=queueChecker,
+                                   address=Address,
+                                   my_refresh_tracker =my_refresh_returns_tracker,
+                                   user=current_user)
+          else:
+            return render_template('home.html', tasks=queue, my_refresh_tracker=my_refresh_returns_tracker, user=current_user)
+  
         else:
-          return render_template('home.html', tasks=queue, my_refresh_tracker=my_refresh_returns_tracker, user=current_user)
-
+          flash(
+            'Account not complete. You do not have access to this page. Your are not subscribed.',
+            category='error')
+          return redirect('/account')
       else:
         flash(
-          'Account not complete. You do not have access to this page. Your are not subscribed.',
+          'Account not complete. You do not have access to this page. Your AmazonSellerCentral account is not linked.',
           category='error')
         return redirect('/account')
     else:
       flash(
-        'Account not complete. You do not have access to this page. Your AmazonSellerCentral account is not linked.',
+        'Your account is Restricted. Please contact us for more information.',
         category='error')
       return redirect('/account')
-  else:
-    flash(
-      'Your account is Restricted. Please contact us for more information.',
-      category='error')
-    return redirect('/account')
+
+  except Exception as e:
+    print(e)
+    db.session.rollback()
+    return "Error with DB. Try refreshing the page."
+  
 
 
 import time
