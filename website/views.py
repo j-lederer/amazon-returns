@@ -572,23 +572,18 @@ def print_numbers_task(self, seconds, id):
     db.session.commit()
   except OperationalError as e:
     db.session.rollback()
-    db.session.close()
     # Log the error if needed
     print("DEBUG: A")
     self.retry(exc=e, countdown=5) 
   except PendingRollbackError as e:
     # Rollback the session and retry the operation after a delay
     db.session.rollback()
-    db.session.remove()
     print("DEBUG: ROLLBACK ERROR")
     self.retry(exc=e, countdown=5) 
   except Exception as e:
     # Handle exceptions, log them, and roll back the transaction
     db.session.rollback()
     raise e
-  finally:
-    # Close the database connection after each task
-    db.session.remove()
 
   print("Printing Numbers")
   print("Starting num task")
@@ -619,7 +614,6 @@ def print_numbers_task(self, seconds, id):
         db.session.commit()
     except OperationalError as e:
       db.session.rollback()
-      db.session.close()
       # Log the error if needed
       print("DEBUG: B")
       self.retry(exc=e, countdown=5) 
@@ -627,9 +621,6 @@ def print_numbers_task(self, seconds, id):
       # Handle exceptions, log them, and roll back the transaction
       db.session.rollback()
       raise e
-    finally:
-      # Close the database connection after each task
-      db.session.remove()
     #End of sequence to update progress
     if (self.is_aborted()):
       print("Aborted")
@@ -1180,7 +1171,6 @@ def rollback():
 @shared_task(bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
 def rollback_db(self):
   db.session.rollback()
-  db.session.close()
   print("Tried db rollback")
   return "Rolled back db"
 
