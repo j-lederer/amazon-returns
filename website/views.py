@@ -244,6 +244,7 @@ def refresh_returns_task(self, refresh_token,
       return f'ERROR with get_all_returns() output_data: {all_return_data}'
   except Exception as e:
     print('Error with refresh_returns_task: ', e)
+    db.session.rollback()
     self.retry(exc=e, countdown=5)  
     try:
       my_refresh_returns_tracker = My_refresh_returns_tracker.query.get(my_refresh_returns_tracker_id)
