@@ -1066,13 +1066,11 @@ def create_job():
       flash(message, category='success')
     except OperationalError as e:
       db.session.rollback()
-      db.session.close()
       # Log the error if needed
       print("DEBUG: A")
     except PendingRollbackError as e:
       # Rollback the session and retry the operation after a delay
       db.session.rollback()
-      db.session.remove()
       print("DEBUG: ROLLBACK ERROR")
     except Exception as e:
       # Handle exceptions, log them, and roll back the transaction
