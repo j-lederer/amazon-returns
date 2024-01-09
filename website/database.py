@@ -306,10 +306,12 @@ def refresh_all_return_data_in_db(all_return_data, inventory_data, user_id):
           return_details['Inventory'] = ', '.join(return_details['Inventory'])
           return_data_obj = All_return_details(**return_details)
           db.session.add(return_data_obj)
+          db.session.commit()
   else: 
      print("An error occcurred while retreiveing info. The process was CANCELLED")
+     db.session.rollback()
      return "An error occcurred while retreiveing info. The process was CANCELLED"
-  db.session.commit()
+  
 
 
 def refresh_addresses_in_db(address_data, user_id):
