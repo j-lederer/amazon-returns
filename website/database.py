@@ -288,7 +288,6 @@ def refresh_all_return_data_in_db(all_return_data, inventory_data, user_id):
   #         "Inventory": inventory_data[return_details['sku']], "user_id":user_id
   #       })
   All_return_details.query.filter_by(user_id=user_id).delete()
-  db.session.commit()
   
   if (all_return_data != 'CANCELLED'):
     for return_details in all_return_data:
