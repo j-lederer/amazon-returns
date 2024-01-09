@@ -1078,9 +1078,6 @@ def create_job():
       # Handle exceptions, log them, and roll back the transaction
       db.session.rollback()
       raise e
-    finally:
-      # Close the database connection after each task
-      db.session.remove()
     return redirect(url_for('views.jobs'))
 
 
