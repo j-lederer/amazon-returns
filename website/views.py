@@ -36,10 +36,6 @@ import logging
 #     logger = logging.getLogger(__name__)
 #     exc = kwargs['exc']
 #     logger.warning('Retrying task with args: %s (exc: %r)', request.args, exc)
-def log_retry(request=None, reason=None, **kwargs):
-  logger = logging.getLogger(__name__)
-  exc = kwargs.get('exc')
-  logger.warning('Retrying task with args: %s (exc: %r)', request.args, exc)
 
 
 views = Blueprint('views', __name__)
@@ -160,25 +156,29 @@ import time
 @views.route('/refresh_returns_and_inventory')
 @login_required
 def refresh():
-
-  my_refresh_returns_tracker = My_refresh_returns_tracker.query.filter_by(user_id=current_user.id).first()
-  if my_refresh_returns_tracker:
-      my_refresh_returns_tracker.time_clicked=datetime.now(pytz.timezone('America/New_York'))
-      my_refresh_returns_tracker.status = 'Sent Request'
-      my_refresh_returns_tracker.complete = False
-      my_refresh_returns_tracker.time_completed = None
-      my_refresh_returns_tracker.task_associated  =None    
-      
-  else: 
-      my_refresh_returns_tracker =   My_refresh_returns_tracker(user_id=current_user.id,
-      time_clicked=datetime.now(pytz.timezone('America/New_York')),
-      status = 'Sent Request')
-      db.session.add(my_refresh_returns_tracker)
-  db.session.commit()
-  task = refresh_returns_task.delay(current_user.refresh_token,
-                                       current_user.id, my_refresh_returns_tracker.id)
-  print("RESPONSE BY TASK: ", task)
-  return redirect('/')
+  try:
+    my_refresh_returns_tracker = My_refresh_returns_tracker.query.filter_by(user_id=current_user.id).first()
+    if my_refresh_returns_tracker:
+        my_refresh_returns_tracker.time_clicked=datetime.now(pytz.timezone('America/New_York'))
+        my_refresh_returns_tracker.status = 'Sent Request'
+        my_refresh_returns_tracker.complete = False
+        my_refresh_returns_tracker.time_completed = None
+        my_refresh_returns_tracker.task_associated  =None    
+        
+    else: 
+        my_refresh_returns_tracker =   My_refresh_returns_tracker(user_id=current_user.id,
+        time_clicked=datetime.now(pytz.timezone('America/New_York')),
+        status = 'Sent Request')
+        db.session.add(my_refresh_returns_tracker)
+    db.session.commit()
+    task = refresh_returns_task.delay(current_user.refresh_token,
+                                         current_user.id, my_refresh_returns_tracker.id)
+    print("RESPONSE BY TASK: ", task)
+    return redirect('/')
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page or going to the home page.'
     
 
 @shared_task(bind=True, base=AbortableTask, max_retries=3)
@@ -254,6 +254,7 @@ def refresh_returns_task(self, refresh_token,
     except Exception as e:
       print(f'Error updating refresh_tracker status to ERROR: {e}')
       db.session.rollback()
+
       
 
 
@@ -263,20 +264,25 @@ def refresh_returns_task(self, refresh_token,
 @views.route('/refresh_returns_and_inventory_on_host')
 @login_required
 def refresh_on_web():
-  count = 0
-  #Get all the new return data with a call from amazonAPI.py
-  #For debugging below>>
-  all_return_data = get_all_Returns_data(current_user.refresh_token)
-  inventory_data = checkInventory(current_user.refresh_token)
-  addressData = get_addresses_from_GetOrders(current_user.refresh_token)
-  # print("ADDRESS DATA:")
-  # print(addressData)
-  refresh_all_return_data_in_db(all_return_data, inventory_data,
-                                current_user.id)
-  refresh_addresses_in_db(addressData, current_user.id)
-
-  print('DEBUG MODE')
-  return redirect('/')
+  try:
+    count = 0
+    #Get all the new return data with a call from amazonAPI.py
+    #For debugging below>>
+    all_return_data = get_all_Returns_data(current_user.refresh_token)
+    inventory_data = checkInventory(current_user.refresh_token)
+    addressData = get_addresses_from_GetOrders(current_user.refresh_token)
+    # print("ADDRESS DATA:")
+    # print(addressData)
+    refresh_all_return_data_in_db(all_return_data, inventory_data,
+                                  current_user.id)
+    refresh_addresses_in_db(addressData, current_user.id)
+  
+    print('DEBUG MODE')
+    return redirect('/')
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page or going to the home page.'
 
   # try:
   #     print("Refreshing Returns and Inventory data:")
@@ -317,26 +323,31 @@ def refresh_on_web():
 @views.route('/info_for_tracking_id', methods=['POST', 'GET'])
 @login_required
 def get_info_on_track():
-  trackingID = request.form['track']
-  print(trackingID)
-  new_trackingID = extract_tracking_id(trackingID)
-  if new_trackingID:
-    print(f"New Tracking ID: {new_trackingID}")
-    trackingID = new_trackingID
-
-  delete_tracking_id_to_search(current_user.id)
-  add_tracking_id_to_search(trackingID, current_user.id)
-  return redirect('/')
+  try:
+    trackingID = request.form['track']
+    print(trackingID)
+    new_trackingID = extract_tracking_id(trackingID)
+    if new_trackingID:
+      print(f"New Tracking ID: {new_trackingID}")
+      trackingID = new_trackingID
+  
+    delete_tracking_id_to_search(current_user.id)
+    add_tracking_id_to_search(trackingID, current_user.id)
+    return redirect('/')
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page or going to the home page.'
 
   #task_to_delete = TrackingIDS.query.get_or_404(id)
   #update the database to include data for the return
 
-  try:
-    #db.session.delete(task_to_delete)
-    #db.session.commit()
-    return redirect('/')
-  except:
-    return 'There was a problem getting the info for this return'
+  # try:
+  #   #db.session.delete(task_to_delete)
+  #   #db.session.commit()
+  #   return redirect('/')
+  # except:
+  #   return 'There was a problem getting the info for this return'
 
 
 @views.route('/increase_inventory/<my_task_tracker_id>',
@@ -344,27 +355,31 @@ def get_info_on_track():
 @login_required
 def increase_inventory_single_job(my_task_tracker_id):
   #take the tracking id's in the queue and increase inventory by the return order amount for each
-  try:   
-    my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-    if my_task_tracker.status=='PARTIAL' or my_task_tracker.status == 'Error with checkInventory when Redoing Partial':
-      my_task_tracker.status = 'SENT REQUEST: PARTIAL'
-      my_task_tracker.complete = None
-      my_task_tracker.skus_failed = None
-      my_task_tracker.time_completed = None
-    else:
-      my_task_tracker.status = 'Sent Request'
-      my_task_tracker.complete = None
-      my_task_tracker.skus_failed = None
-      my_task_tracker.time_completed = None
-    db.session.commit()
-  except:
-    print(f'Error updating status of my_task_tracker_id: {my_task_tracker_id} in increaseInventory_single_task to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None.')
-  task = increase_inventory_single_task.delay(my_task_tracker_id,
-                                       current_user.refresh_token,
-                                       current_user.id)
-  print("RESPONSE BY TASK: ", task)
-  return redirect('/jobs')
-
+  try:  
+    try:   
+      my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+      if my_task_tracker.status=='PARTIAL' or my_task_tracker.status == 'Error with checkInventory when Redoing Partial':
+        my_task_tracker.status = 'SENT REQUEST: PARTIAL'
+        my_task_tracker.complete = None
+        my_task_tracker.skus_failed = None
+        my_task_tracker.time_completed = None
+      else:
+        my_task_tracker.status = 'Sent Request'
+        my_task_tracker.complete = None
+        my_task_tracker.skus_failed = None
+        my_task_tracker.time_completed = None
+      db.session.commit()
+    except:
+      print(f'Error updating status of my_task_tracker_id: {my_task_tracker_id} in increaseInventory_single_task to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None.')
+    task = increase_inventory_single_task.delay(my_task_tracker_id,
+                                         current_user.refresh_token,
+                                         current_user.id)
+    print("RESPONSE BY TASK: ", task)
+    return redirect('/jobs')
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try going to the home page and then the jobs page and check the status of the jobs. You may have to submit them again.'
 
 #For automatic retries use these arguments (bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
 @shared_task(bind=True, base=AbortableTask, max_retries=3)
@@ -456,33 +471,37 @@ def serialize_task_trackers(task_trackers):
 @views.route('/increase_inventory_all_jobs', methods=['POST', 'GET'])
 @login_required
 def increase_inventory_all_jobs():
-  
-  my_task_trackers= load_my_task_trackers_from_db(current_user.id)
-  my_task_trackers_array_ids = serialize_task_trackers(my_task_trackers)
-  # print('SEREIALIZED:' , my_task_trackers_array_ids)
   try:
-    for my_task_tracker_id in my_task_trackers_array_ids:
-      my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-      if my_task_tracker.status=='PARTIAL' or my_task_tracker.status == 'Error with checkInventory when Redoing Partial':
-        my_task_tracker.status = 'SENT REQUEST: PARTIAL'
-        my_task_tracker.complete = None
-        my_task_tracker.skus_failed = None
-        my_task_tracker.time_completed = None
-      else:
-        my_task_tracker.status = 'Sent Request'
-        my_task_tracker.status='Began'
-        my_task_tracker.complete = None
-        my_task_tracker.skus_failed = None
-        my_task_tracker.time_completed = None
-      db.session.commit()
-  except:
-    print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_array_ids} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None.')
-  
-  task = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids,
-                                                current_user.refresh_token,
-                                                current_user.id)
-  print('TASK RESPONSE: ', task)
-  return redirect('/jobs')
+    my_task_trackers= load_my_task_trackers_from_db(current_user.id)
+    my_task_trackers_array_ids = serialize_task_trackers(my_task_trackers)
+    # print('SEREIALIZED:' , my_task_trackers_array_ids)
+    try:
+      for my_task_tracker_id in my_task_trackers_array_ids:
+        my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+        if my_task_tracker.status=='PARTIAL' or my_task_tracker.status == 'Error with checkInventory when Redoing Partial':
+          my_task_tracker.status = 'SENT REQUEST: PARTIAL'
+          my_task_tracker.complete = None
+          my_task_tracker.skus_failed = None
+          my_task_tracker.time_completed = None
+        else:
+          my_task_tracker.status = 'Sent Request'
+          my_task_tracker.status='Began'
+          my_task_tracker.complete = None
+          my_task_tracker.skus_failed = None
+          my_task_tracker.time_completed = None
+        db.session.commit()
+    except:
+      print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_array_ids} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None.')
+    
+    task = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids,
+                                                  current_user.refresh_token,
+                                                  current_user.id)
+    print('TASK RESPONSE: ', task)
+    return redirect('/jobs')
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try going to the home page and then the jobs page and check the status of the jobs. You may have to submit them again.'
 
 
 @shared_task(bind=True, base=AbortableTask, max_retries=3)
@@ -621,6 +640,7 @@ def print_numbers_task(self, seconds, id):
     except Exception as e:
       # Handle exceptions, log them, and roll back the transaction
       db.session.rollback()
+      self.retry(exc=e, countdown=5) 
       raise e
     #End of sequence to update progress
     if (self.is_aborted()):
@@ -642,11 +662,16 @@ def number_print():
   #take the tracking id's in the queue and increase inventory by the return order amount for each
   # current_user.launch_task('increase_inventory_function', 'Increasing Inventory...')
   #EVERY TIME YOU LAUNCH A TASK
-  task = print_numbers_task.delay(40, current_user.id)
-  print("TASK LAUNCHED: print_numbers_task - TASK_ID", task.id)
-  return jsonify({}), 202, {
-    'Location': url_for('views.taskstatus', task_id=task.id)
-  }
+  try:
+    task = print_numbers_task.delay(40, current_user.id)
+    print("TASK LAUNCHED: print_numbers_task - TASK_ID", task.id)
+    return jsonify({}), 202, {
+      'Location': url_for('views.taskstatus', task_id=task.id)
+    }
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try refreshing the page or going to the home page.' + str(e)
 
   # print("PRINTING TASK:")
   # print(task)
@@ -668,46 +693,51 @@ def number_print():
 
 @views.route('/status/<task_id>')
 def taskstatus(task_id):
-  task = print_numbers_task.AsyncResult(task_id)
-  if task.state == 'PENDING':
-    # job did not start yet
-    response = {
-      'state': task.state,
-      'current': 0,
-      'total': 1,
-      'status': 'Pending...'
-    }
-  elif task.state != 'FAILURE':
-    response = {
-      'state': task.state,
-      'current': task.info.get('current', 0),
-      'total': task.info.get('total', 1),
-      'status': task.info.get('status', '')
-    }
-    if 'result' in task.info:
-      response['result'] = task.info['result']
-  else:
-    # something went wrong in the background job
-    response = {
-      'state': task.state,
-      'current': 1,
-      'total': 1,
-      'status': str(task.info),  # this is the exception raised
-    }
-  return jsonify(response)
+  try:
+    task = print_numbers_task.AsyncResult(task_id)
+    if task.state == 'PENDING':
+      # job did not start yet
+      response = {
+        'state': task.state,
+        'current': 0,
+        'total': 1,
+        'status': 'Pending...'
+      }
+    elif task.state != 'FAILURE':
+      response = {
+        'state': task.state,
+        'current': task.info.get('current', 0),
+        'total': task.info.get('total', 1),
+        'status': task.info.get('status', '')
+      }
+      if 'result' in task.info:
+        response['result'] = task.info['result']
+    else:
+      # something went wrong in the background job
+      response = {
+        'state': task.state,
+        'current': 1,
+        'total': 1,
+        'status': str(task.info),  # this is the exception raised
+      }
+    return jsonify(response)
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try refreshing the page or going to the home page.'
 
 
 @views.route('/delete/<tracking>')
 @login_required
 def delete(tracking):
-  delete_trackingID_from_queue_db(tracking, current_user.id)
-  return redirect('/')
-
   try:
     delete_trackingID_from_queue_db(tracking, current_user.id)
     return redirect('/')
-  except:
-    return 'There was a problem deleting that task'
+  
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try refreshing the page or going to the home page.'
 
 
 # @views.route('/add_trackingID', methods=['POST', 'GET'])
@@ -769,7 +799,7 @@ def add_to_queue():
       return redirect('/')
       
   except Exception as e:
-    print("Error" + str(e))
+    print("Error: " + str(e))
     db.session.rollback()
     return 'Error. Try Refreshing the page'
     
@@ -778,243 +808,313 @@ def add_to_queue():
 @views.route('/search', methods=['POST', 'GET'])
 @login_required
 def search():
-  delete_tracking_id_to_search(current_user.id)
-  delete_current_return_to_display_from_db(current_user.id)
-  tracking_id = request.form
-  add_tracking_id_to_search(tracking_id)
-  #add_current_return_to_display_to_db(tracking_id)
-  return redirect('/')
+  try:
+    delete_tracking_id_to_search(current_user.id)
+    delete_current_return_to_display_from_db(current_user.id)
+    tracking_id = request.form
+    add_tracking_id_to_search(tracking_id)
+    #add_current_return_to_display_to_db(tracking_id)
+    return redirect('/')
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page'
 
 
 @views.route('/clearSearch')
 @login_required
 def clearSearch():
-  time.sleep(10)
-  print('test')
-  time.sleep(10)
-  time.sleep(10)
-  time.sleep(10)
-  delete_tracking_id_to_search(current_user.id)
-  delete_current_return_to_display_from_db(current_user.id)
-  return redirect('/')
+  try:
+    time.sleep(10)
+    print('test')
+    time.sleep(10)
+    time.sleep(10)
+    time.sleep(10)
+    delete_tracking_id_to_search(current_user.id)
+    delete_current_return_to_display_from_db(current_user.id)
+    return redirect('/')
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page'
 
 
 @views.route('/clearQueue')
 @login_required
 def clearQueue():
-  delete_whole_tracking_id_queue(current_user.id)
-  return redirect('/')
+  try:
+    delete_whole_tracking_id_queue(current_user.id)
+    return redirect('/')
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page'
 
 
 @views.route('/account')
 @login_required
 def account():
-  stripe.billing_portal.Configuration.create(
-    business_profile={
-      "headline": "AmazeSoftware partners with Stripe for simplified billing.",
-    },
-    features={"invoice_history": {
-      "enabled": True
-    }},
-    metadata={'user_id': current_user.id})
-
-  customer = Stripecustomer.query.filter_by(user_id=current_user.id).order_by(
-    Stripecustomer.id.desc()).first()
-  if customer:
-    subscription = stripe.Subscription.retrieve(customer.stripeSubscriptionId)
-    product = stripe.Product.retrieve(subscription.plan.product)
-    context = {
-      "subscription": subscription,
-      "product": product,
-    }
-
-  refresh_token = get_refresh_token(current_user.id)
-  if (refresh_token and customer):
-    return render_template('account.html',
-                           user=current_user,
-                           refresh_token=refresh_token,
-                           **context)
-  elif customer:
-    return render_template('account.html', user=current_user, **context)
-  elif refresh_token:
-    return render_template('account.html',
-                           user=current_user,
-                           refresh_token=refresh_token)
-
-  return render_template('account.html', user=current_user)
+  try:
+    stripe.billing_portal.Configuration.create(
+      business_profile={
+        "headline": "AmazeSoftware partners with Stripe for simplified billing.",
+      },
+      features={"invoice_history": {
+        "enabled": True
+      }},
+      metadata={'user_id': current_user.id})
+  
+    customer = Stripecustomer.query.filter_by(user_id=current_user.id).order_by(
+      Stripecustomer.id.desc()).first()
+    if customer:
+      subscription = stripe.Subscription.retrieve(customer.stripeSubscriptionId)
+      product = stripe.Product.retrieve(subscription.plan.product)
+      context = {
+        "subscription": subscription,
+        "product": product,
+      }
+  
+    refresh_token = get_refresh_token(current_user.id)
+    if (refresh_token and customer):
+      return render_template('account.html',
+                             user=current_user,
+                             refresh_token=refresh_token,
+                             **context)
+    elif customer:
+      return render_template('account.html', user=current_user, **context)
+    elif refresh_token:
+      return render_template('account.html',
+                             user=current_user,
+                             refresh_token=refresh_token)
+  
+    return render_template('account.html', user=current_user)
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page'
 
 
 @views.route('/admin')
 @login_required
 def admin():
-  if (current_user.email == os.environ['ADMIN_EMAIL']):
-    users = load_users_from_db()
-    deleted_users = load_deleted_users_from_db()
-    stripe_customers = load_all_stripe_customers()
-    #update subscription statuses in database to view by admin
-    for user in users:
-      customer = Stripecustomer.query.filter_by(user_id=user.id).order_by(
-        Stripecustomer.id.desc()).first()
-      subscription = None
-      if customer:
-        subscription = stripe.Subscription.retrieve(
-          customer.stripeSubscriptionId)
-      if subscription:
-        user.status = subscription.status
-        db.session.commit()
-      else:
-        user.status = None
-        db.session.commit()
-
-    #check for requested deletes
-    requested_deletes = {}
-    for user in users:
-      if user.delete_request:
-        requested_deletes[user.id] = 'requested delete'
-    #Check for duplicate subscriptions
-    duplicates = {}
-    for stripe_customer in stripe_customers:
-      for check in stripe_customers:
-        if stripe_customer.id != check.id and stripe_customer.user_id == check.user_id:
-          duplicates[stripe_customer.user_id] = "duplicate"
-
-    if duplicates:
-      flash('There are users with duplicate subscriptions!', category='error')
-    if requested_deletes:
-      flash('There are users that requested to delete their accounts..',
-            category='error')
-
-    return render_template('admin.html',
-                           users=users,
-                           user=current_user,
-                           deleted_users=deleted_users,
-                           requested_deletes=requested_deletes,
-                           duplicates=duplicates)
-  else:
-    flash('Access Denied.', category='error')
-    return redirect(url_for('views.home'))
-
+  try:
+    if (current_user.email == os.environ['ADMIN_EMAIL']):
+      users = load_users_from_db()
+      deleted_users = load_deleted_users_from_db()
+      stripe_customers = load_all_stripe_customers()
+      #update subscription statuses in database to view by admin
+      for user in users:
+        customer = Stripecustomer.query.filter_by(user_id=user.id).order_by(
+          Stripecustomer.id.desc()).first()
+        subscription = None
+        if customer:
+          subscription = stripe.Subscription.retrieve(
+            customer.stripeSubscriptionId)
+        if subscription:
+          user.status = subscription.status
+          db.session.commit()
+        else:
+          user.status = None
+          db.session.commit()
+  
+      #check for requested deletes
+      requested_deletes = {}
+      for user in users:
+        if user.delete_request:
+          requested_deletes[user.id] = 'requested delete'
+      #Check for duplicate subscriptions
+      duplicates = {}
+      for stripe_customer in stripe_customers:
+        for check in stripe_customers:
+          if stripe_customer.id != check.id and stripe_customer.user_id == check.user_id:
+            duplicates[stripe_customer.user_id] = "duplicate"
+  
+      if duplicates:
+        flash('There are users with duplicate subscriptions!', category='error')
+      if requested_deletes:
+        flash('There are users that requested to delete their accounts..',
+              category='error')
+  
+      return render_template('admin.html',
+                             users=users,
+                             user=current_user,
+                             deleted_users=deleted_users,
+                             requested_deletes=requested_deletes,
+                             duplicates=duplicates)
+    else:
+      flash('Access Denied.', category='error')
+      return redirect(url_for('views.home'))
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page'
 
 @views.route('/request_delete_user/<user>')
 @login_required
 def request_delete_user(user):
-  add_request_to_delete_user(user)
-  flash('Request to Delete Account Sent.', category='success')
-  return redirect('/account')
+  try:
+    add_request_to_delete_user(user)
+    flash('Request to Delete Account Sent.', category='success')
+    return redirect('/account')
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page'
 
 
 @views.route('/delete_user/<user>')
 @login_required
 def delete_user(user):
-  if (current_user.email == os.environ['ADMIN_EMAIL']):
-    delete_user_from_db(user, current_user.id)
-    return redirect('/admin')
-  else:
-    flash('Access Denied.', category='error')
-    return redirect(url_for('views.home'))
-
+  try:
+    if (current_user.email == os.environ['ADMIN_EMAIL']):
+      delete_user_from_db(user, current_user.id)
+      return redirect('/admin')
+    else:
+      flash('Access Denied.', category='error')
+      return redirect(url_for('views.home'))
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page'
 
 @views.route('/delete_deleted_user/<deleted_user>')
 @login_required
 def delete_deleted_user(deleted_user):
-  if (current_user.email == os.environ['ADMIN_EMAIL']):
-    delete_deleted_user_from_db(deleted_user, current_user.id)
-    return redirect('/admin')
-  else:
-    flash('Access Denied.', category='error')
-    return redirect(url_for('views.home'))
+  try:
+    if (current_user.email == os.environ['ADMIN_EMAIL']):
+      delete_deleted_user_from_db(deleted_user, current_user.id)
+      return redirect('/admin')
+    else:
+      flash('Access Denied.', category='error')
+      return redirect(url_for('views.home'))
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page'
 
 
 @views.route('/clear_all_users')
 @login_required
 def clear_users():
-  if (current_user.email == os.environ['ADMIN_EMAIL']):
-    clear_all_users_from_db(current_user.id)
-    return redirect('/admin')
-  else:
-    flash('Access Denied.', category='error')
-    return redirect(url_for('views.home'))
+  try:
+    if (current_user.email == os.environ['ADMIN_EMAIL']):
+      clear_all_users_from_db(current_user.id)
+      return redirect('/admin')
+    else:
+      flash('Access Denied.', category='error')
+      return redirect(url_for('views.home'))
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page'
 
 
 @views.route('/clear_all_deleted_users')
 @login_required
 def clear_deleted_users():
-  if (current_user.email == os.environ['ADMIN_EMAIL']):
-    clear_all_deleted_users_from_db(current_user.id)
-    return redirect('/admin')
-  else:
-    flash('Access Denied.', category='error')
-    return redirect(url_for('views.home'))
+  try:
+    if (current_user.email == os.environ['ADMIN_EMAIL']):
+      clear_all_deleted_users_from_db(current_user.id)
+      return redirect('/admin')
+    else:
+      flash('Access Denied.', category='error')
+      return redirect(url_for('views.home'))
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page'
 
 
 @views.route('/download-queue-pdf')
 def download_queue():
-  response = download_queue_data(current_user.id)
-  # buffer = BytesIO()
-  # with open('website/static/files/queue.pdf', 'rb') as f:
-  #     buffer.write(f.read())
-  # buffer.seek(0)
-  # os.remove('website/static/files/queue.pdf')
-  # response = make_response(buffer.getvalue())
-
-  # Set the appropriate headers for a PDF file download
-  response.headers['Content-Type'] = 'application/pdf'
-  response.headers['Content-Disposition'] = 'attachment; filename=queue.pdf'
-
-  return response
+  try:
+    response = download_queue_data(current_user.id)
+    # buffer = BytesIO()
+    # with open('website/static/files/queue.pdf', 'rb') as f:
+    #     buffer.write(f.read())
+    # buffer.seek(0)
+    # os.remove('website/static/files/queue.pdf')
+    # response = make_response(buffer.getvalue())
+  
+    # Set the appropriate headers for a PDF file download
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'attachment; filename=queue.pdf'
+  
+    return response
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error'
 
 
 @views.route('/download-inventoryUpdate-pdf')
 def download_queue_and_inventory_change():
-  response = download_queue_and_inventory_change_data(
-    current_user.id, current_user.refresh_token)
-  # buffer = BytesIO()
-  # with open('website/static/files/InventoryUpdate.pdf', 'rb') as f:
-  #     buffer.write(f.read())
-  # buffer.seek(0)
-  # os.remove('website/static/files/InventoryUpdate.pdf')
-  # response = make_response(buffer.getvalue())
-
-  # Set the appropriate headers for a PDF file download
-  response.headers['Content-Type'] = 'application/pdf'
-  response.headers[
-    'Content-Disposition'] = 'attachment; filename=InventoryUpdate.pdf'
-
-  return response
-
+  try:
+    response = download_queue_and_inventory_change_data(
+      current_user.id, current_user.refresh_token)
+    # buffer = BytesIO()
+    # with open('website/static/files/InventoryUpdate.pdf', 'rb') as f:
+    #     buffer.write(f.read())
+    # buffer.seek(0)
+    # os.remove('website/static/files/InventoryUpdate.pdf')
+    # response = make_response(buffer.getvalue())
+  
+    # Set the appropriate headers for a PDF file download
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers[
+      'Content-Disposition'] = 'attachment; filename=InventoryUpdate.pdf'
+  
+    return response
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error'
 
 @views.route('/download-inventoryChange-pdf')
 def download_inventory_to_change_slim():
-  response = download_inventory_change(current_user.id,
-                                       current_user.refresh_token)
-  # buffer = BytesIO()
-  # with open('website/static/files/InventoryUpdate.pdf', 'rb') as f:
-  #     buffer.write(f.read())
-  # buffer.seek(0)
-  # os.remove('website/static/files/InventoryUpdate.pdf')
-  # response = make_response(buffer.getvalue())
-
-  # Set the appropriate headers for a PDF file download
-  response.headers['Content-Type'] = 'application/pdf'
-  response.headers[
-    'Content-Disposition'] = 'attachment; filename=InventoryUpdate.pdf'
-
-  return response
-
+  try:
+    response = download_inventory_change(current_user.id,
+                                         current_user.refresh_token)
+    # buffer = BytesIO()
+    # with open('website/static/files/InventoryUpdate.pdf', 'rb') as f:
+    #     buffer.write(f.read())
+    # buffer.seek(0)
+    # os.remove('website/static/files/InventoryUpdate.pdf')
+    # response = make_response(buffer.getvalue())
+  
+    # Set the appropriate headers for a PDF file download
+    response.headers['Content-Type'] = 'application/pdf'
+    response.headers[
+      'Content-Disposition'] = 'attachment; filename=InventoryUpdate.pdf'
+  
+    return response
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error'
 
 @views.route('/support', methods=['GET', 'POST'])
 def support():
-  if request.method == 'POST':
-    suggestion = request.form.get('suggestion')
-    add_suggestion(suggestion, current_user)
-    flash('Suggestion sent. Thank you for your feedback!', category='success')
-  return render_template('support.html', user=current_user)
+  try:
+    if request.method == 'POST':
+      suggestion = request.form.get('suggestion')
+      add_suggestion(suggestion, current_user)
+      flash('Suggestion sent. Thank you for your feedback!', category='success')
+    return render_template('support.html', user=current_user)
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page or going to the home page.'
 
 
 @views.route('/tutorial', methods=['GET', 'POST'])
 def tutorial():
-
-  return render_template('tutorial.html', user=current_user)
+  try:
+    return render_template('tutorial.html', user=current_user)
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page or going to the home page.'
 
 
 @views.route('/jobs', methods=['GET', 'POST'])
@@ -1034,7 +1134,7 @@ def jobs():
   except Exception as e:
     print(e)
     db.session.rollback()
-    return f'Error: {e}'
+    return 'Error. Try refreshing the page or going to the home page.'
 
   
 
@@ -1042,89 +1142,119 @@ def jobs():
 @views.route('/create_job', methods=['GET', 'POST'])
 @login_required
 def create_job():
-  queue = load_queue_from_db(current_user.id)
-  if not queue:
-    flash('Cannot add an empty queue to JOBS',
-    category='error')
-    return redirect(url_for('views.home'))
-  else:
-    try:
-      # task = Task(id=self.request.id, name='print_numbers_task', description='Printing Numbers...', user_id=id)
-      queue = load_queue_from_db(current_user.id)
-      my_task_tracker = My_task_tracker(name='Increase Inventory',
-                                        description='Increasing Inventory...',
-                                        time_added_to_jobs=datetime.now(pytz.timezone('America/New_York')),
-                                        status='Waiting',
-                                        user_id=current_user.id)
-      print('MY_TASK_TRACKER:', my_task_tracker)
-      db.session.add(my_task_tracker)
-      db.session.commit()
-      add_queue_to_task_details(queue, my_task_tracker.id, current_user.id)
-      delete_whole_tracking_id_queue(current_user.id)
-      message = f"Successfully created job with id: {my_task_tracker.id} .      It will execute at 12:00 am Est."
-      flash(message, category='success')
-    except OperationalError as e:
-      db.session.rollback()
-      # Log the error if needed
-      print("DEBUG: A")
-    except PendingRollbackError as e:
-      # Rollback the session and retry the operation after a delay
-      db.session.rollback()
-      print("DEBUG: ROLLBACK ERROR")
-    except Exception as e:
-      # Handle exceptions, log them, and roll back the transaction
-      db.session.rollback()
-      raise e
-    return redirect(url_for('views.jobs'))
+  try:
+    queue = load_queue_from_db(current_user.id)
+    if not queue:
+      flash('Cannot add an empty queue to JOBS',
+      category='error')
+      return redirect(url_for('views.home'))
+    else:
+      try:
+        # task = Task(id=self.request.id, name='print_numbers_task', description='Printing Numbers...', user_id=id)
+        queue = load_queue_from_db(current_user.id)
+        my_task_tracker = My_task_tracker(name='Increase Inventory',
+                                          description='Increasing Inventory...',
+                                          time_added_to_jobs=datetime.now(pytz.timezone('America/New_York')),
+                                          status='Waiting',
+                                          user_id=current_user.id)
+        print('MY_TASK_TRACKER:', my_task_tracker)
+        db.session.add(my_task_tracker)
+        db.session.commit()
+        add_queue_to_task_details(queue, my_task_tracker.id, current_user.id)
+        delete_whole_tracking_id_queue(current_user.id)
+        message = f"Successfully created job with id: {my_task_tracker.id} .      It will execute at 12:00 am Est."
+        flash(message, category='success')
+      except OperationalError as e:
+        db.session.rollback()
+        # Log the error if needed
+        print("DEBUG: A")
+      except PendingRollbackError as e:
+        # Rollback the session and retry the operation after a delay
+        db.session.rollback()
+        print("DEBUG: ROLLBACK ERROR")
+      except Exception as e:
+        # Handle exceptions, log them, and roll back the transaction
+        db.session.rollback()
+        raise e
+      return redirect(url_for('views.jobs'))
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page or going to the home page.'
 
 
 @views.route('/jobs/delete/<my_task>')
 @login_required
 def delete_job(my_task):
-  delete_job_db(my_task, current_user.id)
-  return redirect('/jobs')
+  try:
+    delete_job_db(my_task, current_user.id)
+    return redirect('/jobs')
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page or going to the home page.'
 
 
 @views.route('/jobs/info/<my_task_id>')
 @login_required
 def info_job(my_task_id):
-  queue = get_info_job_from_db(my_task_id, current_user.id)
-  my_task_tracker = load_my_task_tracker_from_db(my_task_id, current_user.id)
-  return render_template('job_info.html',
-                         queue=queue,
-                         job_id=my_task_id,
-                         my_task_tracker = my_task_tracker,
-                         user=current_user)
+  try:
+    queue = get_info_job_from_db(my_task_id, current_user.id)
+    my_task_tracker = load_my_task_tracker_from_db(my_task_id, current_user.id)
+    return render_template('job_info.html',
+                           queue=queue,
+                           job_id=my_task_id,
+                           my_task_tracker = my_task_tracker,
+                           user=current_user)
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page or going to the home page.'
 
 
 @views.route('/history/delete/<my_task>')
 @login_required
 def delete_history(my_task):
-  delete_from_history_db(my_task, current_user.id)
-  return redirect('/jobs')
+  try:
+    delete_from_history_db(my_task, current_user.id)
+    return redirect('/jobs')
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page or going to the home page.'
 
 
 @views.route('/jobs/save_for_later/<my_task>')
 @login_required
 def save_for_later(my_task):
-  job = My_task_tracker.query.filter_by(id=my_task).first()
-  if job:
-    print('FOUND')
-    job.saved_for_later = True
-    db.session.commit()
-  else:
-    print('NOT FOUND')
-  return redirect('/jobs')
+  try:
+    job = My_task_tracker.query.filter_by(id=my_task).first()
+    if job:
+      print('FOUND')
+      job.saved_for_later = True
+      db.session.commit()
+    else:
+      print('NOT FOUND')
+    return redirect('/jobs')
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page or going to the home page.'
 
 
 @views.route('/jobs/return_from_save_for_later/<my_task>')
 @login_required
 def return_from_save_for_later(my_task):
-  job = My_task_tracker.query.filter_by(id=my_task).first()
-  if job:
-    job.saved_for_later = False
-    db.session.commit()
-  return redirect('/jobs')
+  try:
+    job = My_task_tracker.query.filter_by(id=my_task).first()
+    if job:
+      job.saved_for_later = False
+      db.session.commit()
+    return redirect('/jobs')
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page or going to the home page.'
 
 
 # @views.route('/suggestion', methods=['GET', 'POST'])
@@ -1153,18 +1283,23 @@ def notifications():
 
 
 def extract_tracking_id(trackingID):
-  # Define the patterns for the consecutive digits
-  patterns = ['9400', '9205', '9407', '9303', '9208', '9202', '9302']
-
-  # Check if the trackingID matches any of the patterns
-  for pattern in patterns:
-    match = re.search(pattern, trackingID)
-    if match:
-      start_index = match.start()
-      new_trackingID = trackingID[start_index:]
-      return new_trackingID
-
-  return None  # Return None if no match is found
+  try:
+    # Define the patterns for the consecutive digits
+    patterns = ['9400', '9205', '9407', '9303', '9208', '9202', '9302']
+  
+    # Check if the trackingID matches any of the patterns
+    for pattern in patterns:
+      match = re.search(pattern, trackingID)
+      if match:
+        start_index = match.start()
+        new_trackingID = trackingID[start_index:]
+        return new_trackingID
+  
+    return None  # Return None if no match is found
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error'
 
 
 #for debugging. Remove later
@@ -1318,6 +1453,7 @@ def every_day_function_on_web():
   except Exception as e:
     print(f"ERROR something went wrong with the overall every_day_function for all users. Error: {e}")
     db.session.rollback()
+    return 'Error'
   return 'every_day_function_on_web'
 
 
@@ -1335,31 +1471,51 @@ def every_day_function_on_web2():
 @views.route('/load_task_details_from_db/<my_task_tracker_id>')
 @login_required
 def load_task_details(my_task_tracker_id):
-  load_task_details_from_db(my_task_tracker_id, current_user.id)
-  return redirect(url_for('views.home'))
+  try:
+    load_task_details_from_db(my_task_tracker_id, current_user.id)
+    return redirect(url_for('views.home'))
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page or going to the home page.'
 
 @views.route('/move_history_to_jobs/<my_task_id>')
 @login_required
 def move_history_job_to_jobs(my_task_id):
-  move_history_to_jobs(my_task_id, current_user.id)
-  return redirect('/jobs')
+  try:
+    move_history_to_jobs(my_task_id, current_user.id)
+    return redirect('/jobs')
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page or going to the home page.'
 
 @views.route('/delete_whole_history')
 @login_required
 def delete_whole_history():
-  delete_whole_history_db(current_user.id)
-  return redirect('/jobs')
+  try:
+    delete_whole_history_db(current_user.id)
+    return redirect('/jobs')
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page or going to the home page.'
 
 @views.route('edit_name', methods=['POST', 'GET'] )
 @login_required
 def edit_name():
-  if request.method == 'POST':
-    name = request.form['name']
-    user = User.query.filter_by(id=current_user.id).first()
-    current_user.first_name = name
-    db.session.commit()
-    return redirect('/account')
-  return render_template('edit_name.html', user=current_user )
+  try:
+    if request.method == 'POST':
+      name = request.form['name']
+      user = User.query.filter_by(id=current_user.id).first()
+      current_user.first_name = name
+      db.session.commit()
+      return redirect('/account')
+    return render_template('edit_name.html', user=current_user )
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page or going to the home page.'
 
 
 
