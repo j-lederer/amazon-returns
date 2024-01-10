@@ -736,36 +736,43 @@ def delete(tracking):
 #       return 'There was a problem adding the Tracking ID to your queue'
 @views.route('/add_to_queue_button', methods=['POST', 'GET'])
 def add_to_queue():
-  result = request.form
-  # print(result)
-  tracking_id = load_tracking_id_to_search(current_user.id)
-  if tracking_id == None or tracking_id == '':
-    flash('Search is empty.', category='error')
-    return redirect('/')
-  else:
+  try:
+    result = request.form
+    # print(result)
     tracking_id = load_tracking_id_to_search(current_user.id)
-    return_data = load_current_return_to_display_from_db(current_user.id)
-    quantity_of_return = return_data['return_quantity']
-    sku = return_data['sku']
-    queue = load_queue_from_db(current_user.id)
-
-    print(return_data)
-    if return_data['order_id'] == 'Not Found':
-      print('Cannot add unknown tracking id to queue')
-      flash('Cannot add unknown tracking id to queue.', category='error')
+    if tracking_id == None or tracking_id == '':
+      flash('Search is empty.', category='error')
       return redirect('/')
-    for track in queue:
-      #print(track['tracking'])
-      if track['tracking'] == tracking_id:
-        print("Tracking ID is already in queue")
-        flash("Tracking ID is already in queue", category='error')
+    else:
+      tracking_id = load_tracking_id_to_search(current_user.id)
+      return_data = load_current_return_to_display_from_db(current_user.id)
+      quantity_of_return = return_data['return_quantity']
+      sku = return_data['sku']
+      queue = load_queue_from_db(current_user.id)
+  
+      print(return_data)
+      if return_data['order_id'] == 'Not Found':
+        print('Cannot add unknown tracking id to queue')
+        flash('Cannot add unknown tracking id to queue.', category='error')
         return redirect('/')
-
-    print("Successfully Added Tracking ID to Queue.")
-    add_tracking_id_to_queue(tracking_id, sku, quantity_of_return,
-                             current_user.id)
-    # flash("Successfully Added Tracking ID to Queue.", category = 'success')
-    return redirect('/')
+      for track in queue:
+        #print(track['tracking'])
+        if track['tracking'] == tracking_id:
+          print("Tracking ID is already in queue")
+          flash("Tracking ID is already in queue", category='error')
+          return redirect('/')
+  
+      print("Successfully Added Tracking ID to Queue.")
+      add_tracking_id_to_queue(tracking_id, sku, quantity_of_return,
+                               current_user.id)
+      # flash("Successfully Added Tracking ID to Queue.", category = 'success')
+      return redirect('/')
+      
+  except Exception as e:
+    print("Error" + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page'
+    
 
 
 @views.route('/search', methods=['POST', 'GET'])
