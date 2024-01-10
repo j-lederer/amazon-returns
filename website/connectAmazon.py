@@ -30,6 +30,7 @@ def connect_amazon():
 @connectAmazon.route('/callback')
 @login_required
 def callback():
+  try:
     state = request.args.get('state')
     selling_partner_id = request.args.get('selling_partner_id')
     spapi_oauth_code = request.args.get('spapi_oauth_code')
@@ -61,4 +62,9 @@ def callback():
     else:
       flash( 'Login failed. Reason: State values do not match', category = 'error')
       return redirect('/account')
+
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try refreshing the page or going to the home page.'
         
