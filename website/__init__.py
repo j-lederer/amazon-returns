@@ -48,8 +48,8 @@ def create_app():
   # )
   app.config['SQLALCHEMY_DATABASE_URI'] =os.environ['RAILWAY_DB_CONNECTION_STRING']
   app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-  app.config['SQLALCHEMY_POOL_RECYCLE'] = 299
-  app.config['SQLALCHEMY_POOL_TIMEOUT'] = 20
+  # app.config['SQLALCHEMY_POOL_RECYCLE'] = 299
+  # app.config['SQLALCHEMY_POOL_TIMEOUT'] = 20
   app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"pool_pre_ping": True, "pool_use_lifo": True}
   # app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"poolclass": NullPool}
   # app.config['STRIPE_PUBLIC_KEY'] = os.environ['STRIPE_TEST_PUBLIC_KEY']
