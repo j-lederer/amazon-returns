@@ -1,10 +1,18 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
+<div class = page-content>
+<h1 id='title'>AmazeSoftware </h1>
+<div class="section1-container">
+    {% if tracking_id %}
+    
+    <div class="trackingID" style="z-index: 3;">
 
-<h1 style='color:black;'>AmazeSoftware </h1>
-
-<div class="intro">
+            <h5>{{tracking_id}}</h5>  
+    </div>
+    
+        {% endif %}
+<div class="intro"  style="z-index: 1;">
     <h3>Scan For Info</h3>
     <h3>Address:</h3>
     <h3>Item Name:</h3>
@@ -18,10 +26,10 @@
     <h3>In Queue:</h3>
 </div>
 
-<div class="introAnswers">
+<div class="introAnswers"  style="z-index: 2;">
     <form method="POST" action="{{ url_for('views.get_info_on_track') }}">
         <input autofocus type="text" placeholder="Barcode" name="track"/>
-        <input type="submit" value="Enter">
+        <input  id='searchButton' type="submit" value="Enter">
     </form>
 
     {% if passed_value %}
@@ -48,67 +56,63 @@
         <h3>-</h3>
     {% endif %}
 </div>
+      
+    
+</div>
 
-<div class="checkList">
+<div id="addToQueueButton"  style="z-index: 4;">
     <form action="/add_to_queue_button" method='post'>
-        <input type="submit" value="Add to queue">
+        <input class= "buttonType" id="addToQueue" type="submit" value="Add to queue">
     </form>
 </div>
 
-<br>
-<button class="button_add_to_jobs" id="addToJobsButton">Add to Jobs</button>
 
+<div class="section2-extra-container">
 
+    <button class="Refresh_Button" id="refreshButton">Refresh Returns and Inventory Data</button>
+    <button class="Clear_Search_Button" id="clearSearchButton">Clear Search</button>
 
-<div class="trackingID">
-    {% if tracking_id %}
-        <h5>{{tracking_id}}</h5>
-    {% endif %}
+    <div id="refreshTable">
+        <table class="Refresh_Table">
+            <tr>
+                <th>Refresh Status</th>
+                <th>Complete</th>
+                <th>Last Refresh Attempt</th>
+                <th>Last Refresh Successful</th>
+            </tr>
+            {% if my_refresh_tracker %}
+                <tr>
+                    <td>{{ my_refresh_tracker['status'] }}</td>
+                    <td>{{ my_refresh_tracker['complete'] }}</td>
+                    <td>{{ my_refresh_tracker['time_clicked'] }}</td>
+                    <td>{{ my_refresh_tracker['time_completed'] }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td>None</td>
+                    <td>None</td>
+                    <td>None</td>
+                    <td>None</td>
+                </tr>
+            {% endif %}
+        </table>
+    </div>
+    
 </div>
 
-<button class="Clear_Search_Button" id="clearSearchButton">Clear Search</button>
-<br>
-<br>
-
-<button class="Refresh_Button" id="refreshButton">Refresh Returns and Inventory Data</button>
-
-<div style="max-width: 300px; margin: 0 auto; padding: 10px; text-align: left; position: relative; top:-360px; left:-370px;">
-    <table class="Refresh_Table" style="max-width: 100%; margin-top: 5px; margin-bottom: 0;text-align: center;">
-        <tr>
-            <th>Refresh Status</th>
-            <th>Complete</th>
-            <th>Last Refresh Attempt</th>
-            <th>Last Refresh Successful</th>
-        </tr>
-        {% if my_refresh_tracker %}
-            <tr>
-                <td>{{ my_refresh_tracker['status'] }}</td>
-                <td>{{ my_refresh_tracker['complete'] }}</td>
-                <td>{{ my_refresh_tracker['time_clicked'] }}</td>
-                <td>{{ my_refresh_tracker['time_completed'] }}</td>
-            </tr>
-        {% else %}
-            <tr>
-                <td>None</td>
-                <td>None</td>
-                <td>None</td>
-                <td>None</td>
-            </tr>
-        {% endif %}
-    </table>
+<div class="section3-extra-container">
+    <button class="Clear_Queue_Button" id="clearQueueButton">Clear Queue</button>
+    <button class="Download_pdf" id="downloadPdfButton" data-url="{{ url_for('views.download_queue') }}">Download a pdf of Queue</button>
+    <button class="Download_slim" id="downloadSlimButton" data-url="{{ url_for('views.download_inventory_to_change_slim') }} ">Download Inventory Change Slim</button>
 </div>
 
-<br>
 
-<button class="Clear_Queue_Button" id="clearQueueButton">Clear Queue</button>
-
-<button class="Download_pdf" id="downloadPdfButton" data-url="{{ url_for('views.download_queue') }}">Download a pdf of Queue</button>
-
-<button class="Download_slim" id="downloadSlimButton" data-url="{{ url_for('views.download_inventory_to_change_slim') }} ">Download Inventory Change Slim</button>
+    
 
 
-
-<div class="content">
+<div class="section4-queue-container">
+      <button class="button_add_to_jobs" >ADD QUEUE TO JOBS</button>
+<div class="queue-grid">
     <h1 style="text-align: center; color: black;">Queue</h1>
     {% if tasks|length < 1 %}
         <h4 style="text-align: center">There are no Tracking ID's in the queue. Add one now!</h4>
@@ -132,6 +136,9 @@
             {% endfor %}
         </table>
     {% endif %}
+</div>
+</div>
+    
 </div>
 <script src="{{url_for('static', filename='home.js')}}" ></script>
 {% endblock %}
