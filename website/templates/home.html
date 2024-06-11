@@ -20,7 +20,7 @@
 
 <div class="introAnswers">
     <form method="POST" action="{{ url_for('views.get_info_on_track') }}">
-        <input type="text" placeholder="Barcode" name="track"/>
+        <input autofocus type="text" placeholder="Barcode" name="track"/>
         <input type="submit" value="Enter">
     </form>
 
@@ -45,6 +45,7 @@
         <h3>-</h3>
         <h3>-</h3>
         <h3>-</h3>
+        <h3>-</h3>
     {% endif %}
 </div>
 
@@ -55,7 +56,8 @@
 </div>
 
 <br>
-<a class="button_add_to_jobs" href='/create_job' onclick="return confirm('Add the queue to your jobs. The increase inventory operation will execute at 12:00 am ET every night.');">Add to Jobs</a>
+<button class="button_add_to_jobs" id="addToJobsButton">Add to Jobs</button>
+
 
 
 <div class="trackingID">
@@ -64,9 +66,11 @@
     {% endif %}
 </div>
 
-<a class="Clear_Search_Button" href="/clearSearch">Clear Search</a>
+<button class="Clear_Search_Button" id="clearSearchButton">Clear Search</button>
 <br>
-<a class="Refresh_Button" href="/refresh_returns_and_inventory" style="position: relative; top:-350px; left:50px;">Refresh Returns and Inventory Data</a>
+<br>
+
+<button class="Refresh_Button" id="refreshButton">Refresh Returns and Inventory Data</button>
 
 <div style="max-width: 300px; margin: 0 auto; padding: 10px; text-align: left; position: relative; top:-360px; left:-370px;">
     <table class="Refresh_Table" style="max-width: 100%; margin-top: 5px; margin-bottom: 0;text-align: center;">
@@ -95,9 +99,14 @@
 </div>
 
 <br>
-<a class="Clear_Queue_Button" href="/clearQueue" onclick="return confirm('Are you sure you want to clear the queue?');">Clear Queue</a>
-<a class="Download_pdf" href="{{url_for('views.download_queue')}}">Download a pdf of Queue</a>
-<a class="Download_slim" href="{{url_for('views.download_inventory_to_change_slim')}}">Download Inventory Change Slim</a>
+
+<button class="Clear_Queue_Button" id="clearQueueButton">Clear Queue</button>
+
+<button class="Download_pdf" id="downloadPdfButton" data-url="{{ url_for('views.download_queue') }}">Download a pdf of Queue</button>
+
+<button class="Download_slim" id="downloadSlimButton" data-url="{{ url_for('views.download_inventory_to_change_slim') }} ">Download Inventory Change Slim</button>
+
+
 
 <div class="content">
     <h1 style="text-align: center; color: black;">Queue</h1>
@@ -124,5 +133,5 @@
         </table>
     {% endif %}
 </div>
-
+<script src="{{url_for('static', filename='home.js')}}" ></script>
 {% endblock %}

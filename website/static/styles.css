@@ -72,9 +72,9 @@ img {
 }
 
 button {
-    background-color: #4CAF50; /* Green */
+    background-color: #AFEEEE; /* Green  #4CAF50*/  
     border: none;
-    color: white;
+    color: black;
     padding: 15px 32px;
     text-align: center;
     text-decoration: none;
@@ -119,7 +119,7 @@ button {
     position: relative;
     top:-50px;
     left:150px;
-    background-color:#008080;
+    background-color:#AFEEEE;
     color:;
     padding:10px;
     margin:;
@@ -130,10 +130,11 @@ button {
     top:-925px;
     left:715px;
     width: 245px;
-    background-color:#00FFFF;
+    background-color:#AFEEEE; /*#00FFFF;*/
     text-align: center;
     padding-top: 1px;
     padding-bottom: 0px;
+    min-height:30px
 
 }
 .Refresh_Button{
@@ -141,7 +142,6 @@ button {
     top:-350px;
     left:50px;
     width: 160px;
-    background-color:#00FFFF;
 
 }
 .Clear_Search_Button{
@@ -149,7 +149,6 @@ button {
     top:-350px;
     left:50px;
     width: 160px;
-    background-color:#00FFFF;
 
 }
 .Clear_Queue_Button{
@@ -157,7 +156,6 @@ button {
     top:-150px;
     left:40px;
     width: 160px;
-    background-color:#AFEEEE;
 
 }
 .Download_pdf{
