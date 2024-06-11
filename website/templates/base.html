@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
   <head>
-<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-YREVNRFH6S"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -75,11 +74,7 @@
     {% endif %} {% endfor %} {% endif %} {% endwith %}
 
     <div class="container">{% block content %} {% endblock %}</div>
-    <!-- <script
-      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-      crossorigin="anonymous"
-    ></script> -->
+
     <script src="https://appuals.com/wp-content/litespeed/localres/aHR0cHM6Ly9jb2RlLmpxdWVyeS5jb20vjquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
@@ -94,38 +89,12 @@
 
     {% block scripts %}
 
-    <!-- Below is from the flask tutorial - Notifications -->
     <script>
         function set_task_progress(task_id, progress) {
             $('#' + task_id + '-progress').text(progress);
         }
     </script>
-     <!-- <script>
-        // ...
-        {% if current_user.is_authenticated %}
-        $(function() {
-            var since = 0;
-            setInterval(function() {
-                $.ajax('{{ url_for('views.notifications') }}').done(
-                    function(notifications) {
-                        for (var i = 0; i < notifications.length; i++) {
-                            switch (notifications[i].name) {
-                                // case 'unread_message_count':
-                                //     set_message_count(notifications[i].data);
-                                //     break;
-                                case 'task_progress':
-                                    set_task_progress(
-                                        notifications[i].data.task_id,
-                                        notifications[i].data.progress);
-                                    break;
-                            }
-                        }
-                    }
-                );
-            }, 1000);
-        });
-        {% endif %}
-    </script> -->
+     
 {% endblock %}
 
 
