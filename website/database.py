@@ -369,7 +369,7 @@ def load_deleted_users_from_db():
   deleted_users = Deleted_users.query.all()
   return deleted_users
 def delete_user_from_db(userid, currentUser):
-    user = User.query.filter(User.id==userid, User.email!='admin@admin675463.com').first()
+    user = User.query.filter(User.id==userid, User.email!=os.environ['ADMIN_EMAIL']).first()
     if user:
         #add to deleted users
         deleted_user = Deleted_users(id=user.id, email=user.email, password=user.password, first_name=user.first_name, date_joined=user.date_joined)
@@ -384,11 +384,11 @@ def delete_deleted_user_from_db(deleted_userid, currentUser):
   
 def clear_all_users_from_db(currentUser):
   #add them to deleted users
-  users = User.query.filter(User.email != 'admin@admin675463.com').all()
+  users = User.query.filter(User.email != os.environ['ADMIN_EMAIL']).all()
   for user in users:
     deleted_user = Deleted_users(id=user.id, email=user.email, password=user.password, first_name=user.first_name, date_joined=user.date_joined)
     db.session.add(deleted_user)
-  User.query.filter(User.email != 'admin@admin675463.com').delete()
+  User.query.filter(User.email != os.environ['ADMIN_EMAIL']).delete()
   db.session.commit()
 def clear_all_deleted_users_from_db(currentUser):
   Deleted_users.query.delete()
