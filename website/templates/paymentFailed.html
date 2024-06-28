@@ -1,7 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-<!-- Google tag (gtag.js) -->
+    <style>
+      body, html {
+        width: 100%;
+          height: 100%;
+          margin: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        
+      }
+
+      .jumbotron {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+      }
+      .background-container {
+          width: 50%;
+          height: 100vh;
+          background-image: url("../static/amaze-software-logo/profile.png");
+          background-position: center;
+          background-repeat: no-repeat;
+          background-size: contain; /* Optional: ensures the image covers the whole container */
+      }
+    </style>
+    
+    <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-YREVNRFH6S"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -10,6 +37,7 @@
 
   gtag('config', 'G-YREVNRFH6S');
 </script>
+    
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
@@ -26,28 +54,23 @@
 
   <body>
 
-    <div class="container">
-      <div class="header clearfix">
-        <nav>
-          <ul class="nav nav-pills float-right">
-            <li class="nav-item">
-              <a class="nav-link active" href="{{ url_for('views.account') }}">Account <span class="sr-only">(current)</span></a>
-            </li>
-          </ul>
-        </nav>
-        <h3 class="text-muted">Store</h3>
-      </div>
-
-      <div class="jumbotron">
-        <h1 class="display-3">Payment Failed</h1>
-        <p class="lead">You will receive a link to The Product in your email.</p>
+     <div class="background-container">
+      <div class="jumbotron" >
+        <!-- <img style=" max-width: 100%;" src="../static/amaze-software-logo/profile.png" alt="Amaze-Software"/> -->
+        <!-- <img src="../static/amaze-software-logo/cover.png" alt="Amaze-Software"/> -->
+       
+        <!-- <h3 class="text-muted">Amaze-Software</h3> -->
+        <h1 class="display-3">Payment Failed </h1>
+        <a class="nav-link active" style="font-size: 20" href="{{ url_for('views.account') }}">Back to Account</a>
+        
       </div>
 
       <footer class="footer">
-        <p>&copy; Store 2017</p>
+        <!-- <p>&copy; Store 2023</p> -->
       </footer>
 
-    </div> <!-- /container -->
+    </div> 
+  </div>
 
   </body>
 </html>
