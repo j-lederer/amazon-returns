@@ -33,9 +33,9 @@ def login():
           login_user(user, remember=True)
           return redirect(url_for('views.home'))
         else:
-          flash('Incorrect password, try again.', category='error')
+          flash('Incorrect credentials', category='error')
       else:
-        flash('Email does not exist.', category='error')
+        flash('Incorrect credentials', category='error')
   
     return render_template("login.html", user=current_user)
   except Exception as e:
@@ -131,8 +131,8 @@ def forgot_password():
         current_app._get_current_object(), user=user, token=reset_token
     )
         return redirect(url_for('auth.login'))
-      else:
-        flash('Invalid email. Please try again.')
+      # else:
+        # flash('Invalid email. Please try again.')
 
     # Render the template and pass the form to the context
     return render_template('forgot_password.html', forgot_password_form=forgot_password_form)
