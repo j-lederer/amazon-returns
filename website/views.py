@@ -196,8 +196,6 @@ def refresh_returns_task(self, refresh_token,
     db.session.add(task)
     db.session.commit()
     my_refresh_returns_tracker = My_refresh_returns_tracker.query.get(my_refresh_returns_tracker_id)
-    print("refresh tracker id: ", my_refresh_returns_tracker_id)
-    print("FOUND MY REFRESH TRACKER: ", my_refresh_returns_tracker)
     
     my_refresh_returns_tracker.status = 'Began'
     my_refresh_returns_tracker.time_task_associated_launched = datetime.now(pytz.timezone('America/New_York'))
@@ -212,22 +210,25 @@ def refresh_returns_task(self, refresh_token,
     print('Getting Return Data:')
     all_return_data = get_all_Returns_data(refresh_token)
     if all_return_data != 'FATAL' and all_return_data != 'CANCELLED' and all_return_data != 'UNKNOWN ERROR':
-      my_refresh_returns_tracker.status = 'Checking Inventory'
+
+      refresh_return_data_in_db(all_return_data, current_user_id)
+      task.status = 'SUCCESSFUL'
+      task.time_completed = datetime.now(pytz.timezone('America/New_York'))
+      my_refresh_returns_tracker.status = 'SUCCESSFUL(1)'
+      my_refresh_returns_tracker.time_completed = datetime.now(pytz.timezone('America/New_York'))
+      my_refresh_returns_tracker.complete = True
       db.session.commit()
+      
+      # my_refresh_returns_tracker.status = 'Checking Inventory'
+      # db.session.commit()
       print('Checking Inventory:')
       inventory_data = checkInventory(refresh_token)
       if inventory_data != 'FATAL' or inventory_data != 'CANCELLED' or inventory_data != 'UNKNOWN ERROR':
         print('Updating db')
-        my_refresh_returns_tracker.status = 'Updating DB'
-        db.session.commit()
+        # my_refresh_returns_tracker.status = 'Updating DB'
+        # db.session.commit()
 
-        refresh_return_data_in_db(all_return_data, current_user_id)
-        task.status = 'SUCCESSFUL'
-        task.time_completed = datetime.now(pytz.timezone('America/New_York'))
-        my_refresh_returns_tracker.status = 'SUCCESSFUL(1)'
-        my_refresh_returns_tracker.time_completed = datetime.now(pytz.timezone('America/New_York'))
-        my_refresh_returns_tracker.complete = True
-        db.session.commit()
+      
 
 
         
