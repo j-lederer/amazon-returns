@@ -214,24 +214,45 @@ def refresh_returns_task(self, refresh_token,
       print('Checking Inventory:')
       inventory_data = checkInventory(refresh_token)
       if inventory_data != 'FATAL' or inventory_data != 'CANCELLED' or inventory_data != 'UNKNOWN ERROR':
-        my_refresh_returns_tracker.status = 'Retrieving Final Info'
+        print('Updating db')
+        my_refresh_returns_tracker.status = 'Updating DB'
         db.session.commit()
+
+        refresh_return_data_in_db(all_return_data, current_user_id)
+        task.status = 'SUCCESSFUL'
+        task.time_completed = datetime.now(pytz.timezone('America/New_York'))
+        my_refresh_returns_tracker.status = 'SUCCESSFUL(1)'
+        my_refresh_returns_tracker.time_completed = datetime.now(pytz.timezone('America/New_York'))
+        my_refresh_returns_tracker.complete = True
+        db.session.commit()
+
+
+        
+        refresh_inventory_data_in_db(all_return_data, inventory_data,
+                                     current_user_id)
+        task.status = 'SUCCESSFUL'
+        task.time_completed = datetime.now(pytz.timezone('America/New_York'))
+        my_refresh_returns_tracker.status = 'SUCCESSFUL(2)'
+        my_refresh_returns_tracker.time_completed = datetime.now(pytz.timezone('America/New_York'))
+        my_refresh_returns_tracker.complete = True
+        db.session.commit()
+
+        
+        # my_refresh_returns_tracker.status = 'Retrieving Final Info'
+        # db.session.commit()
         print('Getting Addresses:')
         addressData = get_addresses_from_GetOrders(refresh_token)
         # print("ADDRESS DATA:")
         # print(addressData)
-        print('Updating db')
-        my_refresh_returns_tracker.status = 'Updating DB'
-        db.session.commit()
-        refresh_all_return_data_in_db(all_return_data, inventory_data,
-                                      current_user_id)
+        
         refresh_addresses_in_db(addressData, current_user_id)
         task.status = 'SUCCESSFUL'
         task.time_completed = datetime.now(pytz.timezone('America/New_York'))
-        my_refresh_returns_tracker.status = 'SUCCESSFUL'
+        my_refresh_returns_tracker.status = 'SUCCESSFUL(3)'
         my_refresh_returns_tracker.time_completed = datetime.now(pytz.timezone('America/New_York'))
         my_refresh_returns_tracker.complete = True
         db.session.commit()
+        
         return "Done"
       else: 
         print(f'ERROR with checkInventory()) output: {inventory_data}')

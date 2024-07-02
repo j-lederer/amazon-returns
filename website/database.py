@@ -263,6 +263,8 @@ def load_tracking_id_to_search(user_id):
   return None
 
 
+
+
 def refresh_all_return_data_in_db(all_return_data, inventory_data, user_id):
   # with engine.connect() as conn:
   #   #Delete all previous return data
@@ -310,8 +312,56 @@ def refresh_all_return_data_in_db(all_return_data, inventory_data, user_id):
   else: 
      print("An error occcurred while retreiveing info. The process was CANCELLED")
      db.session.rollback()
-     return "An error occcurred while retreiveing info. The process was CANCELLED"
+     return "An error occcurred while retreiveing info.The process was CANCELLED"
   
+
+def refresh_return_data_in_db(all_return_data, user_id):
+
+  All_return_details.query.filter_by(user_id=user_id).delete()
+
+  if (all_return_data != 'CANCELLED'):
+    for return_details in all_return_data:
+        if(return_details):
+          if return_details['sku']:
+            return_details['Inventory'] = "No Data" #default
+            return_details_sku_list = return_details['sku'].split(', ')
+          else:
+            print("Could not find return_details['sku']")
+          return_details['user_id'] = user_id
+          return_data_obj = All_return_details(**return_details)
+          db.session.add(return_data_obj)
+          db.session.commit()
+  else: 
+     print("An error occcurred while retreiveing info (1). The process was CANCELLED")
+     db.session.rollback()
+     return "An error occcurred while retreiveing info (1). The process was CANCELLED"
+
+
+def refresh_inventory_data_in_db(all_return_data, inventory_data, user_id):
+  All_return_details.query.filter_by(user_id=user_id).delete()
+  
+  if (all_return_data != 'CANCELLED'):
+    for return_details in all_return_data:
+        if(return_details):
+          if return_details['sku']:
+            return_details['Inventory'] =[]
+            return_details_sku_list = return_details['sku'].split(', ')
+            for item_sku in return_details_sku_list:
+              if item_sku in inventory_data.keys():
+                return_details['Inventory'].append( inventory_data[item_sku])
+              else:
+                print("Could not find inventory_data[return_details['sku']]")
+          else:
+            print("Could not find return_details['sku']")
+          return_details['user_id'] = user_id
+          return_details['Inventory'] = ', '.join(return_details['Inventory'])
+          return_data_obj = All_return_details(**return_details)
+          db.session.add(return_data_obj)
+          db.session.commit()
+  else: 
+     print("An error occcurred while retreiveing info (2). The process was CANCELLED")
+     db.session.rollback()
+     return "An error occcurred while retreiveing info (2).The process was CANCELLED"
 
 
 def refresh_addresses_in_db(address_data, user_id):
