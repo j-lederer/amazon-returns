@@ -43,11 +43,13 @@ views = Blueprint('views', __name__)
 @views.route('/', methods=['POST', 'GET'])
 @login_required
 def home():
+  # start_time = time.time()
+  
   # print('Entering Home')
   # print(current_user)
   # print(current_user.id)  #returnDetails = load_returnDetails_from_db()
   try:
-    All_Return_Details = load_all_return_details_from_db(current_user.id)
+    # All_Return_Details = load_all_return_details_from_db(current_user.id)
     tracking_id = None
     return_details_to_display = None
     Address = 'No Data'
@@ -102,6 +104,12 @@ def home():
               if data['OrderID'] == orderID:
                 Address = data['Address']
                 #print(Address)
+            
+            # end_time = time.time()
+            # execution_time = end_time - start_time
+            # return {
+            #     "execution_time": execution_time
+            # }
             return render_template('home.html',
                                    tasks=queue,
                                    passed_value=return_details_to_display,
