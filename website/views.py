@@ -121,7 +121,7 @@ def home():
                                    **context)
           elif (return_details_to_display and tracking_id
                 and current_user.email == os.environ['ADMIN_EMAIL']):
-            print("Home Scrren: User_id:", current_user.id)
+            print("Home Screen Admin: User_id:", current_user.id)
             print(return_details_to_display)
             orderID = return_details_to_display['order_id']
             for data in addresses:
