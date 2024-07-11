@@ -65,9 +65,9 @@ def home():
     return_details_to_display = load_current_return_to_display_from_db(
       current_user.id)
     queue = load_queue_from_db(current_user.id)
-    print("TOKEN EXPIRATION:")
+    # print("TOKEN EXPIRATION:")
     token = current_user.token_expiration
-    print(token)
+    # print(token)
     if token is not None:
       eastern_timezone = pytz.timezone('America/New_York')
       token_aware = eastern_timezone.localize(token)
@@ -95,6 +95,7 @@ def home():
                                  == os.environ['ADMIN_EMAIL']):
           if ((return_details_to_display and tracking_id
                and customer)):  #if they exist
+            print("Home Screen: User_id:", current_user.id)
             print(return_details_to_display)
             orderID = return_details_to_display['order_id']
             for data in addresses:
@@ -112,6 +113,7 @@ def home():
                                    **context)
           elif (return_details_to_display and tracking_id
                 and current_user.email == os.environ['ADMIN_EMAIL']):
+            print("Home Scrren: User_id:", current_user.id)
             print(return_details_to_display)
             orderID = return_details_to_display['order_id']
             for data in addresses:
@@ -127,6 +129,7 @@ def home():
                                    my_refresh_tracker =my_refresh_returns_tracker,
                                    user=current_user)
           else:
+            print("Home Screen: User_id:", current_user.id)
             return render_template('home.html', tasks=queue, my_refresh_tracker=my_refresh_returns_tracker, user=current_user)
   
         else:
