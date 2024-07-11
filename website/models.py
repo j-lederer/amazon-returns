@@ -18,7 +18,7 @@ class Addresses(db.Model):
   OrderID = db.Column(db.String(250))
   Address = db.Column(db.String(500))
   date = db.Column(db.DateTime(timezone=True), default=func.now())
-  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), index=True)
 
 
 class All_return_details(db.Model):
@@ -34,7 +34,7 @@ class All_return_details(db.Model):
   Inventory = db.Column(db.String(500))
   reason_returned = db.Column(db.String(500))
   date = db.Column(db.DateTime(timezone=True), default=func.now())
-  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), index=True)
 
 
 class Current_return_to_display(db.Model):
@@ -50,14 +50,14 @@ class Current_return_to_display(db.Model):
   Inventory = db.Column(db.String(500))
   reason_returned = db.Column(db.String(500))
   date = db.Column(db.DateTime(timezone=True), default=func.now())
-  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), index=True)
 
 
 class Tracking_id_to_search(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   tracking_id = db.Column(db.String(250))
   date = db.Column(db.DateTime(timezone=True), default=func.now())
-  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), index=True)
 
 
 class Tracking_ids(db.Model):
@@ -66,7 +66,7 @@ class Tracking_ids(db.Model):
   SKU = db.Column(db.String(250))
   return_quantity = db.Column(db.String(250))
   date = db.Column(db.DateTime(timezone=True), default=func.now())
-  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), index=True)
 
 
 class User(db.Model, UserMixin):
@@ -148,7 +148,7 @@ class Deleted_users(db.Model, UserMixin):
 
 class Stripecustomer(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), index=True)
     stripeCustomerId = db.Column(db.String(255), nullable=False)
     stripeSubscriptionId = db.Column(db.String(255), nullable=False)
 
@@ -162,7 +162,7 @@ class Task(db.Model):
     id = db.Column(db.String(36), primary_key=True)
     name = db.Column(db.String(128), index=True)
     description = db.Column(db.String(128))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), index=True)
     complete = db.Column(db.Boolean, default=False)
     status = db.Column(db.String(128), default='Task Launched')
     time_created = db.Column(db.DateTime(timezone=True), default=func.now())
@@ -200,12 +200,12 @@ class Task_details(db.Model):
   SKU = db.Column(db.String(250))
   return_quantity = db.Column(db.String(250))
   date_scanned = db.Column(db.DateTime(timezone=True))
-  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), index=True)
   my_task_tracker = db.Column(db.Integer)
 
 class My_task_tracker(db.Model):
   id = db.Column(db.Integer, primary_key=True)
-  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), index=True)
   name = db.Column(db.String(128), index=True)
   description = db.Column(db.String(128))
   status = db.Column(db.String(128), default='Waiting')
@@ -223,7 +223,7 @@ class History(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String(128), index=True)
   description = db.Column(db.String(128))
-  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), index=True)
   complete = db.Column(db.Boolean, default=False)
   status = db.Column(db.String(128))
   time_added_to_jobs = db.Column(db.DateTime(timezone=True), default=func.now())
@@ -234,7 +234,7 @@ class History(db.Model):
 
 class My_refresh_returns_tracker(db.Model):
   id = db.Column(db.Integer, primary_key=True)
-  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'))
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), index=True)
   status = db.Column(db.String(128), default=None)
   complete = db.Column(db.Boolean, default=False)
   time_clicked = db.Column(db.DateTime(timezone=True), default=func.now())
