@@ -1,26 +1,116 @@
-Flask
-gunicorn
-sqlalchemy
-pymysql
-python-amazon-sp-api
-flask-login
-Flask-SQLAlchemy
-flask-migrate
-stripe
-fpdf2
-reportlab
-flask-security-too[fsqla,common]
-bcrypt
-#Werkzeug
-#pytz
-cryptography
-urllib3==1.25.11
-rq
-rq-dashboard
-pymysqlpool
+alembic==1.13.2
+amqp==5.2.0
+arrow==1.3.0
+async-timeout==4.0.3
+bcrypt==4.1.3
+billiard==4.2.0
+bleach==6.1.0
+blinker==1.8.2
+cached-property==1.5.2
+cachetools==5.3.3
+celery==5.4.0
+certifi==2024.7.4
+cffi==1.16.0
+chardet==5.2.0
+charset-normalizer==3.3.2
+click==8.1.7
+click-didyoumean==0.3.1
+click-plugins==1.1.1
+click-repl==0.3.0
+confuse==2.0.1
+cryptography==42.0.8
+defusedxml==0.7.1
+Deprecated==1.2.14
+dnspython==2.6.1
+email_validator==2.2.0
+Flask==3.0.3
+Flask-Login==0.6.3
+Flask-Mailman==1.1.1
+Flask-Migrate==4.0.7
+Flask-Principal==0.4.0
+Flask-Security-Too==5.4.3
+Flask-SQLAlchemy==3.1.1
+Flask-WTF==1.2.1
+flower==2.0.1
+fonttools==4.53.1
+fpdf2==2.7.9
+gunicorn==22.0.0
+humanize==4.10.0
+idna==3.7
+importlib_metadata==8.0.0
+importlib_resources==6.4.0
+itsdangerous==2.2.0
+Jinja2==3.1.4
+kombu==5.3.7
+Mako==1.3.5
+MarkupSafe==2.1.5
+mysql-connector-python-rf==2.2.2
+mysqlclient==2.2.4
+packaging==24.1
+passlib==1.7.4
+pillow==10.4.0
+prometheus_client==0.20.0
+prompt_toolkit==3.0.47
+pycparser==2.22
+PyMySQL==1.1.1
+PyMysqlPool==1.0.9
+pyparsing==3.1.2
+python-amazon-sp-api==1.5.3
+python-dateutil==2.9.0.post0
+python-dotenv==1.0.1
+pytz==2024.1
+PyYAML==6.0.1
+redis==5.0.7
+Redis-Sentinel-Url==1.0.1
+reportlab==4.2.2
+requests==2.32.3
+rq==1.16.2
+rq-dashboard==0.7.1.2
+setuptools==70.3.0
+six==1.16.0
+SQLAlchemy==2.0.31
+SQLAlchemy-Utils==0.41.2
+stripe==10.2.0
+tornado==6.4.1
+types-python-dateutil==2.9.0.20240316
+typing_extensions==4.12.2
+tzdata==2024.1
+urllib3==2.2.2
+vine==5.1.0
+wcwidth==0.2.13
+webencodings==0.5.1
+Werkzeug==3.0.3
+wheel==0.43.0
+wrapt==1.16.0
+WTForms==3.1.2
+zipp==3.19.2
 
 
 
+
+
+# Flask
+# gunicorn
+# sqlalchemy
+# pymysql
+# python-amazon-sp-api
+# flask-login
+# Flask-SQLAlchemy
+# flask-migrate
+# stripe
+# fpdf2
+# reportlab
+# flask-security-too[fsqla,common]
+# bcrypt
+# #Werkzeug
+# #pytz
+# cryptography
+# urllib3==2.2.2
+# rq
+# rq-dashboard
+# pymysqlpool
+# python-dotenv
+# setuptools
 
 # amqp
 # async-timeout
@@ -32,9 +122,9 @@ pymysqlpool
 # click-plugins
 # click-repl
 # Deprecated
-# #Flask
+# Flask
 # flower
-# #gunicorn
+# gunicorn
 # humanize
 # importlib-metadata
 # itsdangerous
@@ -56,38 +146,5 @@ pymysqlpool
 # wrapt
 # zipp
 
-amqp==5.1.0
-async-timeout==4.0.2
-billiard==3.6.4.0
-cached-property==1.5.2
-celery==5.2.6
-click==8.1.2
-click-didyoumean==0.3.0
-click-plugins==1.1.1
-click-repl==0.2.0
-Deprecated==1.2.13
-Flask==2.1.1
-flower==1.0.0
-# gunicorn==20.1.0
-humanize==4.0.0
-importlib-metadata==4.11.3
-itsdangerous==2.1.2
-Jinja2==3.1.1
-kombu==5.2.4
-MarkupSafe==2.1.1
-packaging==21.3
-prometheus-client==0.14.1
-prompt-toolkit==3.0.29
-pyparsing==3.0.8
-pytz==2022.1
-redis==4.2.2
-six==1.16.0
-tornado==6.1
-typing-extensions==4.1.1
-vine==5.0.0
-wcwidth==0.2.5
-Werkzeug==2.1.1
-wrapt==1.14.0
-zipp==3.8.0
 
 
