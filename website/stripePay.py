@@ -109,7 +109,7 @@ def stripe_pay_yearly():
       payment_method_types=['card'],
       line_items=[{
         # 'price': 'price_1NRHKaGx5rHp5dcpwwYXv0Uc',
-        'price': 'price_1PfQECGx5rHp5dcpCkDB2F9p',
+        'price': 'price_1PfQECGx5rHp5dcpCkDB2F9ptroubl',
         'quantity': 1,
       }],
       mode='subscription',
