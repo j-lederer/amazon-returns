@@ -77,7 +77,7 @@ def stripe_pay_monthly():
       payment_method_types=['card'],
       line_items=[{
         # 'price': 'price_1NQ4V6Gx5rHp5dcpaILuI5Dy',
-        'price': 'price_1NPoVnGx5rHp5dcp8DwBPxRL',
+        'price': 'price_1PfQEZGx5rHp5dcpuDxTDFQD',
         'quantity': 1,
       }],
       mode='subscription',
@@ -109,7 +109,7 @@ def stripe_pay_yearly():
       payment_method_types=['card'],
       line_items=[{
         # 'price': 'price_1NRHKaGx5rHp5dcpwwYXv0Uc',
-        'price': 'price_1NPoUPGx5rHp5dcpFCz8MnLG',
+        'price': 'price_1PfQECGx5rHp5dcpCkDB2F9p',
         'quantity': 1,
       }],
       mode='subscription',
