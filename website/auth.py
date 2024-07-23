@@ -49,7 +49,7 @@ def login():
 def logout():
   try: 
     logout_user()
-    return redirect(url_for('auth.login'))
+    return redirect(url_for('views.landing'))
   except Exception as e:
     print('ERROR: ' + str(e))
     db.session.rollback()

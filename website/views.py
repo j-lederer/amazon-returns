@@ -39,8 +39,19 @@ import logging
 
 
 views = Blueprint('views', __name__)
-    
-@views.route('/', methods=['POST', 'GET'])
+
+@views.route('/', methods=['GET'])
+def landing():
+  try:
+    return render_template('landing.html', user=current_user)
+
+  except Exception as e:
+    print(e)
+    db.session.rollback()
+    return "Error loading page. Try refreshing the page."
+
+
+@views.route('/home', methods=['POST', 'GET'])
 @login_required
 def home():
   # start_time = time.time()
@@ -186,7 +197,7 @@ def refresh():
     task = refresh_returns_task.delay(current_user.refresh_token,
                                          current_user.id, my_refresh_returns_tracker.id)
     print("RESPONSE BY TASK: ", task)
-    return redirect('/')
+    return redirect(url_for('views.home'))
   except Exception as e:
     print("Error: " + str(e))
     db.session.rollback()
@@ -315,7 +326,7 @@ def refresh_on_web():
     refresh_addresses_in_db(addressData, current_user.id)
   
     print('DEBUG MODE')
-    return redirect('/')
+    return redirect(url_for('views.home'))
   except Exception as e:
     print("Error: " + str(e))
     db.session.rollback()
@@ -370,7 +381,7 @@ def get_info_on_track():
   
     delete_tracking_id_to_search(current_user.id)
     add_tracking_id_to_search(trackingID, current_user.id)
-    return redirect('/')
+    return redirect(url_for('views.home'))
   except Exception as e:
     print("Error: " + str(e))
     db.session.rollback()
@@ -624,7 +635,7 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
 def delete(tracking):
   try:
     delete_trackingID_from_queue_db(tracking, current_user.id)
-    return redirect('/')
+    return redirect(url_for('views.home'))
   
   except Exception as e:
     print("Error: " + str(e))
@@ -664,7 +675,7 @@ def add_to_queue():
     tracking_id = load_tracking_id_to_search(current_user.id)
     if tracking_id == None or tracking_id == '':
       flash('Search is empty.', category='error')
-      return redirect('/')
+      return redirect(url_for('views.home'))
     else:
       tracking_id = load_tracking_id_to_search(current_user.id)
       return_data = load_current_return_to_display_from_db(current_user.id)
@@ -676,19 +687,19 @@ def add_to_queue():
       if return_data['order_id'] == 'Not Found':
         print('Cannot add unknown tracking id to queue')
         flash('Cannot add unknown tracking id to queue.', category='error')
-        return redirect('/')
+        return redirect(url_for('views.home'))
       for track in queue:
         #print(track['tracking'])
         if track['tracking'] == tracking_id:
           print("Tracking ID is already in queue")
           flash("Tracking ID is already in queue", category='error')
-          return redirect('/')
+          return redirect(url_for('views.home'))
   
       print("Successfully Added Tracking ID to Queue.")
       add_tracking_id_to_queue(tracking_id, sku, quantity_of_return,
                                current_user.id)
       # flash("Successfully Added Tracking ID to Queue.", category = 'success')
-      return redirect('/')
+      return redirect(url_for('views.home'))
       
   except Exception as e:
     print("Error: " + str(e))
@@ -706,7 +717,7 @@ def search():
     tracking_id = request.form
     add_tracking_id_to_search(tracking_id)
     #add_current_return_to_display_to_db(tracking_id)
-    return redirect('/')
+    return redirect(url_for('views.home'))
   except Exception as e:
     print("Error: " + str(e))
     db.session.rollback()
@@ -719,7 +730,7 @@ def clearSearch():
   try:
     delete_tracking_id_to_search(current_user.id)
     delete_current_return_to_display_from_db(current_user.id)
-    return redirect('/')
+    return redirect(url_for('views.home'))
   except Exception as e:
     print("Error: " + str(e))
     db.session.rollback()
@@ -731,7 +742,7 @@ def clearSearch():
 def clearQueue():
   try:
     delete_whole_tracking_id_queue(current_user.id)
-    return redirect('/')
+    return redirect(url_for('views.home'))
   except Exception as e:
     print("Error: " + str(e))
     db.session.rollback()
