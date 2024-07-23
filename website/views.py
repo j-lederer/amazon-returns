@@ -43,7 +43,7 @@ views = Blueprint('views', __name__)
 @views.route('/', methods=['GET'])
 def landing():
   try:
-    return render_template('landing.html', user=current_user)
+    return render_template('landing.html', is_landing_page=True, user=current_user)
 
   except Exception as e:
     print(e)
