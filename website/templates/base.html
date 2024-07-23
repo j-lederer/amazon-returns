@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
-     <link rel="shortcut icon" type="image/x-icon" href="../static/browser.png" />
+    <!-- Following link is for logo font -->
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@100&display=swap" rel="stylesheet">
+     <link rel="shortcut icon" type="image/x-icon" href="../static/A-logo.png" />
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-YREVNRFH6S"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -43,7 +45,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
   </head>
   <body>
-    <nav style ="margin-bottom: 30px" class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav style ="margin-bottom: 30px; background-color: #000000;" class="navbar navbar-expand-lg navbar-dark">
+      <!-- was:  <nav style ="margin-bottom: 30px; background-color: #000000;" class="navbar navbar-expand-lg navbar-dark"> -->
+
       <button
         class="navbar-toggler"
         type="button"
@@ -69,6 +73,10 @@
           {% endif %}
         </div>
       </div>
+      <p style="background-color: #ffffff; font-family: 'IBM Plex Sans', sans-serif; font-weight: 100; font-size: 38px; background: linear-gradient(135deg, #000A68, #00C4EE); -webkit-background-clip: text; -webkit-text-fill-color: #ffffff;">  
+          amaze-software
+      </p>
+      <!-- ackground-color: #ffffff -webkit-text-fill-color: #ffffff; and were transparent  -->
     </nav>
 
     {% with messages = get_flashed_messages(with_categories=true) %} {% if
