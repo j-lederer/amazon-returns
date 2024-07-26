@@ -8,6 +8,8 @@ from flask_security import login_user, login_required, logout_user, current_user
 from flask_security.utils import hash_password
 import secrets
 import urllib.parse
+from datetime import datetime, timedelta
+import pytz
 
 
 auth = Blueprint('auth', __name__)
@@ -78,9 +80,10 @@ def sign_up():
         flash('Password must be at least 7 characters.', category='error')
       else:
         print(_user_datastore)
+        time = datetime.now(pytz.timezone('America/New_York'))
         new_user = _user_datastore.create_user(email=email,
                                                password=hash_password(password1),
-                                               first_name=first_name)
+                                               first_name=first_name, date_joined = time)
         # new_user = User(email=email, first_name=first_name, password=generate_password_hash(
         #     password1, method='sha256'))
         # db.session.add(new_user)
