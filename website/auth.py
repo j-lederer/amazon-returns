@@ -119,8 +119,8 @@ def forgot_password():
         # reset_token = secrets.token_urlsafe(32)
         # encoded_reset_token = urllib.parse.quote(reset_token, safe='')
         reset_token = generate_reset_password_token(user)
-        print("RESET TOKEN GENEREATED:")
-        print(reset_token)
+        print("RESET TOKEN GENERATED")
+        # print(reset_token)
         
         password_reset_link = f"https://amaze-software.com/reset_password?token={reset_token}"
         context = {
