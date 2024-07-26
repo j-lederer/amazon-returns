@@ -86,6 +86,7 @@ def sign_up():
         # db.session.add(new_user)
         db.session.commit()
         login_user(new_user, remember=True)
+        print(f"New User Signed up! : userID-{current_user.id}   Email-{current_user.email}    Name-{current_user.first_name} ")
         flash('Account created!', category='success')
         return redirect(url_for('views.home'))
   
