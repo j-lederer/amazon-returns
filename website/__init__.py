@@ -22,6 +22,8 @@ db = SQLAlchemy()
 
 def create_app():
   app = Flask(__name__)
+  app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+  app.config['SESSION_COOKIE_NAME'] = os.environ['SESSION_COOKIE_NAME']
   app.config["CELERY_CONFIG"] = {"broker_url": os.environ['REDIS_URL'], "result_backend": os.environ['REDIS_URL'], "beat_schedule": {
                                     "every-day-at 12am" : {
                                         "task": "website.views.every_day",
