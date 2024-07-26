@@ -847,11 +847,11 @@ def admin():
     db.session.rollback()
     return 'Error. Try Refreshing the page'
 
-@views.route('/request_delete_user/<user>')
+@views.route('/request_delete_user')
 @login_required
-def request_delete_user(user):
+def request_delete_user():
   try:
-    add_request_to_delete_user(user)
+    add_request_to_delete_user(current_user.id)
     flash('Request to Delete Account Sent.', category='success')
     return redirect('/account')
   except Exception as e:
