@@ -110,18 +110,12 @@ def create_app():
 
   from flask_mailman import Mail
 
-  # app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER")
-  # app.config["MAIL_PORT"] = os.getenv("MAIL_PORT")
-  # app.config["MAIL_USE_SSL"] = False
-  # app.config["MAIL_USE_TLS"] = True
-  # app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
-  # app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
-  app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-  app.config['MAIL_PORT'] = 587
-  app.config['MAIL_USERNAME'] = 'amaze.software.solutions@gmail.com'  # Use your actual Gmail address
-  app.config['MAIL_PASSWORD'] = 'hzlb eatd cgmp wjys'     # Use your generated App Password
-  app.config['MAIL_USE_TLS'] = True
-  app.config['MAIL_USE_SSL'] = False
+  app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER")
+  app.config["MAIL_PORT"] = os.getenv("MAIL_PORT")
+  app.config["MAIL_USE_SSL"] = False
+  app.config["MAIL_USE_TLS"] = True
+  app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
+  app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
   mail = Mail(app)
 
   return app, celery
