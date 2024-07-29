@@ -15,10 +15,12 @@ import pytz
 auth = Blueprint('auth', __name__)
 
 
-def init_user_datastore(user_datastore):
-  # Initialize user_datastore here
-  global _user_datastore
-  _user_datastore = user_datastore
+# def init_user_datastore(user_datastore):
+#   # Initialize user_datastore here
+#   global _user_datastore
+#   _user_datastore = user_datastore
+# Access in views or functions
+
 
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -79,8 +81,8 @@ def sign_up():
       elif len(password1) < 7:
         flash('Password must be at least 7 characters.', category='error')
       else:
-        print(_user_datastore)
         time = datetime.now(pytz.timezone('America/New_York'))
+        _user_datastore = current_app.config['USER_DATASTORE']
         new_user = _user_datastore.create_user(email=email,
                                                password=hash_password(password1),
                                                first_name=first_name, date_joined = time)
@@ -112,6 +114,7 @@ def forgot_password():
     if forgot_password_form.validate_on_submit():
       email = forgot_password_form.email.data
       print(f"Received email: {email}")
+      _user_datastore = current_app.config['USER_DATASTORE']
       user = _user_datastore.find_user(email=email)
       if user:
         user = user

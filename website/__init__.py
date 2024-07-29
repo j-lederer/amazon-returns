@@ -114,9 +114,10 @@ def create_app():
   user_datastore = SQLAlchemyUserDatastore(db, User, Role)
   app.security = Security(app, user_datastore)
 
-  from .auth import auth
-  from .auth import init_user_datastore
-  init_user_datastore(user_datastore)
+  # from .auth import auth
+  # from .auth import init_user_datastore
+  # init_user_datastore(user_datastore)
+  app.config['USER_DATASTORE'] = SQLAlchemyUserDatastore(db, User, Role)
 
   from flask_mailman import Mail
 
