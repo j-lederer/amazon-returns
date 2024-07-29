@@ -40,8 +40,6 @@ import logging
 
 views = Blueprint('views', __name__)
 
-
-
 @views.route('/', methods=['GET'])
 def landing():
   try:
@@ -756,7 +754,8 @@ def clearQueue():
 def account():
   try:
     session_id = session.get('_id', 'no-session-id')
-    print(f'session: {session_id}' )
+    print(f'Account session: {session_id}' )
+
     stripe.billing_portal.Configuration.create(
       business_profile={
         "headline": "AmazeSoftware partners with Stripe for simplified billing.",
