@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, session
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 # from flask_login import LoginManager
@@ -17,11 +17,21 @@ from celery.schedules import crontab
 
 from flask_sqlalchemy import SQLAlchemy
 # from sqlalchemy.pool import NullPool
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 db = SQLAlchemy()
 
 def create_app():
   app = Flask(__name__)
+
+  @app.before_request
+  def log_session_info():
+      # Log session ID and user-specific information
+      session_id = session.get('_id', 'no-session-id')
+      user_id = session.get('user_id', 'anonymous')
+      logging.info(f"Current Session ID: {session_id}, User ID: {user_id}")
+  
   app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
   app.config['SESSION_COOKIE_NAME'] = os.environ['SESSION_COOKIE_NAME']
   app.config['SESSION_COOKIE_SECURE'] = True

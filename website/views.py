@@ -40,6 +40,8 @@ import logging
 
 views = Blueprint('views', __name__)
 
+
+
 @views.route('/', methods=['GET'])
 def landing():
   try:
