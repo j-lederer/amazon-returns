@@ -18,7 +18,7 @@ from celery.schedules import crontab
 from flask_sqlalchemy import SQLAlchemy
 # from sqlalchemy.pool import NullPool
 import logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
 db = SQLAlchemy()
 

@@ -56,6 +56,7 @@ def landing():
 #@auth_required("token") 
 #@login_required
 def home():
+  print("Authenticated: ", current_user.is_authenticated)
   # start_time = time.time()
   
   # print('Entering Home')
@@ -1046,6 +1047,8 @@ def support():
 
 @views.route('/tutorial', methods=['GET', 'POST'])
 def tutorial():
+  print("HELLO")
+  print("Authenticated: ", current_user.is_authenticated)
   try:
     return render_template('tutorial.html', user=current_user)
   except Exception as e:
