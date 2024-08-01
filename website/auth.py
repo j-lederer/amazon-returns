@@ -4,7 +4,7 @@ from .models import User
 # from werkzeug.security import generate_password_hash, check_password_hash
 from . import db  ##means from __init__.py import db
 # from flask_login import login_user, login_required, logout_user, current_user
-from flask_security import login_user, auth_required, logout_user, current_user, get_hmac, verify_password, send_mail, ForgotPasswordForm #login_required
+from flask_security import login_user, auth_required, logout_user, current_user, get_hmac, verify_password, send_mail, ForgotPasswordForm, login_required, anonymous_user_required
 from flask_security.utils import hash_password
 import secrets
 import urllib.parse
@@ -23,46 +23,49 @@ auth = Blueprint('auth', __name__)
 
 
 
-# @auth.route('/login', methods=['GET', 'POST'])
-# def login():
-#   try: 
-#     if request.method == 'POST':
-#       email = request.form.get('email')
-#       password = request.form.get('password')
+@auth.route('/login', methods=['GET', 'POST'])
+@anonymous_user_required
+def login():
+  try: 
+    if request.method == 'POST':
+      email = request.form.get('email')
+      password = request.form.get('password')
   
-#       user = User.query.filter_by(email=email).first()
-#       if user:
-#         if verify_password(password, user.password):
-#           flash('Logged in successfully!', category='success')
-#           login_user(user, remember=True)
-#           return redirect(url_for('views.home'))
-#         else:
-#           flash('Incorrect credentials', category='error')
-#       else:
-#         flash('Incorrect credentials', category='error')
+      user = User.query.filter_by(email=email).first()
+      if user:
+        if verify_password(password, user.password):
+          login_user(user, remember=False)
+          flash('Logged in successfully!', category='success')
+          return redirect(url_for('views.home'))
+        else:
+          flash('Incorrect credentials', category='error')
+      else:
+        flash('Incorrect credentials', category='error')
   
-#     return render_template("login.html", user=current_user)
-#   except Exception as e:
-#     print('ERROR: ' + str(e))
-#     db.session.rollback()
-#     return 'Error. Try refreshing the page or going to the home page.'
+    return render_template("login.html", user=current_user)
+  except Exception as e:
+    print('ERROR: ' + str(e))
+    db.session.rollback()
+    return 'Error. Try refreshing the page or going to the home page.'
 
 
-# @auth.route('/logout')
-# @auth_required()
+@auth.route('/logout')
+@auth_required()
 #@auth_required("token") 
-# #@login_required
-# def logout():
-#   try: 
-#     logout_user()
-#     return redirect(url_for('views.landing'))
-#   except Exception as e:
-#     print('ERROR: ' + str(e))
-#     db.session.rollback()
-#     return 'Error. Try refreshing the page or going to the home page.'
+#@login_required
+def logout():
+  try: 
+     if current_user.is_authenticated:
+      logout_user()
+      return redirect(url_for('views.landing'))
+  except Exception as e:
+    print('ERROR: ' + str(e))
+    db.session.rollback()
+    return 'Error. Try refreshing the page or going to the home page.'
 
 
 @auth.route('/sign-up', methods=['GET', 'POST'])
+@anonymous_user_required
 def sign_up():
   try:
     if request.method == 'POST':
@@ -92,7 +95,7 @@ def sign_up():
         #     password1, method='sha256'))
         # db.session.add(new_user)
         db.session.commit()
-        login_user(new_user, remember=True)
+        login_user(new_user, remember=False)
         print(f"New User Signed up! : userID-{current_user.id}   Email-{current_user.email}    Name-{current_user.first_name} ")
         flash('Account created!', category='success')
         return redirect(url_for('views.home'))
@@ -110,6 +113,7 @@ from flask_security.utils import config_value, get_token_status, hash_data, hash
 
 
 @auth.route('/forgot_password', methods=['GET', 'POST'])
+@anonymous_user_required
 def forgot_password():
   try:
     forgot_password_form = ForgotPasswordForm()
@@ -152,12 +156,13 @@ def forgot_password():
 
 
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from flask_security import current_user, login_user, logout_user, send_mail, ForgotPasswordForm, ResetPasswordForm #login_required
+from flask_security import current_user, login_user, logout_user, send_mail, ForgotPasswordForm, ResetPasswordForm, login_required
 import secrets
 import urllib.parse
 
 
 @auth.route('/reset_password', methods=['GET', 'POST'])
+@anonymous_user_required
 def reset_password():
   try:
     print('Test1')

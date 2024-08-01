@@ -7,7 +7,7 @@ from .amazonAPI import get_all_Returns_data, increaseInventory_single_job, check
 
 from flask import Blueprint, render_template, request, flash, jsonify, send_file, make_response, current_app
 # from flask_login import login_required, current_user
-from flask_security import auth_required, current_user  #login_required
+from flask_security import auth_required, current_user, login_required
 import stripe
 from . import db
 import json

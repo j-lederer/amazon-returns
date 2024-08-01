@@ -1,6 +1,6 @@
 from flask import Flask, render_template, url_for, request, abort, Blueprint, flash, redirect, current_app
 # from flask_login import login_required, current_user
-from flask_security import auth_required, current_user #login_required
+from flask_security import auth_required, current_user, login_required
 
 
 import stripe
