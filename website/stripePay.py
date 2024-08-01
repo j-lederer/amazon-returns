@@ -1,6 +1,6 @@
 from flask import Flask, render_template, url_for, request, abort, Blueprint, flash, redirect, current_app
 # from flask_login import login_required, current_user
-from flask_security import login_required, current_user
+from flask_security import auth_required, current_user #login_required
 
 
 import stripe
@@ -16,7 +16,9 @@ stripePay = Blueprint('stripePay', __name__)
 
 
 @stripePay.route('/stripeHome')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def stripeHome():
   try:
     '''
@@ -43,7 +45,9 @@ def stripeHome():
 
 
 @stripePay.route('/stripe_pay_onetime')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def stripe_pay():
   try:
     session = stripe.checkout.Session.create(
@@ -70,7 +74,9 @@ def stripe_pay():
 
 
 @stripePay.route('/stripe_pay_monthly')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def stripe_pay_monthly():
   try:
     session = stripe.checkout.Session.create(
@@ -102,7 +108,9 @@ def stripe_pay_monthly():
 
 
 @stripePay.route('/stripe_pay_yearly')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def stripe_pay_yearly():
   try:
     session = stripe.checkout.Session.create(
@@ -224,7 +232,9 @@ def stripe_webhook():
 
 
 @stripePay.route('/create-customer-portal-session', methods=['POST'])
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def customer_portal():
   # Authenticate your user.
   try:

@@ -29,14 +29,17 @@ def create_app():
   def log_session_info():
       # Log session ID and user-specific information
       session_id = session.get('_id', 'no-session-id')
-      user_id = session.get('user_id', 'anonymous')
-      logging.info(f"Current Session ID: {session_id}, User ID: {user_id}")
+      user_id = session.get('_user_id', 'anonymous')
+      fresh = session.get('_fresh', 'no-fresh-session')
+      logging.info(f"Current Session ID: {session_id}, User ID: {user_id}, Fresh: {fresh}")
   
   app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
   app.config['SESSION_COOKIE_NAME'] = os.environ['SESSION_COOKIE_NAME']
   app.config['SESSION_COOKIE_SECURE'] = True
   app.config['SESSION_COOKIE_HTTPONLY'] = True
-  app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+  app.config['SESSION_COOKIE_SAMESITE'] = 'strict'
+  # app.config["WTF_CSRF_ENABLED"] = False
+  # app.config['SECURITY_TOKEN_AUTHENTICATION_HEADER'] = 'Authentication-Token'
   app.config["CELERY_CONFIG"] = {"broker_url": os.environ['REDIS_URL'], "result_backend": os.environ['REDIS_URL'], "beat_schedule": {
                                     "every-day-at 12am" : {
                                         "task": "website.views.every_day",
@@ -110,6 +113,9 @@ def create_app():
   
   #Setup Flask-Security
   app.config['SECURITY_PASSWORD_SALT'] = os.environ.get("SECURITY_PASSWORD_SALT")
+  # Don't worry if email has findable domain
+  app.config["SECURITY_EMAIL_VALIDATOR_ARGS"] = {"check_deliverability": False}
+  app.config["SECURITY_LOGIN_USER_TEMPLATE"] = "login.html"
   # user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
   user_datastore = SQLAlchemyUserDatastore(db, User, Role)
   app.security = Security(app, user_datastore)

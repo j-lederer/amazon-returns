@@ -1,6 +1,6 @@
 from flask import Flask, render_template, url_for, request, abort, Blueprint, flash, redirect
 # from flask_login import login_required, current_user
-from flask_security import login_required, current_user
+from flask_security import auth_required, current_user #login_required
 import requests
 
 from . import db
@@ -12,7 +12,9 @@ from .database import add_refresh_token
 connectAmazon = Blueprint('connectAmazon', __name__)
 
 @connectAmazon.route('/connect_amazon')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def connect_amazon():
    # Redirect the user to Amazon LWA authorization endpoint
     redirect_url_parameter= url_for('connectAmazon.callback',_external=True )
@@ -28,7 +30,9 @@ def connect_amazon():
 
 
 @connectAmazon.route('/callback')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def callback():
   try:
     state = request.args.get('state')

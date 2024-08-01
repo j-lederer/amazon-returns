@@ -7,7 +7,7 @@ from .amazonAPI import get_all_Returns_data, increaseInventory_single_job, check
 
 from flask import Blueprint, render_template, request, flash, jsonify, send_file, make_response, current_app
 # from flask_login import login_required, current_user
-from flask_security import login_required, current_user
+from flask_security import auth_required, current_user  #login_required
 import stripe
 from . import db
 import json
@@ -52,7 +52,9 @@ def landing():
 
 
 @views.route('/home', methods=['POST', 'GET'])
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def home():
   # start_time = time.time()
   
@@ -177,7 +179,9 @@ def home():
 import time
 
 @views.route('/refresh_returns_and_inventory')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def refresh():
   try:
     my_refresh_returns_tracker = My_refresh_returns_tracker.query.filter_by(user_id=current_user.id).first()
@@ -310,7 +314,9 @@ def refresh_returns_task(self, refresh_token,
 
 
 @views.route('/refresh_returns_and_inventory_on_host')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def refresh_on_web():
   try:
     count = 0
@@ -369,7 +375,9 @@ def refresh_on_web():
 
 
 @views.route('/info_for_tracking_id', methods=['POST', 'GET'])
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def get_info_on_track():
   try:
     trackingID = request.form['track']
@@ -400,7 +408,9 @@ def get_info_on_track():
 
 @views.route('/increase_inventory/<my_task_tracker_id>',
              methods=['POST', 'GET'])
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def increase_inventory_single_job(my_task_tracker_id):
   #take the tracking id's in the queue and increase inventory by the return order amount for each
   try:  
@@ -517,7 +527,9 @@ def serialize_task_trackers(task_trackers):
   return [item.get('id') for item in task_trackers]
 
 @views.route('/increase_inventory_all_jobs', methods=['POST', 'GET'])
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def increase_inventory_all_jobs():
   try:
     my_task_trackers= load_my_task_trackers_from_db(current_user.id)
@@ -631,7 +643,9 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
 
 
 @views.route('/delete/<tracking>')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def delete(tracking):
   try:
     delete_trackingID_from_queue_db(tracking, current_user.id)
@@ -644,7 +658,9 @@ def delete(tracking):
 
 
 # @views.route('/add_trackingID', methods=['POST', 'GET'])
-# @login_required
+# @auth_required()
+#@auth_required("token") 
+#@login_required
 # def add_tracking_id():
 #     tracking_id = request.form
 #     print('test')
@@ -709,7 +725,9 @@ def add_to_queue():
 
 
 @views.route('/search', methods=['POST', 'GET'])
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def search():
   try:
     delete_tracking_id_to_search(current_user.id)
@@ -725,7 +743,9 @@ def search():
 
 
 @views.route('/clearSearch')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def clearSearch():
   try:
     delete_tracking_id_to_search(current_user.id)
@@ -738,7 +758,9 @@ def clearSearch():
 
 
 @views.route('/clearQueue')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def clearQueue():
   try:
     delete_whole_tracking_id_queue(current_user.id)
@@ -750,7 +772,9 @@ def clearQueue():
 
 
 @views.route('/account')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def account():
   try:
     session_id = session.get('_id', 'no-session-id')
@@ -796,7 +820,9 @@ def account():
 
 
 @views.route('/admin')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def admin():
   try:
     if (current_user.email == os.environ['ADMIN_EMAIL']):
@@ -851,7 +877,9 @@ def admin():
     return 'Error. Try Refreshing the page'
 
 @views.route('/request_delete_user')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def request_delete_user():
   try:
     add_request_to_delete_user(current_user.id)
@@ -864,7 +892,9 @@ def request_delete_user():
 
 
 @views.route('/delete_user/<user>')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def delete_user(user):
   try:
     if (current_user.email == os.environ['ADMIN_EMAIL']):
@@ -879,7 +909,9 @@ def delete_user(user):
     return 'Error. Try Refreshing the page'
 
 @views.route('/delete_deleted_user/<deleted_user>')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def delete_deleted_user(deleted_user):
   try:
     if (current_user.email == os.environ['ADMIN_EMAIL']):
@@ -895,7 +927,9 @@ def delete_deleted_user(deleted_user):
 
 
 @views.route('/clear_all_users')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def clear_users():
   try:
     if (current_user.email == os.environ['ADMIN_EMAIL']):
@@ -911,7 +945,9 @@ def clear_users():
 
 
 @views.route('/clear_all_deleted_users')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def clear_deleted_users():
   try:
     if (current_user.email == os.environ['ADMIN_EMAIL']):
@@ -1019,7 +1055,9 @@ def tutorial():
 
 
 @views.route('/jobs', methods=['GET', 'POST'])
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def jobs():
   try:
     # jobs_list = load_jobs_from_db(current_user.id)
@@ -1041,7 +1079,9 @@ def jobs():
 
 
 @views.route('/create_job', methods=['GET', 'POST'])
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def create_job():
   try:
     queue = load_queue_from_db(current_user.id)
@@ -1085,7 +1125,9 @@ def create_job():
 
 
 @views.route('/jobs/delete/<my_task>')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def delete_job(my_task):
   try:
     delete_job_db(my_task, current_user.id)
@@ -1097,7 +1139,9 @@ def delete_job(my_task):
 
 
 @views.route('/jobs/info/<my_task_id>')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def info_job(my_task_id):
   try:
     queue = get_info_job_from_db(my_task_id, current_user.id)
@@ -1114,7 +1158,9 @@ def info_job(my_task_id):
 
 
 @views.route('/history/delete/<my_task>')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def delete_history(my_task):
   try:
     delete_from_history_db(my_task, current_user.id)
@@ -1126,7 +1172,9 @@ def delete_history(my_task):
 
 
 @views.route('/jobs/save_for_later/<my_task>')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def save_for_later(my_task):
   try:
     job = My_task_tracker.query.filter_by(id=my_task).first()
@@ -1144,7 +1192,9 @@ def save_for_later(my_task):
 
 
 @views.route('/jobs/return_from_save_for_later/<my_task>')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def return_from_save_for_later(my_task):
   try:
     job = My_task_tracker.query.filter_by(id=my_task).first()
@@ -1169,7 +1219,9 @@ def return_from_save_for_later(my_task):
 # if __name__ == '__main__':
 #     app.run(host='0.0.0.0', debug=True)
 @views.route('/notifications')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def notifications():
   # since = request.args.get('since', 0.0, type=float)
   # notifications = current_user.notifications.filter(
@@ -1370,7 +1422,9 @@ def every_day_function_on_web2():
 
 
 @views.route('/load_task_details_from_db/<my_task_tracker_id>')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def load_task_details(my_task_tracker_id):
   try:
     load_task_details_from_db(my_task_tracker_id, current_user.id)
@@ -1381,7 +1435,9 @@ def load_task_details(my_task_tracker_id):
     return 'Error. Try Refreshing the page or going to the home page.'
 
 @views.route('/move_history_to_jobs/<my_task_id>')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def move_history_job_to_jobs(my_task_id):
   try:
     move_history_to_jobs(my_task_id, current_user.id)
@@ -1392,7 +1448,9 @@ def move_history_job_to_jobs(my_task_id):
     return 'Error. Try Refreshing the page or going to the home page.'
 
 @views.route('/delete_whole_history')
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def delete_whole_history():
   try:
     delete_whole_history_db(current_user.id)
@@ -1403,7 +1461,9 @@ def delete_whole_history():
     return 'Error. Try Refreshing the page or going to the home page.'
 
 @views.route('edit_name', methods=['POST', 'GET'] )
-@login_required
+@auth_required()
+#@auth_required("token") 
+#@login_required
 def edit_name():
   try:
     if request.method == 'POST':
@@ -1439,7 +1499,9 @@ def edit_name():
 
 #Thos below will just submit everything in the queue
 # @views.route('/increase_inventory_web/<my_task_tracker_id>')
-# @login_required
+# @auth_required()
+#@auth_required("token") 
+#@login_required
 # def inventory_web_test(my_task_tracker_id):
 #    task = increase_inventory_task_web(my_task_tracker_id, current_user.refresh_token, current_user.id)
 #    return redirect('/jobs')
