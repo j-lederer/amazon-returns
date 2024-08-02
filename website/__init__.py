@@ -139,7 +139,7 @@ def create_app():
   app.config['SESSION_PERMANENT'] = True
   app.config['SESSION_USE_SIGNER'] = True
   app.config['SESSION_KEY_PREFIX'] = 'myapp_session:'
-  
+  # k
 
   # user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
   user_datastore = SQLAlchemyUserDatastore(db, User, Role)
