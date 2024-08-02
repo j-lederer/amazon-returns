@@ -34,7 +34,7 @@ def login():
       user = User.query.filter_by(email=email).first()
       if user:
         if verify_password(password, user.password):
-          login_user(user, remember=False)
+          login_user(user, remember=True)
           flash('Logged in successfully!', category='success')
           return redirect(url_for('views.home'))
         else:
@@ -93,7 +93,7 @@ def sign_up():
         #     password1, method='sha256'))
         # db.session.add(new_user)
         db.session.commit()
-        login_user(new_user, remember=False)
+        login_user(new_user, remember=True)
         print(f"New User Signed up! : userID-{current_user.id}   Email-{current_user.email}    Name-{current_user.first_name} ")
         flash('Account created!', category='success')
         return redirect(url_for('views.home'))
