@@ -1,9 +1,11 @@
-{% extends "base.html" %} {% block title %}Login{% endblock %} {% block content
+{% extends "base.html" %} {% block title %}Login{% endblock %} 
+{% from "security/_macros.html" import render_field_with_errors, render_field %}
+{% block content
 %}
-<form method="POST" name="login_user_form">
+<form method="POST"  action="{{ url_for_security('login') }}" name="login_user_form">
   <h3 align="center">Login</h3>
   <div class="form-group">
-    <label for="email">Email Address</label>
+    <!-- <label for="email">Email Address</label>
     <input
       type="email"
       class="form-control"
@@ -11,20 +13,25 @@
       name="email"
       placeholder="Enter email"
       autofocus
-    />
+    /> -->
+    {{ login_user_form.hidden_tag() }}
+    {{ render_field_with_errors(login_user_form.email) }}
   </div>
   <div class="form-group">
-    <label for="password">Password</label>
+    <!-- <label for="password">Password</label>
     <input
       type="password"
       class="form-control"
       id="password"
       name="password"
       placeholder="Enter password"
-    />
+    /> -->
+    {{ render_field_with_errors(login_user_form.password) }}
   </div>
+  {{ render_field_with_errors(login_user_form.remember) }}
   <br />
-  <button type="submit" class="btn btn-primary">Login</button>
+  {{ render_field(login_user_form.submit) }}
+  <!-- <button type="submit" class="btn btn-primary">Login</button> -->
 </form>
 
 <div>

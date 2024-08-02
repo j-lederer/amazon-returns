@@ -118,13 +118,11 @@ def create_app():
   # Don't worry if email has findable domain
   app.config["SECURITY_EMAIL_VALIDATOR_ARGS"] = {"check_deliverability": False}
   app.config["SECURITY_LOGIN_USER_TEMPLATE"] = "login.html"
+  app.config["SECURITY_REGISTERABLE"] = True
   # user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
   user_datastore = SQLAlchemyUserDatastore(db, User, Role)
   app.security = Security(app, user_datastore)
 
-  # from .auth import auth
-  # from .auth import init_user_datastore
-  # init_user_datastore(user_datastore)
   app.config['USER_DATASTORE'] = SQLAlchemyUserDatastore(db, User, Role)
 
   from flask_mailman import Mail

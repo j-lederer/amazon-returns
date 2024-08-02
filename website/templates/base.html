@@ -64,14 +64,14 @@
           <a class="nav-item nav-link" id="account" href="/account">Account</a>
           <a class="nav-item nav-link" id="tutorial" href="/tutorial">Tutorial</a>
           <a class="nav-item nav-link" id="Support" href="/support">Support</a>
-          <a class="nav-item nav-link" id="logout" href="/logout">Logout</a> 
+          <a class="nav-item nav-link" id="logout" href="{{ url_for_security('logout') }}"  onclick='return confirm("Are you sure you want to logout?");'>Logout </a> 
            <a class="nav-item nav-link" id="landing-page" href="/">Landing Page</a>
           {% else %}
           <a class="nav-item nav-link" id="landing-page" href="/">Landing Page</a>
           <a class="nav-item nav-link" id="tutorial" href="/tutorial">Tutorial</a>
           <a class="nav-item nav-link" id="Support" href="/support">Support</a>
-          <a class="nav-item nav-link" id="login" href="/login">Login</a>
-          <a class="nav-item nav-link" id="signUp" href="/sign-up">Sign Up</a>
+           <a class="nav-item nav-link" id="login" href="{{ url_for_security('login') }}">Login </a>
+          <a class="nav-item nav-link" id="signUp" href="{{ url_for_security('register') }}">Sign Up</a>
 
           {% endif %}
         </div>

@@ -1,5 +1,27 @@
-{% extends "base.html" %} {% block title %}Sign Up{% endblock %} {% block
+{% extends "base.html" %}{% block title %}Sign Up{% endblock %} 
+{% from "security/_macros.html" import render_field_with_errors, render_field, render_form_errors, render_field_errors %}
+{% block
 content %}
+
+{% include "security/_messages.html" %}
+<h1>{{ _fsdomain('Register') }}</h1>
+<form action="{{ url_for_security('register') }}" method="post" name="register_user_form">
+  {{ register_user_form.hidden_tag() }}
+  {{ render_form_errors(register_user_form) }}
+  {{ render_field_with_errors(register_user_form.email) }}
+  {% if config["SECURITY_USERNAME_ENABLE"] %}{{ render_field_with_errors(register_user_form.username) }}{% endif %}
+  {{ render_field_with_errors(register_user_form.password) }}
+  {% if register_user_form.password_confirm %}
+    {{ render_field_with_errors(register_user_form.password_confirm) }}
+  {% endif %}
+  {{ render_field_errors(register_user_form.csrf_token) }}
+  {{ render_field(register_user_form.submit) }}
+</form>
+
+
+
+
+<!-- 
 <form method="POST">
   <h3 align="center">Sign Up</h3>
   <div class="form-group">
@@ -45,5 +67,5 @@ content %}
   </div>
   <br />
   <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+</form> -->
 {% endblock %}

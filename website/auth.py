@@ -4,7 +4,7 @@ from .models import User
 # from werkzeug.security import generate_password_hash, check_password_hash
 from . import db  ##means from __init__.py import db
 # from flask_login import login_user, login_required, logout_user, current_user
-from flask_security import login_user, auth_required, logout_user, current_user, get_hmac, verify_password, send_mail, ForgotPasswordForm, login_required, anonymous_user_required
+from flask_security import login_user, auth_required, logout_user, current_user, get_hmac, verify_password, send_mail, ForgotPasswordForm, login_required, anonymous_user_required, unauth_csrf
 from flask_security.utils import hash_password
 import secrets
 import urllib.parse
@@ -15,93 +15,87 @@ import pytz
 auth = Blueprint('auth', __name__)
 
 
-# def init_user_datastore(user_datastore):
-#   # Initialize user_datastore here
-#   global _user_datastore
-#   _user_datastore = user_datastore
-# Access in views or functions
 
-
-
-@auth.route('/login', methods=['GET', 'POST'])
-@anonymous_user_required
-def login():
-  try: 
-    if request.method == 'POST':
-      email = request.form.get('email')
-      password = request.form.get('password')
+# @auth.route('/login', methods=['GET', 'POST'])
+# @anonymous_user_required
+# def login():
+#   try: 
+#     if request.method == 'POST':
+#       email = request.form.get('email')
+#       password = request.form.get('password')
   
-      user = User.query.filter_by(email=email).first()
-      if user:
-        if verify_password(password, user.password):
-          login_user(user, remember=True)
-          flash('Logged in successfully!', category='success')
-          return redirect(url_for('views.home'))
-        else:
-          flash('Incorrect credentials', category='error')
-      else:
-        flash('Incorrect credentials', category='error')
+#       user = User.query.filter_by(email=email).first()
+#       if user:
+#         if verify_password(password, user.password):
+#           login_user(user, remember=True)
+#           flash('Logged in successfully!', category='success')
+#           return redirect(url_for('views.home'))
+#         else:
+#           flash('Incorrect credentials', category='error')
+#       else:
+#         flash('Incorrect credentials', category='error')
   
-    return render_template("login.html", user=current_user)
-  except Exception as e:
-    print('ERROR: ' + str(e))
-    db.session.rollback()
-    return 'Error. Try refreshing the page or going to the home page.'
+#     return render_template("login.html", user=current_user)
+#   except Exception as e:
+#     print('ERROR: ' + str(e))
+#     db.session.rollback()
+#     return 'Error. Try refreshing the page or going to the home page.'
 
 
-@auth.route('/logout')
-def logout():
-  try: 
-     if current_user.is_authenticated:
-      logout_user()
-      return redirect(url_for('views.landing'))
-  except Exception as e:
-    print('ERROR: ' + str(e))
-    db.session.rollback()
-    return 'Error. Try refreshing the page or going to the home page.'
+# @auth.route('/logout')
+# def logout():
+#   try: 
+#      if current_user.is_authenticated:
+#       logout_user()
+#       return redirect(url_for('views.landing'))
+#   except Exception as e:
+#     print('ERROR: ' + str(e))
+#     db.session.rollback()
+#     return 'Error. Try refreshing the page or going to the home page.'
 
 
-@auth.route('/sign-up', methods=['GET', 'POST'])
-@anonymous_user_required
-def sign_up():
-  try:
-    if request.method == 'POST':
-      email = request.form.get('email')
-      first_name = request.form.get('firstName')
-      password1 = request.form.get('password1')
-      password2 = request.form.get('password2')
+# @auth.route('/sign-up', methods=['GET', 'POST'])
+# @anonymous_user_required
+# @unauth_csrf()
+# def sign_up():
+#   try:
+#     if request.method == 'POST':
+#       email = request.form.get('email')
+#       first_name = request.form.get('firstName')
+#       password1 = request.form.get('password1')
+#       password2 = request.form.get('password2')
   
-      user = User.query.filter_by(email=email).first()
-      if user:
-        flash('Email already exists.', category='error')
-      elif len(email) < 4:
-        flash('Email must be greater than 3 characters.', category='error')
-      elif len(first_name) < 2:
-        flash('First name must be greater than 1 character.', category='error')
-      elif password1 != password2:
-        flash('Passwords don\'t match.', category='error')
-      elif len(password1) < 7:
-        flash('Password must be at least 7 characters.', category='error')
-      else:
-        time = datetime.now(pytz.timezone('America/New_York'))
-        _user_datastore = current_app.config['USER_DATASTORE']
-        new_user = _user_datastore.create_user(email=email,
-                                               password=hash_password(password1),
-                                               first_name=first_name, date_joined = time)
-        # new_user = User(email=email, first_name=first_name, password=generate_password_hash(
-        #     password1, method='sha256'))
-        # db.session.add(new_user)
-        db.session.commit()
-        login_user(new_user, remember=True)
-        print(f"New User Signed up! : userID-{current_user.id}   Email-{current_user.email}    Name-{current_user.first_name} ")
-        flash('Account created!', category='success')
-        return redirect(url_for('views.home'))
+#       user = User.query.filter_by(email=email).first()
+#       if user:
+#         flash('Email already exists.', category='error')
+#       elif len(email) < 4:
+#         flash('Email must be greater than 3 characters.', category='error')
+#       elif len(first_name) < 2:
+#         flash('First name must be greater than 1 character.', category='error')
+#       elif password1 != password2:
+#         flash('Passwords don\'t match.', category='error')
+#       elif len(password1) < 7:
+#         flash('Password must be at least 7 characters.', category='error')
+#       else:
+#         time = datetime.now(pytz.timezone('America/New_York'))
+#         _user_datastore = current_app.config['USER_DATASTORE']
+#         new_user = _user_datastore.create_user(email=email,
+#                                                password=hash_password(password1),
+#                                                first_name=first_name, date_joined = time)
+#         # new_user = User(email=email, first_name=first_name, password=generate_password_hash(
+#         #     password1, method='sha256'))
+#         # db.session.add(new_user)
+#         db.session.commit()
+#         login_user(new_user, remember=True)
+#         print(f"New User Signed up! : userID-{current_user.id}   Email-{current_user.email}    Name-{current_user.first_name} ")
+#         flash('Account created!', category='success')
+#         return redirect(url_for('views.home'))
   
-    return render_template("sign_up.html", user=current_user)
-  except Exception as e:
-    print('ERROR: ' + str(e))
-    db.session.rollback()
-    return 'Error. Try refreshing the page or going to the home page.'
+#     return render_template("sign_up.html", user=current_user)
+#   except Exception as e:
+#     print('ERROR: ' + str(e))
+#     db.session.rollback()
+#     return 'Error. Try refreshing the page or going to the home page.'
 
 from flask_security import password_reset
 
