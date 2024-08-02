@@ -112,19 +112,6 @@ def create_app():
   # def load_user(id):
   #   return User.query.get(int(id))
 
-  
-  #Setup Flask-Security
-  app.config['SECURITY_PASSWORD_SALT'] = os.environ.get("SECURITY_PASSWORD_SALT")
-  # Don't worry if email has findable domain
-  app.config["SECURITY_EMAIL_VALIDATOR_ARGS"] = {"check_deliverability": False}
-  app.config["SECURITY_LOGIN_USER_TEMPLATE"] = "login.html"
-  app.config["SECURITY_REGISTERABLE"] = True
-  # user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
-  user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-  app.security = Security(app, user_datastore)
-
-  app.config['USER_DATASTORE'] = SQLAlchemyUserDatastore(db, User, Role)
-
   from flask_mailman import Mail
 
   app.config["MAIL_SERVER"] = os.getenv("MAIL_SERVER")
@@ -134,5 +121,22 @@ def create_app():
   app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
   app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
   mail = Mail(app)
+
+  
+  app.config['USER_DATASTORE'] = SQLAlchemyUserDatastore(db, User, Role)
+
+  #Setup Flask-Security
+  app.config['SECURITY_PASSWORD_SALT'] = os.environ.get("SECURITY_PASSWORD_SALT")
+  # Don't worry if email has findable domain
+  app.config["SECURITY_EMAIL_VALIDATOR_ARGS"] = {"check_deliverability": False}
+  app.config["SECURITY_LOGIN_USER_TEMPLATE"] = "login.html"
+  app.config["SECURITY_REGISTERABLE"] = True
+  app.config["SECURITY_POST_REGISTER_VIEW"] = "views.home"
+  app.config["SECURITY_POST_LOGIN_VIEW"] = "views.home"
+  
+
+  # user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
+  user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+  app.security = Security(app, user_datastore)
 
   return app, celery
