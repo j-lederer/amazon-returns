@@ -1,6 +1,7 @@
 from flask import Flask, session
 from flask_sqlalchemy import SQLAlchemy
 from os import path
+from datetime import timedelta
 # from flask_login import LoginManager
 from flask_migrate import Migrate
 import os
@@ -45,12 +46,14 @@ def create_app():
   # app.config['SECURITY_TOKEN_AUTHENTICATION_HEADER'] = 'Authentication-Token'
   app.config['REMEMBER_COOKIE_HTTPONLYE'] = True
   app.config['REMEMBER_COOKIE_SECURE'] = True
+  app.config['SESSION_LIFETIME'] = timedelta(days=14)
+  app.config['REMEMBER_SESSION_LIFETIME'] = timedelta(days=365) 
  
   app.config["CELERY_CONFIG"] = {"broker_url": os.environ['REDIS_URL'], "result_backend": os.environ['REDIS_URL'], "beat_schedule": {
                                     "every-day-at 12am" : {
                                         "task": "website.views.every_day",
                                       # 'schedule':20
-                                        "schedule": crontab(hour=4, minute=0, day_of_week='0-6') #timezone is 5 hours ahead of est. It is UTC. So 5 will be 12am
+                                        "schedule": crontab(hour=4, minute=0, day_of_week='0-6') #timezone is 4 hours ahead of est. It is UTC. So 4 will be 12am
                                         #"args": (1, 2) 
                                     }
                                 }}
