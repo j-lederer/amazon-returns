@@ -135,12 +135,6 @@ def create_app():
   app.config["SECURITY_POST_REGISTER_VIEW"] = "views.home"
   app.config["SECURITY_POST_LOGIN_VIEW"] = "views.home"
 
-  app.config['SESSION_TYPE'] = 'redis'  # Use Redis or another persistent backend
-  app.config['SESSION_PERMANENT'] = True
-  app.config['SESSION_USE_SIGNER'] = True
-  app.config['SESSION_KEY_PREFIX'] = 'myapp_session:'
-  # k
-
   # user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
   user_datastore = SQLAlchemyUserDatastore(db, User, Role)
   app.security = Security(app, user_datastore)
