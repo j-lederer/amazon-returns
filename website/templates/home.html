@@ -91,7 +91,17 @@
             {% if my_refresh_tracker %}
                 <tr>
                     <td>{{ my_refresh_tracker['status'] }}</td>
-                    <td>{{ my_refresh_tracker['complete'] }}</td>
+                    <td>
+                        {% if my_refresh_tracker['complete'] == 0 %}
+                            False
+                        {% elif my_refresh_tracker['complete'] == 1 %}
+                            True
+                        {% elif my_refresh_tracker['complete'] == -1 %}
+                            ERROR
+                        {% else %}
+                            {{ my_refresh_tracker['complete'] }}
+                        {% endif %}
+                    </td>
                     <td>{{ my_refresh_tracker['time_clicked'] }}</td>
                     <td>{{ my_refresh_tracker['time_completed'] }}</td>
                 </tr>

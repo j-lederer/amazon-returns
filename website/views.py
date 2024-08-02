@@ -185,7 +185,7 @@ def refresh():
     if my_refresh_returns_tracker:
         my_refresh_returns_tracker.time_clicked=datetime.now(pytz.timezone('America/New_York'))
         my_refresh_returns_tracker.status = 'Sent Request'
-        my_refresh_returns_tracker.complete = False
+        my_refresh_returns_tracker.complete = 0
         my_refresh_returns_tracker.time_completed = None
         my_refresh_returns_tracker.task_associated  =None    
         
@@ -240,7 +240,7 @@ def refresh_returns_task(self, refresh_token,
         task.time_completed = datetime.now(pytz.timezone('America/New_York'))
         my_refresh_returns_tracker.status = 'SUCCESSFUL(1)'
         my_refresh_returns_tracker.time_completed = datetime.now(pytz.timezone('America/New_York'))
-        my_refresh_returns_tracker.complete = True
+        my_refresh_returns_tracker.complete = 1
         db.session.commit()
         
         # my_refresh_returns_tracker.status = 'Checking Inventory'
@@ -262,7 +262,7 @@ def refresh_returns_task(self, refresh_token,
           task.time_completed = datetime.now(pytz.timezone('America/New_York'))
           my_refresh_returns_tracker.status = 'SUCCESSFUL(2)'
           my_refresh_returns_tracker.time_completed = datetime.now(pytz.timezone('America/New_York'))
-          my_refresh_returns_tracker.complete = True
+          my_refresh_returns_tracker.complete = 1
           db.session.commit()
   
           
@@ -278,7 +278,7 @@ def refresh_returns_task(self, refresh_token,
           task.time_completed = datetime.now(pytz.timezone('America/New_York'))
           my_refresh_returns_tracker.status = 'SUCCESSFUL(3)'
           my_refresh_returns_tracker.time_completed = datetime.now(pytz.timezone('America/New_York'))
-          my_refresh_returns_tracker.complete = True
+          my_refresh_returns_tracker.complete = 1
           db.session.commit()
           
           return "Done"
@@ -295,7 +295,6 @@ def refresh_returns_task(self, refresh_token,
     except Exception as e:
       print('Error with refresh_returns_task: ', e)
       db.session.rollback()
-      self.retry(exc=e, countdown=5)  
       try:
         my_refresh_returns_tracker = My_refresh_returns_tracker.query.get(my_refresh_returns_tracker_id)
         if my_refresh_returns_tracker:
@@ -511,7 +510,16 @@ def increase_inventory_single_task(self, my_task_tracker_id, refresh_token,
     except Exception as e:
       # Handle exceptions, log them, and roll back the transaction
       db.session.rollback()
-      self.retry(exc=e, countdown=5)      #for automatic retries. Also have to add the arguments above
+      my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+      if my_task_tracker.status == 'SUCCESS':
+        skip = True
+      if my_task_tracker.status=='SENT REQUEST: PARTIAL' and skip==False:
+        my_task_tracker.status = 'REDOING PARTIAL'
+        my_task_tracker.complete=-1
+        db.session.commit()
+      self.retry(exc=e, countdown=5) 
+      #for automatic retries. Also have to add the arguments above
+      
 
 
 
@@ -625,6 +633,12 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
       except Exception as e:
         # Handle exceptions, log them, and roll back the transaction
         db.session.rollback()
+        try:
+          my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+          my_task_tracker.complete=-1
+          db.session.commit()
+        except:
+           db.session.rollback()
         print(str(e))
         self.retry(exc=e, countdown=5)      #for automatic retries. Also have to add the arguments above
 
@@ -1273,7 +1287,7 @@ def every_day(self):
           if my_refresh_returns_tracker:
               my_refresh_returns_tracker.time_clicked=datetime.now(pytz.timezone('America/New_York'))
               my_refresh_returns_tracker.status = 'Sent Request'
-              my_refresh_returns_tracker.complete = False
+              my_refresh_returns_tracker.complete = 0
               my_refresh_returns_tracker.time_completed = None
               my_refresh_returns_tracker.task_associated  =None    
   
@@ -1290,10 +1304,22 @@ def every_day(self):
         except Exception as e:
           print(f"ERROR every_day_refresh for userID: {user.id}. Error: {e}")
           db.session.rollback()
+          try:
+            my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+            my_task_tracker.complete=-1
+            db.session.commit()
+          except:
+             db.session.rollback()
   
     except Exception as e:
       print(f"ERROR something went wrong with the overall every_day_function for all users. Error: {e}")
       db.session.rollback()
+      try:
+        my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+        my_task_tracker.complete=-1
+        db.session.commit()
+      except:
+         db.session.rollback()
       self.retry(exc=e, countdown=5) 
 
  
@@ -1340,7 +1366,7 @@ def every_day_function_on_web():
         if my_refresh_returns_tracker:
             my_refresh_returns_tracker.time_clicked=datetime.now(pytz.timezone('America/New_York'))
             my_refresh_returns_tracker.status = 'Sent Request'
-            my_refresh_returns_tracker.complete = False
+            my_refresh_returns_tracker.complete = 0
             my_refresh_returns_tracker.time_completed = None
             my_refresh_returns_tracker.task_associated  =None    
 

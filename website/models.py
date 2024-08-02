@@ -236,7 +236,7 @@ class My_refresh_returns_tracker(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), index=True)
   status = db.Column(db.String(128), default=None)
-  complete = db.Column(db.Boolean, default=False)
+  complete = db.Column(db.Integer, default=0)
   time_clicked = db.Column(db.DateTime(timezone=True), default=func.now())
   time_task_associated_launched = db.Column(db.DateTime(timezone=True))
   time_completed = db.Column(db.DateTime(timezone=True))
