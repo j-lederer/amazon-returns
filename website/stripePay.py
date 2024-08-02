@@ -16,9 +16,7 @@ stripePay = Blueprint('stripePay', __name__)
 
 
 @stripePay.route('/stripeHome')
-@auth_required()
-#@auth_required("token") 
-#@login_required
+@login_required
 def stripeHome():
   try:
     '''
@@ -45,9 +43,7 @@ def stripeHome():
 
 
 @stripePay.route('/stripe_pay_onetime')
-@auth_required()
-#@auth_required("token") 
-#@login_required
+@login_required
 def stripe_pay():
   try:
     session = stripe.checkout.Session.create(
@@ -74,9 +70,7 @@ def stripe_pay():
 
 
 @stripePay.route('/stripe_pay_monthly')
-@auth_required()
-#@auth_required("token") 
-#@login_required
+@login_required
 def stripe_pay_monthly():
   try:
     session = stripe.checkout.Session.create(
@@ -108,9 +102,7 @@ def stripe_pay_monthly():
 
 
 @stripePay.route('/stripe_pay_yearly')
-@auth_required()
-#@auth_required("token") 
-#@login_required
+@login_required
 def stripe_pay_yearly():
   try:
     session = stripe.checkout.Session.create(
@@ -232,9 +224,7 @@ def stripe_webhook():
 
 
 @stripePay.route('/create-customer-portal-session', methods=['POST'])
-@auth_required()
-#@auth_required("token") 
-#@login_required
+@login_required
 def customer_portal():
   # Authenticate your user.
   try:

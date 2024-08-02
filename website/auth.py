@@ -50,9 +50,7 @@ def login():
 
 
 @auth.route('/logout')
-@auth_required()
-#@auth_required("token") 
-#@login_required
+@login_required
 def logout():
   try: 
      if current_user.is_authenticated:
