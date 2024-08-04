@@ -508,13 +508,17 @@ def increase_inventory_single_task(self, my_task_tracker_id, refresh_token,
     except Exception as e:
       # Handle exceptions, log them, and roll back the transaction
       db.session.rollback()
-      my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-      if my_task_tracker.status == 'SUCCESS':
-        skip = True
-      if my_task_tracker.status=='SENT REQUEST: PARTIAL' and skip==False:
-        my_task_tracker.status = 'REDOING PARTIAL'
-        my_task_tracker.complete=-1
-        db.session.commit()
+      try:
+        my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+        if my_task_tracker.status == 'SUCCESS':
+          skip = True
+        if my_task_tracker.status=='SENT REQUEST: PARTIAL' and skip==False:
+          my_task_tracker.status = 'REDOING PARTIAL'
+          my_task_tracker.complete=-1
+          db.session.commit()
+      except:
+        db.session.rollback()
+        
       self.retry(exc=e, countdown=5) 
       #for automatic retries. Also have to add the arguments above
       

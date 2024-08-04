@@ -49,14 +49,22 @@ def create_app():
   app.config['SESSION_LIFETIME'] = timedelta(days=14)
   app.config['REMEMBER_SESSION_LIFETIME'] = timedelta(days=365) 
  
-  app.config["CELERY_CONFIG"] = {"broker_url": os.environ['REDIS_URL'], "result_backend": os.environ['REDIS_URL'], "beat_schedule": {
-                                    "every-day-at 12am" : {
-                                        "task": "website.views.every_day",
-                                      # 'schedule':20
-                                        "schedule": crontab(hour=4, minute=0, day_of_week='0-6') #timezone is 4 hours ahead of est. It is UTC. So 4 will be 12am
-                                        #"args": (1, 2) 
-                                    }
-                                }}
+  # app.config["CELERY_CONFIG"] = {"broker_url": os.environ['REDIS_URL'], "result_backend": os.environ['REDIS_URL'], "beat_schedule": {
+  #                                   "every-day-at 12am" : {
+  #                                       "task": "website.views.every_day",
+  #                                     # 'schedule':20
+  #                                       "schedule": crontab(hour=4, minute=0, day_of_week='0-6') #timezone is 4 hours ahead of est. It is UTC. So 4 will be 12am
+  #                                       #"args": (1, 2) 
+  #                                   }
+  #                               }}
+  app.config["CELERY"] = {"broker_url": os.environ['REDIS_URL'], "result_backend": os.environ['REDIS_URL'], "beat_schedule": {
+      "every-day-at 12am" : {
+          "task": "website.views.every_day",
+        # 'schedule':20
+          "schedule": crontab(hour=4, minute=0, day_of_week='0-6') #timezone is 4 hours ahead of est. It is UTC. So 4 will be 12am
+          #"args": (1, 2) 
+      }
+  }}
   
   app.config['RQ_DASHBOARD_REDIS_URL'] =os.environ['REDIS_URL']
   app.config.from_object(rq_dashboard.default_settings)
@@ -102,8 +110,24 @@ def create_app():
   app.register_blueprint(stripePay, url_prefix='/')
   app.register_blueprint( connectAmazon, url_prefix='/')
   
-  celery = make_celery(app)
-  celery.set_default()
+  # celery = make_celery(app)
+  # celery.set_default()
+  from celery import Celery, Task
+  def celery_init_app(app: Flask) -> Celery:
+    class FlaskTask(Task):
+        def __call__(self, *args: object, **kwargs: object) -> object:
+            with app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery_app = Celery(app.name, task_cls=FlaskTask)
+    celery_app.config_from_object(app.config["CELERY"])
+    celery_app.set_default()
+    app.extensions["celery"] = celery_app
+    return celery_app
+
+  # celery_app = celery_init_app(app)
+  app.config.from_prefixed_env()
+  celery_init_app(app)
 
   
   from .models import User, Role
@@ -146,4 +170,5 @@ def create_app():
   app.security = Security(app, user_datastore)
 
 
-  return app, celery
+  # return app, celery
+  return app
