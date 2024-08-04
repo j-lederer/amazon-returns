@@ -32,7 +32,7 @@ from celery.result import AsyncResult
 from sqlalchemy.exc import PendingRollbackError, OperationalError
 import logging
 
-from main import app
+app = current_app
 
 # def log_retry(request, **kwargs):
 #     logger = logging.getLogger(__name__)
