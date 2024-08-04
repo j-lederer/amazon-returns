@@ -433,6 +433,8 @@ def increase_inventory_single_job(my_task_tracker_id):
 @shared_task(bind=True, base=AbortableTask, max_retries=3)
 def increase_inventory_single_task(self, my_task_tracker_id, refresh_token,
                             current_user_id):
+  import app
+  with app.app_context():
     #Check if there are tasks with the same id and let the user know the pevious satuses of all of them
     skip = False
     try:
