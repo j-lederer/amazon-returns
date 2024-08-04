@@ -32,8 +32,6 @@ from celery.result import AsyncResult
 from sqlalchemy.exc import PendingRollbackError, OperationalError
 import logging
 
-app = current_app
-
 # def log_retry(request, **kwargs):
 #     logger = logging.getLogger(__name__)
 #     exc = kwargs['exc']
@@ -210,6 +208,8 @@ def refresh():
 @shared_task(bind=True, base=AbortableTask, max_retries=3)
 def refresh_returns_task(self, refresh_token,
                             current_user_id, my_refresh_returns_tracker_id):
+  app = create_app()
+  with app.app_context():
     try: 
       task = Task(id=self.request.id,
                     name=f'Increase Inventory {self.request.id}',
@@ -436,7 +436,7 @@ from website import create_app
 @shared_task(bind=True, base=AbortableTask, max_retries=3)
 def increase_inventory_single_task(self, my_task_tracker_id, refresh_token,
                             current_user_id):
-  # app = create_app()
+  app = create_app()
   with app.app_context():
     #Check if there are tasks with the same id and let the user know the pevious satuses of all of them
     skip = False
@@ -572,6 +572,8 @@ def increase_inventory_all_jobs():
 @shared_task(bind=True, base=AbortableTask, max_retries=3)
 def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_token,
                                      current_user_id):
+  app = create_app()
+  with app.app_context():
     #Check if there are tasks with the same id and let the user know the previous satuses of all of them
       try:
         task = Task.query.filter_by(id=self.request.id,
@@ -1239,12 +1241,16 @@ def rollback():
 
 @shared_task(bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
 def rollback_db(self):
+  app = create_app()
+  with app.app_context():
     db.session.rollback()
     print("Tried db rollback")
     return "Rolled back db"
 
 @shared_task(bind=True, base=AbortableTask, max_retries=3)
 def every_day(self):
+  app = create_app()
+  with app.app_context():
     print("RUNNING EVERY DAY!")
     print('The time now is: ')
     # print(datetime.now(pytz.timezone('America/New_York')))
