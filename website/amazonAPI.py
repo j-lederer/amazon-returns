@@ -21,7 +21,6 @@ import os
 import sys
 
 from .database import load_queue_from_db, delete_whole_tracking_id_queue, load_task_details_from_db, move_my_task_tracker_to_history, add_successful_sku_for_my_task_tracker, add_failed_sku_for_my_task_tracker, remove_failed_sku_for_my_task_tracker
-from .tasks import  _set_task_progress  #,app
 from .models import User, Task, My_task_tracker, My_refresh_returns_tracker
 from . import db
 
