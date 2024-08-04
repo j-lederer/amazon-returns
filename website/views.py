@@ -429,11 +429,12 @@ def increase_inventory_single_job(my_task_tracker_id):
     db.session.rollback()
     return 'Error. Try going to the home page and then the jobs page and check the status of the jobs. You may have to submit them again.'
 
+from website import create_app
 #For automatic retries use these arguments (bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
 @shared_task(bind=True, base=AbortableTask, max_retries=3)
 def increase_inventory_single_task(self, my_task_tracker_id, refresh_token,
                             current_user_id):
-  import app
+  app = create_app()
   with app.app_context():
     #Check if there are tasks with the same id and let the user know the pevious satuses of all of them
     skip = False
