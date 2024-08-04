@@ -32,6 +32,8 @@ from celery.result import AsyncResult
 from sqlalchemy.exc import PendingRollbackError, OperationalError
 import logging
 
+from main import app
+
 # def log_retry(request, **kwargs):
 #     logger = logging.getLogger(__name__)
 #     exc = kwargs['exc']
@@ -434,7 +436,7 @@ from website import create_app
 @shared_task(bind=True, base=AbortableTask, max_retries=3)
 def increase_inventory_single_task(self, my_task_tracker_id, refresh_token,
                             current_user_id):
-  app = create_app()
+  # app = create_app()
   with app.app_context():
     #Check if there are tasks with the same id and let the user know the pevious satuses of all of them
     skip = False

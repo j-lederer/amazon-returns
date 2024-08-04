@@ -33,17 +33,17 @@ def _set_task_progress(progress):
 
 
 
-@shared_task(bind=True, base=AbortableTask)
-def print_numbers(self, seconds):
-    print("Starting num task")
-    for num in range(seconds):
-        print(num)
-        time.sleep(1)
-        if(self.is_aborted()):
-          print("Aborted")
-          return "TASK STOPPED!"
-    print("Task to print_numbers completed")
-    return "DONE!"
+# @shared_task(bind=True, base=AbortableTask)
+# def print_numbers(self, seconds):
+#     print("Starting num task")
+#     for num in range(seconds):
+#         print(num)
+#         time.sleep(1)
+#         if(self.is_aborted()):
+#           print("Aborted")
+#           return "TASK STOPPED!"
+#     print("Task to print_numbers completed")
+#     return "DONE!"
 
 
 #Celery:
