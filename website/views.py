@@ -1035,8 +1035,6 @@ def support():
 
 @views.route('/tutorial', methods=['GET', 'POST'])
 def tutorial():
-  print("HELLO")
-  print("Authenticated: ", current_user.is_authenticated)
   try:
     return render_template('tutorial.html', user=current_user)
   except Exception as e:
