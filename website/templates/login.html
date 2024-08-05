@@ -15,7 +15,7 @@
       autofocus
     /> -->
     {{ login_user_form.hidden_tag() }}
-    {{ render_field_with_errors(login_user_form.email) }}
+    {{ render_field_with_errors(login_user_form.email, class="form-control custom-email-field" )}}
   </div>
   <div class="form-group">
     <!-- <label for="password">Password</label>
@@ -26,14 +26,14 @@
       name="password"
       placeholder="Enter password"
     /> -->
-    {{ render_field_with_errors(login_user_form.password) }}
+    {{ render_field_with_errors(login_user_form.password , class="form-control custom-password-field") }}
   </div>
-  {{ render_field_with_errors(login_user_form.remember, checked="checked") }}
+  {{ render_field_with_errors(login_user_form.remember, checked="checked", class="custom-remember-checkbox") }}
   <br />
-  {{ render_field(login_user_form.submit) }}
+  {{ render_field(login_user_form.submit, class="btn btn-primary custom-submit-button") }}
   <!-- <button type="submit" class="btn btn-primary">Login</button> -->
 </form>
-
+ <br />
 <div>
   <a href="/forgot_password">Forgot My Password</a>
 </div>
