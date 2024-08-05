@@ -305,7 +305,7 @@ def increaseInventory_single_job(Quantity_of_SKUS, task_id, my_task_tracker_id, 
           if my_task_tracker.status=='REDOING PARTIAL2' and my_task_tracker.skus_successful and (individual_sku  in my_task_tracker.skus_successful):
             #do nothing
             print('PARTIAL IS DETECTED')
-            pass
+            # pass
           else:
             is_duplicate = False
             for sku in queue_to_increase.keys():
@@ -461,7 +461,7 @@ def increaseInventory_single_job(Quantity_of_SKUS, task_id, my_task_tracker_id, 
                         formatted_string = f'Error updating status of taskID: {task_id} and my_task_tracker_ids: {my_task_tracker_id} in increaseInventory_single_job to: Partial' 
                         print(formatted_string)
                         #End of status update
-                      break
+                    break
 
                   
             else:

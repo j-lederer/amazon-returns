@@ -27,15 +27,15 @@ db = SQLAlchemy()
 def create_app():
   app = Flask(__name__)
 
-  @app.before_request
-  def log_session_info():
-      # Log session ID and user-specific information
-      session_id = session.get('_id', 'no-session-id')
-      user_id = session.get('_user_id', 'anonymous')
-      fresh = session.get('_fresh', 'no-fresh-session')
-      logging.info(f"Current Session ID: {session_id}, User ID: {user_id}, Fresh: {fresh}")
-      # logging.info(f"Whole session: {str(session)}")
-      logging.info(f"Whole session: {dict(session)}")
+  # @app.before_request
+  # def log_session_info():
+  #     # Log session ID and user-specific information
+  #     session_id = session.get('_id', 'no-session-id')
+  #     user_id = session.get('_user_id', 'anonymous')
+  #     fresh = session.get('_fresh', 'no-fresh-session')
+  #     logging.info(f"Current Session ID: {session_id}, User ID: {user_id}, Fresh: {fresh}")
+  #     # logging.info(f"Whole session: {str(session)}")
+  #     logging.info(f"Whole session: {dict(session)}")
   
   app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
   app.config['SESSION_COOKIE_NAME'] = os.environ['SESSION_COOKIE_NAME']
@@ -159,7 +159,8 @@ def create_app():
   app.config["SECURITY_POST_REGISTER_VIEW"] = "views.home"
   app.config["SECURITY_POST_LOGIN_VIEW"] = "views.home"
 
-  # user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
+  # user_datastore = SQL
+  app.config["SECURITY_DEFAULT_REMEMBER_ME"] = TrueAlchemySessionUserDatastore(db.session, User, Role)
   user_datastore = SQLAlchemyUserDatastore(db, User, Role)
   app.security = Security(app, user_datastore)
 
