@@ -39,11 +39,12 @@ def download_queue_data(user_id):
         ])
 
     # Apply table styles
-    table = Table(table_data, colWidths=[1.5 * inch] * 3, rowHeights=[0.4 * inch] * len(table_data))
+    table = Table(table_data, colWidths=[2 * inch] * 3, rowHeights=[0.4 * inch] * len(table_data))
     table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.red),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('BACKGROUND', (0, 0), (-1, 0), colors.white),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.black),
         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),         
         ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
         ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
         ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
