@@ -620,7 +620,7 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
           print("Running increaseInventory_all_jobs ")
           result = increaseInventory_all_jobs(Quantity_of_SKUS, task.id, my_task_trackers_ids_array, current_user_id, refresh_token)
           print("RESULT of increaseInventory_all_jobs():")
-          print(type(result))
+          # print(type(result))
           print(result)
           # print(result[1])
           if result[0] == 'SUCCESS':

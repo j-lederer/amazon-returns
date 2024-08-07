@@ -114,7 +114,7 @@ def get_all_Returns_data(refresh_token):
                                   refund_amount = []
                                   asin = []
                                   
-                                  print("Details for return order:")
+                                  # print("Details for return order:")
                                   for a in x.iter("item_details"):
                                     # print(a.find("return_reason_code").text)
                                     
@@ -185,7 +185,7 @@ def checkInventory(refresh_token):
 )
 
 #To get Report of Inventories
-  print("Inventory Report:")
+  # print("Inventory Report:")
   Quantity_of_SKUS = {}
   res = Reports(credentials=credentials).create_report(
 
@@ -199,7 +199,7 @@ def checkInventory(refresh_token):
   processing_status = res.payload.get("processingStatus")
 
   g=0
-  while g<1000:
+  while g<500:
     # Wait for a short duration before checking again
     time.sleep(5)  
     
@@ -218,10 +218,10 @@ def checkInventory(refresh_token):
       #csv.reader                                    #next(inventory_reader) #skips the header
       for line in inventory_reader:
         #print("test")
-        print(line['sku'], line['asin'], line['price'], line['quantity'])
+        # print(line['sku'], line['asin'], line['price'], line['quantity'])
         Quantity_of_SKUS[line['sku']]=line['quantity']
-      print("Quantity left of skus is:")
-      print(Quantity_of_SKUS)  
+      # print("Quantity left of skus is:")
+      # print(Quantity_of_SKUS)  
       return Quantity_of_SKUS
       
     elif processing_status == "CANCELLED":
@@ -234,8 +234,8 @@ def checkInventory(refresh_token):
         return Quantity_of_SKUS
     g=g+1
     
-  if  g==1000:
-     Quantity_of_SKUS = 'g=1000. Waittime too long.'
+  if  g==500:
+     Quantity_of_SKUS = 'g=500. Waittime too long.'
   else:
     Quantity_of_SKUS = "UNKNOWN ERROR"
     return Quantity_of_SKUS
@@ -426,7 +426,7 @@ def increaseInventory_single_job(Quantity_of_SKUS, task_id, my_task_tracker_id, 
           
         print("Inventory Feed Processing Status")
         g=0
-        while g<1000:
+        while g<500:
             feed_response = feeds.get_feed(feed_id)
             #print(feed_response)
             processing_status = feed_response.payload.get('processingStatus')
@@ -499,7 +499,7 @@ def increaseInventory_single_job(Quantity_of_SKUS, task_id, my_task_tracker_id, 
             time.sleep(5)
             g=g+1
         #This is outside of the while loop if it hits 1000 it will stop and you have to then mark it as PARTIAL or FAILED
-        if g==1000:
+        if g==500:
           add_failed_sku_for_my_task_tracker( my_task_tracker_id, sku, user_id)
           if result[0] == 'SUCCESS' or result[0] == 'PARTIAL' or result[0] == 'REDOING PARTIAL':
             result[0] = 'PARTIAL'
@@ -641,7 +641,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
         queue.extend(task_details_list)
     
     queue_to_increase= {}
-    print('QUEUE: ', queue)
+    # print('QUEUE: ', queue)
     for track in queue:
         # print('TRACK: ', track['tracking'])
         track_sku_list = track['SKU'].split(', ')
@@ -698,7 +698,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
     #     arr_successful_skus = list(unique_skus)
     for sku in queue_to_increase.keys():
       try:
-        print('CREATING Individual FEED for sku: ', sku)
+        # print('CREATING Individual FEED for sku: ', sku)
         # Initialize the Feeds API client
         feeds = Feeds(credentials=credentials)
         # Define the inventory update feed message
@@ -751,7 +751,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
         # Convert the XML structure to a string
         xml_string = ET.tostring(root, encoding="utf-8", method="xml")
         #debug
-        print(xml_string.decode("utf-8"))
+        # print(xml_string.decode("utf-8"))
   
   
         # Submit the feed
@@ -787,20 +787,20 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
 
         print("Inventory Feed Processing Status")
         g=0
-        while g<1000:
+        while g<500:
             feed_response = feeds.get_feed(feed_id)
             #print(feed_response)
             processing_status = feed_response.payload.get('processingStatus')
-            print(processing_status) 
+            # print(processing_status) 
             if processing_status in ["DONE", "IN_QUEUE", "IN_PROGRESS"]:
                 #print(f"Processing status: {processing_status}")
                 if processing_status in ["DONE", "DONE_NO_DATA"]:
-                    print(feed_response)
+                    # print(feed_response)
                     print("Feed processing completed.")
 
                     document_id = feed_response.payload.get("resultFeedDocumentId")
                     feed_response = Feeds(credentials=credentials).get_feed_document(document_id) #download=true
-                    print(feed_response)
+                    # print(feed_response)
                   
                     # arr_successful_skus.append(sku)
                     for my_task_tracker_id in my_task_trackers_ids_array:
@@ -865,7 +865,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
             time.sleep(5)
             g=g+1
         #This is outside of the while loop if it hits 1000 it will stop and you have to then mark it as PARTIAL or FAILED
-        if g==1000:
+        if g==500:
           for my_task_tracker_id in my_task_trackers_ids_array:
             add_failed_sku_for_my_task_tracker( my_task_tracker_id, sku, user_id)
           if result[0] == 'SUCCESS' or result[0] == 'PARTIAL' or result[0] == 'REDOING PARTIAL':
