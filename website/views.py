@@ -1259,7 +1259,7 @@ def every_day(self):
       all_users = User.query.all()
       for user in all_users:
         print("USER: ", user.id)
-        if (user.refresh_token)
+        if (user.refresh_token):
         #Increase Inventory Operation
           try:
             print(f"Starting Increase Inventory Operation for userID: {user.id}")
