@@ -1042,16 +1042,16 @@ def checkInventoryIncrease(Initial_quantity_of_skus, skus_and_increases, refresh
       for sku in skus_and_increases.keys():
         Quantity_of_SKU = skus_and_increases[sku] 
   
-        print("Quantity left of sku")
-        print(sku)
-        print("is")
-        print(skus_and_increases[sku])
+        # print("Quantity left of sku")
+        # print(sku)
+        # print("is")
+        # print(skus_and_increases[sku])
         
         Initial_quantity_of_sku= Initial_quantity_of_skus[sku]
-        print(Updated_Inventory_Reading[sku])
-        print(int(Initial_quantity_of_sku) + int(skus_and_increases[sku]))
-        print(counter)
-        print(len(skus_and_increases))
+        # print(Updated_Inventory_Reading[sku])
+        # print(int(Initial_quantity_of_sku) + int(skus_and_increases[sku]))
+        # print(counter)
+        # print(len(skus_and_increases))
         if (int(Updated_Inventory_Reading[sku]) == (int(Initial_quantity_of_sku) + int(skus_and_increases[sku]))): 
           counter+=1
           if counter == len(skus_and_increases):
