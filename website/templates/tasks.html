@@ -1,0 +1,33 @@
+{% extends "base.html" %} {% block title %}Tasks{% endblock %} {% block content
+%}
+<h1 style="text-align: center">Tasks</h1>
+{% if tasks|length < 1 %}
+  <h4 style="text-align: center">There is no Task History</h4>
+  {% else %}
+  <table>
+    <tr>
+      <th>Task ID</th>
+      <th>Status</th>
+      <th>Complete</th>
+      <th>Time Created</th>
+      <th>Time Completed</th>
+      <th>Job IDs</th>
+    </tr>
+    {% for task in tasks %}
+      <tr>
+        <td>{{ task['id'] }}</td>
+        <td>{{task['status']}}</td>
+        <td>{{task['complete']}}</td>
+        <td>{{task['time_created']}}</td>
+        <td>{{task['time_completed']}}</td>
+        {% if task['my_task_trackers_ids_array'] %}
+          <td>{{task['my_task_trackers_ids_array']}}</td>
+        {%else%}
+          <td>{{task['my_task_tracker']}}</td>
+        {%endif%}
+      </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+{% endblock %}

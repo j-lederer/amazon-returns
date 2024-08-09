@@ -1,0 +1,38 @@
+{% extends "base.html" %} {% block title %}Task Info{% endblock %} {% block content
+%}
+<a href="{{url_for('views.tasks')}}">Back</a>
+<br />
+
+<p>SKUS SUccessful: {{task['skus_successful']}}</p>
+<p>Skus Failed: {{}task['skus_failed']}</p>
+<br>
+
+<h1 style="text-align: center">Task Info for TaskID: {{task_id}}</h1>
+{% if skus_task_inventory_info|length < 1 %}
+  <h4 style="text-align: center">There is no data</h4>
+  {% else %}
+  <table>
+    <tr>
+      sku = db.Column(db.String(200))
+      inventory_before = db.Column(db.Integer)
+      inventory_set_to = db.Column(db.Integer)
+      change_in_inventory = db.Column(db.Integer)
+
+      <th>SKU</th>
+      <th>Status</th>
+      <th>Inventory Before</th>
+      <th>Change</th>
+      <th>Inventory Set To</th>
+    </tr>
+    {% for info in skus_task_inventory_info %}
+      <tr>
+        <td>{{ info['sku'] }}</td>
+        <td>{{info['inventory_before']}}</td>
+        <td>{{info['inventory_set_to']}}</td>
+        <td>{{info['change_in_inventory']}}</td>
+      </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+{% endblock %}

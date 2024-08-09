@@ -168,7 +168,12 @@ class Task(db.Model):
     time_created = db.Column(db.DateTime(timezone=True), default=func.now())
     time_completed = db.Column(db.DateTime(timezone=True))
     my_task_tracker = db.Column(db.Integer)
+    my_task_trackers_ids_array = db.Column(db.String(2000))
     moved_to_history =db.Column(db.Boolean, default=False)
+    type = db.Column(db.String(128))
+    skus_successful = db.Column(db.String(2000))
+    skus_failed = db.Column(db.String(2000))
+    
 
 
     def get_rq_job(self):
@@ -182,6 +187,15 @@ class Task(db.Model):
         job = self.get_rq_job()
         return job.meta.get('progress', 0) if job is not None else -1
 
+
+class Task_skus(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), index=True)
+  task_id = db.Column(db.String(36) , db.ForeignKey('task.id', ondelete='CASCADE'), index=True)
+  sku = db.Column(db.String(200))
+  inventory_before = db.Column(db.Integer)
+  inventory_set_to = db.Column(db.Integer)
+  change_in_inventory = db.Column(db.Integer)
 
 
 class Notification(db.Model):

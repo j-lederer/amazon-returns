@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
-from .database import engine, load_queue_from_db, load_all_return_details_from_db, load_tracking_id_to_search, delete_trackingID_from_queue_db, add_tracking_id_to_queue, refresh_all_return_data_in_db, load_current_return_to_display_from_db, add_current_return_to_display_to_db, delete_whole_tracking_id_queue, delete_current_return_to_display_from_db, delete_tracking_id_to_search, add_tracking_id_to_search, check_if_track_in_queue, delete_current_return_to_display_from_db, refresh_addresses_in_db, load_address_from_db, load_users_from_db, load_deleted_users_from_db, delete_user_from_db, delete_deleted_user_from_db, clear_all_users_from_db, clear_all_deleted_users_from_db, add_refresh_token, get_refresh_token, load_restricted, add_request_to_delete_user, load_all_stripe_customers, add_suggestion, delete_refresh_token_and_expiration, load_jobs_from_db, load_history_from_db_descending_order, add_queue_to_task_details, load_my_task_trackers_from_db, delete_job_db, get_info_job_from_db, load_task_details_from_db, move_my_task_tracker_to_history, delete_from_history_db, load_saved_for_later_from_db, move_my_task_trackers_to_history, move_history_to_jobs, delete_whole_history_db, load_my_task_tracker_from_db, refresh_return_data_in_db, refresh_inventory_data_in_db
+from .database import engine, load_queue_from_db, load_all_return_details_from_db, load_tracking_id_to_search, delete_trackingID_from_queue_db, add_tracking_id_to_queue, refresh_all_return_data_in_db, load_current_return_to_display_from_db, add_current_return_to_display_to_db, delete_whole_tracking_id_queue, delete_current_return_to_display_from_db, delete_tracking_id_to_search, add_tracking_id_to_search, check_if_track_in_queue, delete_current_return_to_display_from_db, refresh_addresses_in_db, load_address_from_db, load_users_from_db, load_deleted_users_from_db, delete_user_from_db, delete_deleted_user_from_db, clear_all_users_from_db, clear_all_deleted_users_from_db, add_refresh_token, get_refresh_token, load_restricted, add_request_to_delete_user, load_all_stripe_customers, add_suggestion, delete_refresh_token_and_expiration, load_jobs_from_db, load_history_from_db_descending_order, add_queue_to_task_details, load_my_task_trackers_from_db, delete_job_db, get_info_job_from_db, load_task_details_from_db, move_my_task_tracker_to_history, delete_from_history_db, load_saved_for_later_from_db, move_my_task_trackers_to_history, move_history_to_jobs, delete_whole_history_db, load_my_task_tracker_from_db, refresh_return_data_in_db, refresh_inventory_data_in_db, get_tasks_from_db, get_info_task_skus_from_db
 
 from .models import User, Notification, Stripecustomer, Task, My_task_tracker, My_refresh_returns_tracker
 from .amazonAPI import get_all_Returns_data, increaseInventory_single_job, checkInventory, checkInventoryIncrease, get_addresses_from_GetOrders, increaseInventory_all_jobs
@@ -134,7 +134,7 @@ def home():
           elif (return_details_to_display and tracking_id
                 and current_user.email == os.environ['ADMIN_EMAIL']):
             print("Home Screen Admin: User_id:", current_user.id)
-            print(return_details_to_display)
+            # print(return_details_to_display)
             orderID = return_details_to_display['order_id']
             for data in addresses:
               if data['OrderID'] == orderID:
@@ -226,14 +226,14 @@ def refresh_returns_task(self, refresh_token,
       my_refresh_returns_tracker.time_task_associated_launched = datetime.now(pytz.timezone('America/New_York'))
       my_refresh_returns_tracker.task_associated = task.id
       db.session.commit()
-      print(f'Added Task refresh_returns to database with task id: {self.request.id}')
+      print(f'Added Task refresh_returns to database with task id: {self.request.id}.     UserID: {current_user_id}')
       count = 0
       #Get all the new return data with a call from amazonAPI.py
       #For debugging below>>
       my_refresh_returns_tracker.status = 'Getting Return Data'
       db.session.commit()
-      print('Getting Return Data:')
-      all_return_data = get_all_Returns_data(refresh_token)
+      print(f'Getting Return Data:          UserID: {current_user_id}')
+      all_return_data = get_all_Returns_data(refresh_token, current_user_id)
       if all_return_data != 'FATAL' and all_return_data != 'CANCELLED' and all_return_data != 'UNKNOWN ERROR':
   
         refresh_return_data_in_db(all_return_data, current_user_id)
@@ -246,10 +246,10 @@ def refresh_returns_task(self, refresh_token,
         
         # my_refresh_returns_tracker.status = 'Checking Inventory'
         # db.session.commit()
-        print('Checking Inventory:')
-        inventory_data = checkInventory(refresh_token)
+        print(f'Checking Inventory:   userID: {current_user_id}')
+        inventory_data = checkInventory(refresh_token, current_user.id)
         if inventory_data != 'FATAL' or inventory_data != 'CANCELLED' or inventory_data != 'UNKNOWN ERROR':
-          print('Updating db')
+          print(f'Updating db         UserID: {current_user_id}')
           # my_refresh_returns_tracker.status = 'Updating DB'
           # db.session.commit()
   
@@ -269,8 +269,8 @@ def refresh_returns_task(self, refresh_token,
           
           # my_refresh_returns_tracker.status = 'Retrieving Final Info'
           # db.session.commit()
-          print('Getting Addresses:')
-          addressData = get_addresses_from_GetOrders(refresh_token)
+          print(f'Getting Addresses:          UserID: {current_user_id}')
+          addressData = get_addresses_from_GetOrders(refresh_token, current_user_id)
           # print("ADDRESS DATA:")
           # print(addressData)
           
@@ -284,17 +284,17 @@ def refresh_returns_task(self, refresh_token,
           
           return "Done"
         else: 
-          print(f'ERROR with checkInventory()) output: {inventory_data}')
+          print(f'ERROR with checkInventory()) output: {inventory_data}           UserID: {current_user_id}')
           my_refresh_returns_tracker.status = 'FAILED to check inventory'
           db.session.commit()
           return f'ERROR with checkInventory() output: {inventory_data}'
       else: 
-        print(f'ERROR with get_all_returns() output_data: {all_return_data}')
+        print(f'ERROR with get_all_returns() output_data: {all_return_data}      UserID: {current_user_id}')
         my_refresh_returns_tracker.status = 'ERROR: ' + all_return_data
         db.session.commit()
         return f'ERROR with get_all_returns() output_data: {all_return_data}'
     except Exception as e:
-      print('Error with refresh_returns_task: ', e)
+      print(f'Error with refresh_returns_task:  {e}      UserID: {current_user_id}')
       db.session.rollback()
       try:
         my_refresh_returns_tracker = My_refresh_returns_tracker.query.get(my_refresh_returns_tracker_id)
@@ -302,7 +302,7 @@ def refresh_returns_task(self, refresh_token,
            my_refresh_returns_tracker.status = 'ERROR'
            db.session.commit()
       except Exception as e:
-        print(f'Error updating refresh_tracker status to ERROR: {e}')
+        print(f'Error updating refresh_tracker status to ERROR: {e}     UserID: {current_user_id}')
         db.session.rollback()
 
       
@@ -318,19 +318,19 @@ def refresh_on_web():
     count = 0
     #Get all the new return data with a call from amazonAPI.py
     #For debugging below>>
-    all_return_data = get_all_Returns_data(current_user.refresh_token)
-    inventory_data = checkInventory(current_user.refresh_token)
-    addressData = get_addresses_from_GetOrders(current_user.refresh_token)
+    all_return_data = get_all_Returns_data(current_user.refresh_token, current_user.id)
+    inventory_data = checkInventory(current_user.refresh_token, current_user.id)
+    addressData = get_addresses_from_GetOrders(current_user.refresh_token, current_user.id)
     # print("ADDRESS DATA:")
     # print(addressData)
     refresh_all_return_data_in_db(all_return_data, inventory_data,
                                   current_user.id)
     refresh_addresses_in_db(addressData, current_user.id)
   
-    print('DEBUG MODE')
+    print(f'DEBUG MODE. UserID: {current_user.id}')
     return redirect(url_for('views.home'))
   except Exception as e:
-    print("Error: " + str(e))
+    print(f"Error:  {str(e)}  UserID: {current_user.id}")
     db.session.rollback()
     return 'Error. Try Refreshing the page or going to the home page.'
 
@@ -375,17 +375,17 @@ def refresh_on_web():
 def get_info_on_track():
   try:
     trackingID = request.form['track']
-    print(trackingID)
+    print(f'TrackingID Search: {trackingID}        UserID: {current_user.id}')
     new_trackingID = extract_tracking_id(trackingID)
     if new_trackingID:
-      print(f"New Tracking ID: {new_trackingID}")
+      print(f"New Tracking ID: {new_trackingID}      UserID: {current_user.id}")
       trackingID = new_trackingID
   
     delete_tracking_id_to_search(current_user.id)
     add_tracking_id_to_search(trackingID, current_user.id)
     return redirect(url_for('views.home'))
   except Exception as e:
-    print("Error: " + str(e))
+    print(f'Error:  {str(e)}   UserID: {current_user.id}')
     db.session.rollback()
     return 'Error. Try Refreshing the page or going to the home page.'
 
@@ -450,13 +450,17 @@ def increase_inventory_single_task(self, my_task_tracker_id, refresh_token,
         return -1
       elif task:
         task = task[0]
+        task.type = 'INCREASE INVENTORY'
+        task.my_task_tracker = my_task_tracker_id
+        db.session.commit
       elif not task:
         task = Task(id=self.request.id,
                     name=f'Increase Inventory {self.request.id}',
                     description='Increasing Inventory...',
                     time_created=datetime.now(pytz.timezone('America/New_York')),
                     user_id=current_user_id,
-                    my_task_tracker=my_task_tracker_id)
+                    my_task_tracker=my_task_tracker_id,
+                   type ='INCREASE INVENTORY')
         db.session.add(task)
         db.session.commit()
       print(f'Added Task to database with task id: {self.request.id}')
@@ -475,10 +479,10 @@ def increase_inventory_single_task(self, my_task_tracker_id, refresh_token,
             db.session.commit()
       except:
           formatted_string = f'Error updating status of my_task_tracker_id: {my_task_tracker_id} in increaseInventory_all_jobs call to: Began or Redoing Partial.'
-          print(formatted_string)
+          print(f'{formatted_string}    UserID: {current_user_id}')
       if skip==False:
         print('Running checkInventory')
-        Quantity_of_SKUS = checkInventory(refresh_token)
+        Quantity_of_SKUS = checkInventory(refresh_token, current_user_id)
         if Quantity_of_SKUS == 'FATAL' or Quantity_of_SKUS == 'CANCELLED' or Quantity_of_SKUS == 'UNKNOWN ERROR':
           print("ERROR with checkInventory")
           if my_task_tracker.status=='PARTIAL':
@@ -536,38 +540,41 @@ def serialize_task_trackers(task_trackers):
 @views.route('/increase_inventory_all_jobs', methods=['POST', 'GET'])
 @auth_required()
 def increase_inventory_all_jobs():
-  try:
-    my_task_trackers= load_my_task_trackers_from_db(current_user.id)
-    my_task_trackers_array_ids = serialize_task_trackers(my_task_trackers)
-    # print('SEREIALIZED:' , my_task_trackers_array_ids)
+  if current_user.email == "admin@admin6735468.com":
     try:
-      for my_task_tracker_id in my_task_trackers_array_ids:
-        my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-        if my_task_tracker.status=='PARTIAL' or my_task_tracker.status == 'Error with checkInventory when Redoing Partial':
-          my_task_tracker.status = 'SENT REQUEST: PARTIAL'
-          my_task_tracker.complete = None
-          my_task_tracker.skus_failed = None
-          my_task_tracker.time_completed = None
-        else:
-          my_task_tracker.status = 'Sent Request'
-          my_task_tracker.status='Began'
-          my_task_tracker.complete = None
-          my_task_tracker.skus_failed = None
-          my_task_tracker.time_completed = None
-        db.session.commit()
-    except:
-      print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_array_ids} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None.')
-    
-    task = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids,
-                                                  current_user.refresh_token,
-                                                  current_user.id)
-    print('TASK RESPONSE: ', task)
-    return redirect('/jobs')
-  except Exception as e:
-    print("Error: " + str(e))
-    db.session.rollback()
-    return 'Error. Try going to the home page and then the jobs page and check the status of the jobs. You may have to submit them again.'
-
+      my_task_trackers= load_my_task_trackers_from_db(current_user.id)
+      my_task_trackers_array_ids = serialize_task_trackers(my_task_trackers)
+      # print('SEREIALIZED:' , my_task_trackers_array_ids)
+      try:
+        for my_task_tracker_id in my_task_trackers_array_ids:
+          my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+          if my_task_tracker.status=='PARTIAL' or my_task_tracker.status == 'Error with checkInventory when Redoing Partial':
+            my_task_tracker.status = 'SENT REQUEST: PARTIAL'
+            my_task_tracker.complete = None
+            my_task_tracker.skus_failed = None
+            my_task_tracker.time_completed = None
+          else:
+            my_task_tracker.status = 'Sent Request'
+            my_task_tracker.status='Began'
+            my_task_tracker.complete = None
+            my_task_tracker.skus_failed = None
+            my_task_tracker.time_completed = None
+          db.session.commit()
+      except:
+        print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_array_ids} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None.')
+      
+      task = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids,
+                                                    current_user.refresh_token,
+                                                    current_user.id)
+      print('TASK RESPONSE: ', task)
+      return redirect('/jobs')
+    except Exception as e:
+      print("Error: " + str(e))
+      db.session.rollback()
+      return 'Error. Try going to the home page and then the jobs page and check the status of the jobs. You may have to submit them again.'
+  else:
+    flash(f'You are not authorized.', category='error')
+    return redirect(url_for('views.home'))
 
 @shared_task(bind=True, base=AbortableTask, max_retries=3)
 def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_token,
@@ -576,8 +583,10 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
   with app.app_context():
     #Check if there are tasks with the same id and let the user know the previous satuses of all of them
       try:
+        print("Running Increase Inventory All Jobs for UserID: ", current_user_id)
         task = Task.query.filter_by(id=self.request.id,
                                     user_id=current_user_id).all()
+        comma_separated_string = ', '.join(map(str, my_task_tracker_ids_array))
         # print("CHECK OUT THESE TASKSKSKSKSKSKKSKSKSKSK:")
         # print(task)
         if len(task) > 1:
@@ -585,15 +594,20 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
           return -1
         elif task:
           task = task[0]
+          task.type = 'INCREASE INVENTORY'
+          task.my_task_tracker_ids_array = comma_separated_string
+          db.session.commit()
         elif not task:
           task = Task(id=self.request.id,
                       name=f'Increase Inventory {self.request.id}',
                       description='Increasing Inventory All Jobs...',
                       time_created=datetime.now(pytz.timezone('America/New_York')),
-                      user_id=current_user_id)
+                      user_id=current_user_id,
+                      my_task_trackers_ids_array=comma_separated_string,
+                      type='INCREASE INVENTORY')
           db.session.add(task)
           db.session.commit()
-          print(f'Added Task to database with task id: {self.request.id}')
+          print(f'Added Task to database with task id: {self.request.id} and user id: {current_user_id}')
           try:
             for my_task_tracker_id in my_task_trackers_ids_array:
               my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
@@ -607,21 +621,21 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
           except:
             formatted_string = f'Error updating status of my_task_tracker_ids: {my_task_trackers_ids_array} in increaseInventory_all_jobs call to: Began or REDOING PARTIAL.'
             print(formatted_string)
-        print('Running checkInventory')
-        Quantity_of_SKUS = checkInventory(refresh_token)
+        print(f'Running checkInventory. UserID: {current_user_id}')
+        Quantity_of_SKUS = checkInventory(refresh_token, current_user_id)
         if Quantity_of_SKUS == 'FATAL' or Quantity_of_SKUS == 'CANCELLED' or Quantity_of_SKUS == 'UNKNOWN ERROR':
-          print("ERROR with checkInventory")
+          print(f"ERROR with checkInventory. UserID: {current_user_id}")
           if my_task_tracker.status=='PARTIAL':
             my_task_tracker.status='Error with checkInventory when Redoing Partial'
           else:
             my_task_tracker.status='Error with checkInventory'
           db.session.commit()
         else:
-          print("Running increaseInventory_all_jobs ")
+          print(f'Running increaseInventory_all_jobs. UserID: {current_user_id} ')
           result = increaseInventory_all_jobs(Quantity_of_SKUS, task.id, my_task_trackers_ids_array, current_user_id, refresh_token)
-          print("RESULT of increaseInventory_all_jobs():")
+          # print("RESULT of increaseInventory_all_jobs():")
           # print(type(result))
-          print(result)
+          # print(result)
           # print(result[1])
           if result[0] == 'SUCCESS':
             move_my_task_trackers_to_history(my_task_trackers_ids_array, task.id,
@@ -630,10 +644,10 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
             # flash('Inventory Feed Submitted Successfully! It may take up to 2 hours to load on AmazonSellerCentral.', category='success')
           elif result[0] == None:
             # flash (f'error. The queue was probably empty: {result} ', category='error')
-            print(f'error. The queue was probably empty: {result} ')
+            print(f'error. The queue was probably empty: {result} . UserID: {current_user_id}')
           else:
             # flash (f'error: {result} ', category='error')
-            print(f'error: {result} ')
+            print(f'error: {result}. UserID: {current_user_id} ')
           # result = checkInventoryIncrease(Quantity_of_SKUS, result[1], current_user.refresh_token)
           # print(result)
           # if result == "Inventory Increased Successfully":
@@ -648,6 +662,7 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
         except:
            db.session.rollback()
         print(str(e))
+        print(f"UserID: {current_user_id}")
         self.retry(exc=e, countdown=5)      #for automatic retries. Also have to add the arguments above
 
 
@@ -1120,17 +1135,47 @@ def delete_job(my_task):
     db.session.rollback()
     return 'Error. Try Refreshing the page or going to the home page.'
 
-
+# This is shows the job_info in terms of the queue and tracking_ids
 @views.route('/jobs/info/<my_task_id>')
 @auth_required()
-def info_job(my_task_id):
+def info_job_queue(my_task_id):
   try:
     queue = get_info_job_from_db(my_task_id, current_user.id)
     my_task_tracker = load_my_task_tracker_from_db(my_task_id, current_user.id)
-    return render_template('job_info.html',
+    return render_template('job_info_queue.html',
                            queue=queue,
                            job_id=my_task_id,
                            my_task_tracker = my_task_tracker,
+                           user=current_user)
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page or going to the home page.'
+
+# This is shows the job_info in terms of the skus and inventory
+@views.route('/tasks')
+@auth_required()
+def tasks():
+  try:
+    tasks = get_tasks_from_db(current_user.id) #returns the previous 30 tasks
+    return render_template('tasks.html',
+                          tasks = tasks,
+                           user=current_user)
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page or going to the home page.'
+    
+@views.route('/tasks_skus/info/<task_id>')
+@auth_required()
+def info_tasks_skus(task_id):
+  try:
+    skus_task_inventory_info = get_info_task_skus_from_db(task_id, current_user.id)
+    task = Task.query.filter_by(task_id=task_id, user_id=current_user_id).first()
+    return render_template('task_inventory_info.html',
+                           task,
+                           task_id = task_id,
+                           skus_task_inventory_info = skus_task_inventory_info,
                            user=current_user)
   except Exception as e:
     print("Error: " + str(e))

@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, text
 import os
-from .models import User, Addresses, All_return_details, Current_return_to_display, Tracking_id_to_search, Tracking_ids, Deleted_users, Stripecustomer, Suggestions, Task, History, Task_details, My_task_tracker
+from .models import User, Addresses, All_return_details, Current_return_to_display, Tracking_id_to_search, Tracking_ids, Deleted_users, Stripecustomer, Suggestions, Task, History, Task_details, My_task_tracker, Task_skus
 from . import db
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
@@ -47,6 +47,17 @@ def load_jobs_from_db(user_id):
 def get_info_job_from_db(my_track_jobs_id, user_id):
   queue = Task_details.query.filter_by(user_id=user_id, my_task_tracker=my_track_jobs_id).all()
   return [item.__dict__ for item in queue]
+
+def get_info_skus_job_from_db(my_track_jobs_id, user_id):
+  queue = Task_details.query.filter_by(user_id=user_id, my_task_tracker=my_track_jobs_id).all()
+  sku_dict = {}
+  for item in queue:
+    skus = item.skus.split(',')
+    for sku in skus:
+      if sku in sku_dict and sku_dict[sku] is not None:
+        sku_dict[sku] += 1
+    
+  
 
 def load_my_task_trackers_from_db(user_id):
   jobs_trackers = My_task_tracker.query.filter_by(user_id=user_id, moved_to_history=False, saved_for_later=False).all()
@@ -648,5 +659,98 @@ def remove_failed_sku_for_my_task_tracker( my_task_tracker_id, sku, user_id):
     raise e
     print(f"DEBUG: Error when updating failed skus by removing sku: {sku} from skus_failed: {string_failed_skus}  for  my_task_tracker ID: {my_task_tracker_id}")
 
+def add_successful_sku_for_task( task_id, sku, user_id):
+  try:
+    task = Task.query.filter_by(id=task_id, user_id=user_id).first()
+    string_successful_skus= task.skus_successful
+    if string_successful_skus:
+      arr_successful_skus = string_successful_skus.split(',')
+    else:
+      arr_successful_skus = []
+    unique_skus = set(arr_successful_skus)
+    unique_skus.update([sku])
+    arr_successful_skus = list(unique_skus)
+    string_updated_successful_skus =  ','.join(arr_successful_skus)
+    task.skus_successful =   string_updated_successful_skus
+    db.session.commit()
+  except Exception as e:
+    db.session.rollback()
+    raise e
+    print(f"DEBUG: Error when updating Successful skus: {string_updated_successful_skus} for task ID: {task_id}. Failed to add sku: {sku}")
 
+def add_failed_sku_for_task( task_id, sku, user_id):
+  try:
+    task = Task.query.filter_by(id=task_id, user_id=user_id).first()
+    string_failed_skus= task.skus_failed
+    if string_failed_skus:
+      arr_failed_skus = string_failed_skus.split(',')
+    else:
+      arr_failed_skus =[]
+    unique_skus = set(arr_failed_skus)
+    unique_skus.update([sku])
+    arr_failed_skus = list(unique_skus)
+    string_updated_failed_skus =  ','.join(arr_failed_skus)
+    task.skus_failed =  string_updated_failed_skus
+    db.session.commit()
+  except Exception as e:
+    db.session.rollback()
+    raise e
+    print(f"DEBUG: Error when updating Failed skus: {string_updated_failed_skus} for task ID: {task_id}. Failed to add sku: {sku}")
+
+
+def remove_failed_sku_for_task(task_id, sku, user_id):
+  try:
+    task = Task.query.filter_by(id=task_id, user_id=user_id).first()
+    string_failed_skus= task.skus_failed
+    if string_failed_skus:
+      arr_failed_skus = string_failed_skus.split(',')
+    else:
+      arr_failed_skus =[]
+    if sku in arr_failed_skus:
+      arr_failed_skus.remove(sku)
+    string_updated_failed_skus =  ','.join(arr_failed_skus)
+    task.skus_failed =   string_updated_failed_skus
+    db.session.commit()
+  except Exception as e:
+    db.session.rollback()
+    print(f"DEBUG: Error when updating failed skus by removing sku: {sku} from skus_failed: {string_failed_skus}  for  task ID: {task_id}     Error:{e} ")
+    raise e
+
+
+
+def add_inventory_to_task_details_sku(Quantity_of_SKUS, task_id, current_user_id, queue_to_increase):
+  for sku in queue_to_increase:
+    try:
+      inventory_before = Quantity_of_SKUS[sku]
+      change_in_inventory = queue_to_increase[sku]
+      inventory_set_to = inventory_before + change_in_inventory
+      
+      task_skus_detail = Task_skus(
+            user_id=current_user_id, 
+            task_id=task_id,
+            sku=sku,
+            inventory_before = inventory_before,
+            inventory_set_to = inventory_set_to,
+            change_in_inventory = change_in_inventory
+            )
+      db.session.add(task_skus_detaili)
+      db.session.commit()
+    except Exception as e:
+      db.session.rollback()
+      print(f"DEBUG: Error when adding inventory details to task records for SKU: {sku} for task ID: {task_id}     Error: {e}")
+      
+      
+def get_tasks_from_db(current_user_id):
+  tasks = Task.query.filter_by(user_id=current_user_id, type="INCREASE INVENTORY").order_by(Task.created_at.desc()).limit(30).all()
+  return [task.__dict__ for task in tasks]
+
+def get_info_task_skus_from_db(task_id, current_user_id):
+  task_skus_rows = Task_skus.query.filter_by(task_id=task_id, user_id=current_user_id).all()
+  return [task_sku.__dict__ for task_sku in task_skus_rows]
+
+
+
+
+
+    
   

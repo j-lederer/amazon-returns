@@ -5,11 +5,19 @@
 
 <a href="{{url_for('views.jobs')}}">Back</a>
 
+<p>SKUS SUccessful: {{my_task_tracker['skus_successful']}}</p>
+<p>Skus Failed: {{}my_task_tracker['skus_failed']}</p>
+<br>
+
 <div class="job-info-content">
   <h1 style="text-align: center; color: black; ">Job ID: {{job_id}}</h1>
       {% if queue|length < 1 %}
         <h4 style="text-align: center">This job is empty</h4>
         {% else %}
+        <p>Notice: </p>
+        <p style= "color: green;" >-Green indicates the SKU was successfully increased in inventory. </p>
+        <p style= "color: red;">-Red indicates the SKU failed. If the status for a task is 'PARTIAL', then when the job executes next only the SKUS in red will be executed/retried.</P
+        <p>-Black indicates the SKU has not been attempted yet.</p>
         <table>
           <tr>
             <th style="text-align: center;">Tracking IDs</th>
@@ -17,10 +25,6 @@
             <th style="text-align: center;">Quantity Returned</th>
             <!-- <th>Actions</th> -->
           </tr>
-          {% if my_task_tracker['status'] == 'PARTIAL'%}
-
-          
-          <p>Notice: Green indicates was successfully increased in inventory. Red indicates it failed. Since the status for this task is 'PARTIAL' when this job executes next only the SKUS in red will be executed.</p>
 
           
               {% for task in queue %}
@@ -29,26 +33,12 @@
                     <td>{{ task['tracking'] }}</td>
                     <td>
                     {% for sku in skus %}
-                        <span style="{% if sku in my_task_tracker['skus_successful'] %}color: green;{% else %}color: red;{% endif %}">{{ sku }}</span>{% if not loop.last %}, {% endif %}
+                        <span style="{% if sku in my_task_tracker['skus_successful'] %}color: green;{% elif sku in my_task_tracker['skus_failed']%}color: red;{% endif %}">{{ sku }}</span>{% if not loop.last %}, {% endif %}
                     {% endfor %}
                     </td>
                     <td>{{task['return_quantity']}}</td>  
                   </tr>
               {% endfor %}         
-          
-            {% else %}
-              {% for task in queue %}
-                <tr>
-                  <td>{{ task['tracking'] }}</td>
-                  <td>{{task['SKU']}}</td>
-                  <td>{{task['return_quantity']}}</td>
-                  <!-- <td> <a href="/delete/{{task['tracking']}}">Delete</a>
-                    <br> -->
-                    <!-- <a href="/update/{{task.id}}">Update</a>-->
-                  <!-- </td> -->
-                </tr>
-              {% endfor %}
-            {% endif %}
           
         </table>
         {% endif %}
