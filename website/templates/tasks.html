@@ -1,6 +1,7 @@
 {% extends "base.html" %} {% block title %}Tasks{% endblock %} {% block content
 %}
-<h1 style="text-align: center">Tasks</h1>
+<p >This will display the last 30 Tasks</p>
+<h1 style="text-align: center; color:black">Tasks</h1>
 {% if tasks|length < 1 %}
   <h4 style="text-align: center">There is no Task History</h4>
   {% else %}

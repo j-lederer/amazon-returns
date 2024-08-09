@@ -1171,6 +1171,8 @@ def tasks_skus_info(task_id):
   try:
     skus_task_inventory_info = get_info_task_skus_from_db(task_id, current_user.id)
     task = Task.query.filter_by(id=task_id, user_id=current_user.id).first()
+    print(skus_task_inventory_info)
+    print(task)
     return render_template('task_inventory_info.html',
                            task = task,
                            task_id = task_id,

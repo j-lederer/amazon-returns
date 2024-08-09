@@ -5,9 +5,9 @@
 
 <p>SKUS SUccessful: {{task['skus_successful']}}</p>
 <p>Skus Failed: {{task['skus_failed']}}</p>
-<br>
 
-<h1 style="text-align: center">Task Info for TaskID: {{task_id}}</h1>
+<h2 style="text-align: center; color:black;">Task Info for TaskID:        <span style="color:black; font-size: 16px; align-items: center;">{{task_id}}</span></h2>
+<br>
 {% if skus_task_inventory_info|length < 1 %}
   <h4 style="text-align: center">There is no data</h4>
   {% else %}

@@ -721,8 +721,8 @@ def remove_failed_sku_for_task(task_id, sku, user_id):
 def add_inventory_to_task_details_sku(Quantity_of_SKUS, task_id, current_user_id, queue_to_increase):
   for sku in queue_to_increase:
     try:
-      inventory_before = Quantity_of_SKUS[sku]
-      change_in_inventory = queue_to_increase[sku]
+      inventory_before = int(Quantity_of_SKUS[sku])
+      change_in_inventory = int(queue_to_increase[sku])
       inventory_set_to = inventory_before + change_in_inventory
       
       task_skus_detail = Task_skus(
@@ -733,7 +733,8 @@ def add_inventory_to_task_details_sku(Quantity_of_SKUS, task_id, current_user_id
             inventory_set_to = inventory_set_to,
             change_in_inventory = change_in_inventory
             )
-      db.session.add(task_skus_detaili)
+      print("LKHKHLKJHKJHGKJHG  !!!!! JHGKJHG", task_skus_detail)
+      db.session.add(task_skus_detail)
       db.session.commit()
     except Exception as e:
       db.session.rollback()
@@ -746,6 +747,7 @@ def get_tasks_from_db(current_user_id):
 
 def get_info_task_skus_from_db(task_id, current_user_id):
   task_skus_rows = Task_skus.query.filter_by(task_id=task_id, user_id=current_user_id).all()
+  print("I am in databse call result tasks: ", task_skus_rows)
   return [task_sku.__dict__ for task_sku in task_skus_rows]
 
 
