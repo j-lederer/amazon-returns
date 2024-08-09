@@ -581,6 +581,14 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
     #Check if there are tasks with the same id and let the user know the previous satuses of all of them
       try:
         print("Running Increase Inventory All Jobs for UserID: ", current_user_id)
+        #Exclude jobs that were left off with a status of FEED SUBMITTED from this whole operation. Won't do for single jobs because that is more intentional
+        copy_array =my_task_trackers_ids_array.copy()
+        for my_task_tracker_id in my_task_trackers_ids_array:
+          my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+          if my_task_tracker.status=='Submitted Feed':
+            copy_array.remove(my_task_tracker_id)
+        my_task_trackers_ids_array = copy_array
+        
         task = Task.query.filter_by(id=self.request.id,
                                     user_id=current_user_id).all()
         comma_separated_string = ', '.join(map(str, my_task_trackers_ids_array))
