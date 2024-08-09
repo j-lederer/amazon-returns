@@ -1139,6 +1139,8 @@ def info_job_queue(my_task_id):
   try:
     queue = get_info_job_from_db(my_task_id, current_user.id)
     my_task_tracker = load_my_task_tracker_from_db(my_task_id, current_user.id)
+    print(queue)
+    print(my_task_tracker)
     return render_template('job_info_queue.html',
                            queue=queue,
                            job_id=my_task_id,

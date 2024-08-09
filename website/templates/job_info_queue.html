@@ -6,7 +6,7 @@
 <a href="{{url_for('views.jobs')}}">Back</a>
 
 <p>SKUS SUccessful: {{my_task_tracker['skus_successful']}}</p>
-<p>Skus Failed: {{}my_task_tracker['skus_failed']}</p>
+<p>Skus Failed: {{my_task_tracker['skus_failed']}}</p>
 <br>
 
 <div class="job-info-content">
@@ -32,9 +32,9 @@
                   <tr>
                     <td>{{ task['tracking'] }}</td>
                     <td>
-                    {% for sku in skus %}
-                        <span style="{% if sku in my_task_tracker['skus_successful'] %}color: green;{% elif sku in my_task_tracker['skus_failed']%}color: red;{% endif %}">{{ sku }}</span>{% if not loop.last %}, {% endif %}
-                    {% endfor %}
+                      {% for sku in skus %}
+                          <span style="{% if my_task_tracker['skus_successful'] is not none and sku in my_task_tracker['skus_successful'] %}color: green;{% elif my_task_tracker['skus_failed'] is not none and sku in my_task_tracker['skus_failed']%}color: red;{% endif %}">{{ sku }}</span>{% if not loop.last %}, {% endif %}
+                      {% endfor %}
                     </td>
                     <td>{{task['return_quantity']}}</td>  
                   </tr>
