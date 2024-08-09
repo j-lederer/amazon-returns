@@ -322,7 +322,7 @@ def increaseInventory_single_job(Quantity_of_SKUS, task_id, my_task_tracker_id, 
             #return queue_to_increase
 
     #set task status
-    add_inventory_to_task_details_sku(Quantity_of_SKUS, task_id, current_user_id, queue_to_increase)
+    add_inventory_to_task_details_sku(Quantity_of_SKUS, task_id, user_id, queue_to_increase)
     try:
       task.status = 'Creating Feed'
       my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
@@ -682,7 +682,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
     
     
     #set task status
-    add_inventory_to_task_details_sku(Quantity_of_SKUS, task_id, current_user_id, queue_to_increase)
+    add_inventory_to_task_details_sku(Quantity_of_SKUS, task_id, user_id, queue_to_increase)
     try:
       task.status = 'Creating Feed'
       for my_task_tracker_id in my_task_trackers_ids_array:
