@@ -361,9 +361,11 @@ def refresh_inventory_data_in_db(all_return_data, inventory_data, user_id):
               if item_sku in inventory_data.keys():
                 return_details['Inventory'].append( inventory_data[item_sku])
               else:
-                print("Could not find inventory_data[return_details['sku']]")
+                pass
+                # print("Could not find inventory_data[return_details['sku']]")
           else:
-            print("Could not find return_details['sku']")
+            pass
+            # print("Could not find return_details['sku']")
           return_details['user_id'] = user_id
           return_details['Inventory'] = ', '.join(return_details['Inventory'])
           return_data_obj = All_return_details(**return_details)
@@ -725,7 +727,7 @@ def add_inventory_to_task_details_sku(Quantity_of_SKUS, task_id, current_user_id
       change_in_inventory = int(queue_to_increase[sku])
       inventory_set_to = inventory_before + change_in_inventory
       
-      task_skus_detail = Task_skus(
+      task_sku_details = Task_skus(
             user_id=current_user_id, 
             task_id=task_id,
             sku=sku,
@@ -733,7 +735,7 @@ def add_inventory_to_task_details_sku(Quantity_of_SKUS, task_id, current_user_id
             inventory_set_to = inventory_set_to,
             change_in_inventory = change_in_inventory
             )
-      print("LKHKHLKJHKJHGKJHG  !!!!! JHGKJHG", task_skus_detail)
+      print("LKHKHLKJHKJHGKJHG  !!!!! JHGKJHG", task_skus_details)
       db.session.add(task_skus_detail)
       db.session.commit()
     except Exception as e:

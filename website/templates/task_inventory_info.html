@@ -13,11 +13,6 @@
   {% else %}
   <table>
     <tr>
-      sku = db.Column(db.String(200))
-      inventory_before = db.Column(db.Integer)
-      inventory_set_to = db.Column(db.Integer)
-      change_in_inventory = db.Column(db.Integer)
-
       <th>SKU</th>
       <th>Status</th>
       <th>Inventory Before</th>
@@ -29,7 +24,7 @@
         <td>{{ info['sku'] }}</td>
         <td>{{info['inventory_before']}}</td>
         <td>{{info['inventory_set_to']}}</td>
-        <td>{{info['change_in_inventory']}}</td>
+        <td>+{{info['change_in_inventory']}}</td>
       </tr>
     {% endfor %}
   </table>

@@ -799,7 +799,7 @@ def increaseInventory_all_jobs(Quantity_of_SKUS, task_id, my_task_trackers_ids_a
             feed_response = feeds.get_feed(feed_id)
             #print(feed_response)
             processing_status = feed_response.payload.get('processingStatus')
-            # print(processing_status) 
+            print(processing_status) 
             if processing_status in ["DONE", "IN_QUEUE", "IN_PROGRESS"]:
                 #print(f"Processing status: {processing_status}")
                 if processing_status in ["DONE", "DONE_NO_DATA"]:
