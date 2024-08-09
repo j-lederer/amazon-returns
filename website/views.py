@@ -537,6 +537,18 @@ def increase_inventory_single_task(self, my_task_tracker_id, refresh_token,
 def serialize_task_trackers(task_trackers):
   return [item.get('id') for item in task_trackers]
 
+def remove_Submitted_Feed_trackers(my_task_trackers_array_ids):
+#Exclude jobs that were left off with a status of FEED SUBMITTED from this whole operation. Won't do for single jobs because that is more intentional
+  copy_array =my_task_trackers_array_ids.copy()
+  for my_task_tracker_id in my_task_trackers_array_ids:
+    my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+    if my_task_tracker.status=='Submitted Feed':
+      copy_array.remove(my_task_tracker_id)
+      print('DETECTED SUBMITTED FEED. REMOVING FROM ARRAY')
+  print("LOOK AT NEW ARRAYKHKH!!!! ", copy_array)
+  return copy_array
+ 
+
 @views.route('/increase_inventory_all_jobs', methods=['POST', 'GET'])
 @auth_required()
 def increase_inventory_all_jobs():
@@ -544,6 +556,9 @@ def increase_inventory_all_jobs():
       my_task_trackers= load_my_task_trackers_from_db(current_user.id)
       my_task_trackers_array_ids = serialize_task_trackers(my_task_trackers)
       # print('SEREIALIZED:' , my_task_trackers_array_ids)
+      my_task_trackers_array_ids = remove_Submitted_Feed_trackers(my_task_trackers_array_ids)
+      
+      
       try:
         for my_task_tracker_id in my_task_trackers_array_ids:
           my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
@@ -561,7 +576,6 @@ def increase_inventory_all_jobs():
           db.session.commit()
       except:
         print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_array_ids} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None.')
-      
       task = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids,
                                                     current_user.refresh_token,
                                                     current_user.id)
@@ -581,13 +595,6 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
     #Check if there are tasks with the same id and let the user know the previous satuses of all of them
       try:
         print("Running Increase Inventory All Jobs for UserID: ", current_user_id)
-        #Exclude jobs that were left off with a status of FEED SUBMITTED from this whole operation. Won't do for single jobs because that is more intentional
-        copy_array =my_task_trackers_ids_array.copy()
-        for my_task_tracker_id in my_task_trackers_ids_array:
-          my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-          if my_task_tracker.status=='Submitted Feed':
-            copy_array.remove(my_task_tracker_id)
-        my_task_trackers_ids_array = copy_array
         
         task = Task.query.filter_by(id=self.request.id,
                                     user_id=current_user_id).all()
@@ -1319,6 +1326,8 @@ def every_day(self):
             print(f"Starting Increase Inventory Operation for userID: {user.id}")
             my_task_trackers= load_my_task_trackers_from_db(user.id)
             my_task_trackers_array_ids = serialize_task_trackers(my_task_trackers)
+            my_task_trackers_array_ids = remove_Submitted_Feed_trackers(my_task_trackers_array_ids)
+            
             try:
               for my_task_tracker_id in my_task_trackers_array_ids:
                 my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
@@ -1410,6 +1419,8 @@ def every_day_function_on_web():
             print(f"Starting Increase Inventory Operation for userID: {user.id}")
             my_task_trackers= load_my_task_trackers_from_db(user.id)
             my_task_trackers_array_ids = serialize_task_trackers(my_task_trackers)
+            my_task_trackers_array_ids = remove_Submitted_Feed_trackers(my_task_trackers_array_ids)
+
             try:
               for my_task_tracker_id in my_task_trackers_array_ids:
                 my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
@@ -1426,7 +1437,6 @@ def every_day_function_on_web():
                 db.session.commit()
             except:
               print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_array_ids} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None')
-  
             task1 = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids, user.refresh_token, user.id)
             print(f"TASK LAUNCHED: increase_inventory_all_jobs_task - TASK_ID: {task1.id} for userID: {user.id}")
           except Exception as e:
