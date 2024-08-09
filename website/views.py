@@ -247,7 +247,7 @@ def refresh_returns_task(self, refresh_token,
         # my_refresh_returns_tracker.status = 'Checking Inventory'
         # db.session.commit()
         print(f'Checking Inventory:   userID: {current_user_id}')
-        inventory_data = checkInventory(refresh_token, current_user.id)
+        inventory_data = checkInventory(refresh_token, current_user_id)
         if inventory_data != 'FATAL' or inventory_data != 'CANCELLED' or inventory_data != 'UNKNOWN ERROR':
           print(f'Updating db         UserID: {current_user_id}')
           # my_refresh_returns_tracker.status = 'Updating DB'
@@ -586,7 +586,7 @@ def increase_inventory_all_jobs_task(self, my_task_trackers_ids_array, refresh_t
         print("Running Increase Inventory All Jobs for UserID: ", current_user_id)
         task = Task.query.filter_by(id=self.request.id,
                                     user_id=current_user_id).all()
-        comma_separated_string = ', '.join(map(str, my_task_tracker_ids_array))
+        comma_separated_string = ', '.join(map(str, my_task_trackers_ids_array))
         # print("CHECK OUT THESE TASKSKSKSKSKSKKSKSKSKSK:")
         # print(task)
         if len(task) > 1:
