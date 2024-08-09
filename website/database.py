@@ -735,7 +735,7 @@ def add_inventory_to_task_details_sku(Quantity_of_SKUS, task_id, current_user_id
             inventory_set_to = inventory_set_to,
             change_in_inventory = change_in_inventory
             )
-      print("LKHKHLKJHKJHGKJHG  !!!!! JHGKJHG", task_skus_details)
+      print("LKHKHLKJHKJHGKJHG  !!!!! JHGKJHG", task_sku_details)
       db.session.add(task_skus_detail)
       db.session.commit()
     except Exception as e:
