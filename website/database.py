@@ -741,7 +741,7 @@ def add_inventory_to_task_details_sku(Quantity_of_SKUS, task_id, current_user_id
       
       
 def get_tasks_from_db(current_user_id):
-  tasks = Task.query.filter_by(user_id=current_user_id, type="INCREASE INVENTORY").order_by(Task.created_at.desc()).limit(30).all()
+  tasks = Task.query.filter_by(user_id=current_user_id, type="INCREASE INVENTORY").order_by(Task.time_created.desc()).limit(30).all()
   return [task.__dict__ for task in tasks]
 
 def get_info_task_skus_from_db(task_id, current_user_id):
