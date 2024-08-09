@@ -91,7 +91,7 @@
 
        </br>
     <h1 style="text-align: center; color: black; ">History</h1> 
-    <a href="/delete_whole_history" >Delete All History</a>
+    <a href="/delete_whole_history" onclick='return confirm("Are you sure you want to delete all history?");' >Delete All History</a>
 
     {% if history|length < 1 %}
         <h4 style="text-align: center"></h4>
