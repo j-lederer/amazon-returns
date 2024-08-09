@@ -1167,12 +1167,12 @@ def tasks():
     
 @views.route('/tasks_skus/info/<task_id>')
 @auth_required()
-def info_tasks_skus(task_id):
+def tasks_skus_info(task_id):
   try:
     skus_task_inventory_info = get_info_task_skus_from_db(task_id, current_user.id)
-    task = Task.query.filter_by(task_id=task_id, user_id=current_user_id).first()
+    task = Task.query.filter_by(id=task_id, user_id=current_user.id).first()
     return render_template('task_inventory_info.html',
-                           task,
+                           task = task,
                            task_id = task_id,
                            skus_task_inventory_info = skus_task_inventory_info,
                            user=current_user)

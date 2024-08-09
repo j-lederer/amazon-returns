@@ -12,6 +12,7 @@
       <th>Time Created</th>
       <th>Time Completed</th>
       <th>Job IDs</th>
+      <th>Actions</th>
     </tr>
     {% for task in tasks %}
       <tr>
@@ -25,6 +26,7 @@
         {%else%}
           <td>{{task['my_task_tracker']}}</td>
         {%endif%}
+        <td><a href="/tasks_skus/info/{{task['id']}}"]}}" >Info</a></td>
       </tr>
     {% endfor %}
   </table>
