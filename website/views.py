@@ -791,7 +791,7 @@ def clearQueue():
 def account():
   try:
     session_id = session.get('_id', 'no-session-id')
-    print(f'Account session: {session_id}' )
+    # print(f'Account session: {session_id}' )
 
     stripe.billing_portal.Configuration.create(
       business_profile={

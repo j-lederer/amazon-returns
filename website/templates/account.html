@@ -21,12 +21,12 @@
   
 <div class="container mt-5">
       {% if subscription and (subscription.status == "active" or subscription.status=="trialing") %}
-        <h4>Your subscription:</h4>
+        <h4>Your Subscription:</h4>
         <div class="card" style="width: 18rem;">
           <div class="card-body">
             <h5 class="card-title">{{ product.name }}</h5>
             <p class="card-text">
-              {{ product.description }}
+              Description: {{ product.description }}
             </p>
           </div>
         </div>
@@ -51,8 +51,10 @@
             <h5 class="card-title">Connected</h5>
             <p class="card-text">Have to refresh once a year.
             </p>
-          </div>
-          <p>Token expiration: {{user.token_expiration}}</p>
+         
+          <p>Token expiration:</p>
+          <p> {{user.token_expiration}}</p>
+             </div>
         </div>
 
 <div class='container mt-5'>
