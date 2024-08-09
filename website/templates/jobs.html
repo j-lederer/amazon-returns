@@ -37,9 +37,9 @@
           <td>{{job['time_completed']}}</td>
           
           <td><a href="/jobs/info/{{job.id}}" >Info</a></td>
-          <td><a href="/jobs/save_for_later/{{job.id}}" onclick="return confirm('Save For Later Task ID : {{job.id}}');" > Save for Later </a></td>
-          <td><a href="/increase_inventory/{{job.id}}" onclick="return confirm('Execute Task ID : {{job.id}}');" >Execute</a></td>
-          <td><a href="/jobs/delete/{{job.id}}" onclick="return confirm('Delete Task ID : {{job.id}}');" >Delete</a></td>
+          <td><a href="/jobs/save_for_later/{{job.id}}" onclick="return confirm('Save For Later Job ID : {{job.id}}');" > Save for Later </a></td>
+          <td><a href="/increase_inventory/{{job.id}}" onclick="return confirm('Execute Job ID : {{job.id}}');" >Execute</a></td>
+          <td><a href="/jobs/delete/{{job.id}}" onclick="return confirm('Delete Job ID : {{job.id}}');" >Delete</a></td>
             <!-- <br> -->
             <!-- <a href="/update/{{job.id}}">Update</a>-->
         </tr>
@@ -78,9 +78,9 @@
             <td>{{job['time_completed']}}</td>
 
             <td><a href="/jobs/info/{{job.id}}" >Info</a></td>
-            <td><a href="/jobs/return_from_save_for_later/{{job.id}}" onclick="return confirm('Return to Job Task ID : {{job.id}}');" > Return to Jobs </a></td>
-            <td><a href="/increase_inventory/{{job.id}}" onclick="return confirm('Execute Task ID : {{job.id}}');" >Execute</a></td>
-            <td><a href="/jobs/delete/{{job.id}}" onclick="return confirm('Delete Task ID : {{job.id}}');" >Delete</a></td>
+            <td><a href="/jobs/return_from_save_for_later/{{job.id}}" onclick="return confirm('Return to Job ID : {{job.id}}');" > Return to Jobs </a></td>
+            <td><a href="/increase_inventory/{{job.id}}" onclick="return confirm('Execute Job ID : {{job.id}}');" >Execute</a></td>
+            <td><a href="/jobs/delete/{{job.id}}" onclick="return confirm('Delete Job ID : {{job.id}}');" >Delete</a></td>
            
               <!-- <br> -->
               <!-- <a href="/update/{{job.id}}">Update</a>-->
@@ -121,8 +121,8 @@
               <td>{{job['time_completed']}}</td>
               
               <td><a href="/jobs/info/{{job.my_task_tracker}}">Info</a></td>
-              <td><a href="/move_history_to_jobs/{{job.my_task_tracker}}" onclick="return confirm('Move to Jobs Task ID : {{job.my_task_tracker}}');" >Move to Jobs</a></td>
-              <td><a href="/history/delete/{{job.id}}" onclick="return confirm('Delete Task ID : {{job.my_task_tracker}}');" >Delete</a></td>
+              <td><a href="/move_history_to_jobs/{{job.my_task_tracker}}" onclick="return confirm('Move to Jobs. ID : {{job.my_task_tracker}}');" >Move to Jobs</a></td>
+              <td><a href="/history/delete/{{job.id}}" onclick="return confirm('Delete Job ID : {{job.my_task_tracker}}');" >Delete</a></td>
 
             </tr>
           {% endfor %}

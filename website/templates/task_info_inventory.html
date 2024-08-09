@@ -20,11 +20,12 @@
       <th>Inventory Set To</th>
     </tr>
     {% for info in skus_task_inventory_info %}
-      <tr>
+      <tr style="{%if task['skus_successful'] is not none and info['sku'] is in task['skus_successful']%} color:green; {%elif task['skus_failed'] is not none and info['sku'] is in task['skus_failed']%}color:red; {%endif %}">
         <td>{{ info['sku'] }}</td>
+        <td> {%if task['skus_successful'] is not none and info['sku'] is in task['skus_successful']%} Successful {%elif task['skus_failed'] is not none and info['sku'] is in task['skus_failed']%} %} Failed {%endif %}</td>
         <td>{{info['inventory_before']}}</td>
-        <td>{{info['inventory_set_to']}}</td>
         <td>+{{info['change_in_inventory']}}</td>
+         <td>{{info['inventory_set_to']}}</td>
       </tr>
     {% endfor %}
   </table>

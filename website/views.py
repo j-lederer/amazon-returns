@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
-from .database import engine, load_queue_from_db, load_all_return_details_from_db, load_tracking_id_to_search, delete_trackingID_from_queue_db, add_tracking_id_to_queue, refresh_all_return_data_in_db, load_current_return_to_display_from_db, add_current_return_to_display_to_db, delete_whole_tracking_id_queue, delete_current_return_to_display_from_db, delete_tracking_id_to_search, add_tracking_id_to_search, check_if_track_in_queue, delete_current_return_to_display_from_db, refresh_addresses_in_db, load_address_from_db, load_users_from_db, load_deleted_users_from_db, delete_user_from_db, delete_deleted_user_from_db, clear_all_users_from_db, clear_all_deleted_users_from_db, add_refresh_token, get_refresh_token, load_restricted, add_request_to_delete_user, load_all_stripe_customers, add_suggestion, delete_refresh_token_and_expiration, load_jobs_from_db, load_history_from_db_descending_order, add_queue_to_task_details, load_my_task_trackers_from_db, delete_job_db, get_info_job_from_db, load_task_details_from_db, move_my_task_tracker_to_history, delete_from_history_db, load_saved_for_later_from_db, move_my_task_trackers_to_history, move_history_to_jobs, delete_whole_history_db, load_my_task_tracker_from_db, refresh_return_data_in_db, refresh_inventory_data_in_db, get_tasks_from_db, get_info_task_skus_from_db
+from .database import engine, load_queue_from_db, load_all_return_details_from_db, load_tracking_id_to_search, delete_trackingID_from_queue_db, add_tracking_id_to_queue, refresh_all_return_data_in_db, load_current_return_to_display_from_db, add_current_return_to_display_to_db, delete_whole_tracking_id_queue, delete_current_return_to_display_from_db, delete_tracking_id_to_search, add_tracking_id_to_search, check_if_track_in_queue, delete_current_return_to_display_from_db, refresh_addresses_in_db, load_address_from_db, load_users_from_db, load_deleted_users_from_db, delete_user_from_db, delete_deleted_user_from_db, clear_all_users_from_db, clear_all_deleted_users_from_db, add_refresh_token, get_refresh_token, load_restricted, add_request_to_delete_user, load_all_stripe_customers, add_suggestion, delete_refresh_token_and_expiration, load_jobs_from_db, load_history_from_db_descending_order, add_queue_to_task_details, load_my_task_trackers_from_db, delete_job_db, get_info_job_from_db, load_task_details_from_db, move_my_task_tracker_to_history, delete_from_history_db, load_saved_for_later_from_db, move_my_task_trackers_to_history, move_history_to_jobs, delete_whole_history_db, load_my_task_tracker_from_db, refresh_return_data_in_db, refresh_inventory_data_in_db, get_tasks_from_db, get_info_task_skus_from_db, delete_task_db,delete_all_increase_inventory_tasks_db
 
 from .models import User, Notification, Stripecustomer, Task, My_task_tracker, My_refresh_returns_tracker
 from .amazonAPI import get_all_Returns_data, increaseInventory_single_job, checkInventory, checkInventoryIncrease, get_addresses_from_GetOrders, increaseInventory_all_jobs
@@ -1154,8 +1154,6 @@ def info_job_queue(my_task_id):
   try:
     queue = get_info_job_from_db(my_task_id, current_user.id)
     my_task_tracker = load_my_task_tracker_from_db(my_task_id, current_user.id)
-    print(queue)
-    print(my_task_tracker)
     return render_template('job_info_queue.html',
                            queue=queue,
                            job_id=my_task_id,
@@ -1186,13 +1184,22 @@ def tasks_skus_info(task_id):
   try:
     skus_task_inventory_info = get_info_task_skus_from_db(task_id, current_user.id)
     task = Task.query.filter_by(id=task_id, user_id=current_user.id).first()
-    print(skus_task_inventory_info)
-    print(task)
     return render_template('task_info_inventory.html',
                            task = task,
                            task_id = task_id,
                            skus_task_inventory_info = skus_task_inventory_info,
                            user=current_user)
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page or going to the home page.'
+
+@views.route('/task/delete/<task_id>')
+@auth_required()
+def delete_task(task_id):
+  try:
+    delete_task_db(task_id, current_user.id)
+    return redirect('/tasks')
   except Exception as e:
     print("Error: " + str(e))
     db.session.rollback()
@@ -1536,6 +1543,17 @@ def delete_whole_history():
   try:
     delete_whole_history_db(current_user.id)
     return redirect('/jobs')
+  except Exception as e:
+    print("Error: " + str(e))
+    db.session.rollback()
+    return 'Error. Try Refreshing the page or going to the home page.'
+    
+@views.route('/delete_all_tasks')
+@auth_required()
+def delete_all_tasks():
+  try:
+    delete_all_increase_inventory_tasks_db(current_user.id)
+    return redirect('/tasks')
   except Exception as e:
     print("Error: " + str(e))
     db.session.rollback()

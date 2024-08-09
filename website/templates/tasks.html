@@ -5,6 +5,7 @@
 {% if tasks|length < 1 %}
   <h4 style="text-align: center">There is no Task History</h4>
   {% else %}
+  <a href='/delete_all_tasks'   onclick='return confirm("Are you sure you want to delete all Tasks?");'>Delete all Tasks</a>
   <table>
     <tr>
       <th>Task ID</th>
@@ -14,6 +15,7 @@
       <th>Time Completed</th>
       <th>Job IDs</th>
       <th>Actions</th>
+      <th></th>
     </tr>
     {% for task in tasks %}
       <tr>
@@ -28,6 +30,7 @@
           <td>{{task['my_task_tracker']}}</td>
         {%endif%}
         <td><a href="/tasks_skus/info/{{task['id']}}"]}}" >Info</a></td>
+        <td><a href="/task/delete/{{task['id']}}" onclick="return confirm('Delete Task ID : {{task_id}}');">Delete</a></td>
       </tr>
     {% endfor %}
   </table>

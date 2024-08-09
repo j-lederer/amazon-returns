@@ -82,7 +82,7 @@ def move_history_to_jobs(my_task_id, user_id):
     db.session.commit()
 
 def delete_job_db(job_id, user_id):
-  job = My_task_tracker.query.filter_by(id=job_id).first()
+  job = My_task_tracker.query.filter_by(id=job_id, user_id=user_id).first()
   if job:
     db.session.delete(job)
     db.session.commit()
@@ -96,6 +96,16 @@ def delete_from_history_db(history_id, user_id):
 def delete_whole_history_db(user_id):
     History.query.filter_by(user_id=user_id).delete()
     db.session.commit()
+
+def delete_task_db(task_id, user_id):
+  task = Task.query.filter_by(id=task_id, user_id=user_id).first()
+  if task:
+    db.session.delete(task)
+    db.session.commit()
+    
+def delete_all_increase_inventory_tasks_db(user_id):
+  Task.query.filter_by(user_id=user_id, type="INCREASE INVENTORY").delete()
+  db.session.commit()
 
 def delete_trackingID_from_queue_db(trackingID, user_id):
   # with engine.connect() as conn:
@@ -749,7 +759,7 @@ def get_tasks_from_db(current_user_id, limit):
 
 def get_info_task_skus_from_db(task_id, current_user_id):
   task_skus_rows = Task_skus.query.filter_by(task_id=task_id, user_id=current_user_id).all()
-  print("I am in databse call result tasks: ", task_skus_rows)
+  # print("I am in databsae call result tasks: ", task_skus_rows)
   return [task_sku.__dict__ for task_sku in task_skus_rows]
 
 
