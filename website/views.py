@@ -1271,12 +1271,12 @@ def extract_tracking_id(trackingID):
 
 
 #for debugging. Remove later
-@views.route('/rollback')
-def rollback():
-  db.session.rollback()
-  task = rollback_db.delay()
-  print("TASK LAUNCHED: rollback_db_task - TASK_ID", task.id)
-  return redirect(url_for('views.home'))
+# @views.route('/rollback')
+# def rollback():
+#   db.session.rollback()
+#   task = rollback_db.delay()
+#   print("TASK LAUNCHED: rollback_db_task - TASK_ID", task.id)
+#   return redirect(url_for('views.home'))
 
 
 @shared_task(bind=True, base=AbortableTask, retry_backoff=60, max_retries=3)
@@ -1379,7 +1379,7 @@ def every_day(self):
  
 
 @views.route('/everyday_onweb')
-@auth_required
+@auth_required()
 def every_day_function_on_web():
   if current_user.email == "admin@admin6735468.com":
     print("RUNNING EVERY DAY On Web!")
@@ -1468,8 +1468,9 @@ def every_day_function_on_web():
     flash(f'You are not authorized.', category='error')
     return redirect(url_for('views.home'))
 
-@auth_required
+
 @views.route('/everyday_onweb2')
+@auth_required()
 def every_day_function_on_web2():
   if current_user.email == "admin@admin6735468.com":
     print("RUNNING EVERY DAY On Web v.2!")
