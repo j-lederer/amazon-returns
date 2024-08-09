@@ -1061,7 +1061,7 @@ def jobs():
   try:
     # jobs_list = load_jobs_from_db(current_user.id)
     jobs_list = load_my_task_trackers_from_db(current_user.id)
-    history = load_history_from_db_descending_order(current_user.id)
+    history = load_history_from_db_descending_order(current_user.id, 30) #Only gets the past 30
     saved_for_later = load_saved_for_later_from_db(current_user.id)
     return render_template('jobs.html',
        jobs=jobs_list,
@@ -1156,7 +1156,7 @@ def info_job_queue(my_task_id):
 @auth_required()
 def tasks():
   try:
-    tasks = get_tasks_from_db(current_user.id) #returns the previous 30 tasks
+    tasks = get_tasks_from_db(current_user.id, 30) #returns the previous 30 tasks
     return render_template('tasks.html',
                           tasks = tasks,
                            user=current_user)

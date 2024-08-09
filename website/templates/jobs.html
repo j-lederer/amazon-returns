@@ -6,7 +6,7 @@
 
 <div class="jobs-content">
   <h1 style="text-align: center; color: black; ">Jobs</h1> 
-  <p>The Jobs Table will execute at 12:00 am Est every day.</p>
+  <p>The Jobs Table will execute at 12:00 am Est every night.</p>
   <a href='/increase_inventory_all_jobs' onclick="return confirm('Execute All Jobs in Jobs Table');">Excecute All in Jobs Table</a>     <!-- style ='position: relative; left:200px' -->
   {% if jobs|length < 1 %}
     <h4 style="text-align: center">There are no upcoming Jobs</h4>
@@ -54,7 +54,7 @@
       {% else %}
       <table>
         <tr>
-          <th>Task IDs</th>
+          <th>Job IDs</th>
           <th>Name</th>
           <th>Status</th>
           <th>Complete</th>
@@ -96,9 +96,10 @@
     {% if history|length < 1 %}
         <h4 style="text-align: center"></h4>
         {% else %}
+        <p>This shows the last 30 jobs in History</p>
         <table>
           <tr>
-            <th>Task IDs</th>
+            <th>Job IDs</th>
             <th>Name</th>
             <th>Status</th>
             <th>Complete</th>

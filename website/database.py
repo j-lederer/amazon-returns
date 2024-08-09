@@ -71,8 +71,8 @@ def load_saved_for_later_from_db(user_id):
   jobs_trackers = My_task_tracker.query.filter_by(user_id=user_id, moved_to_history=False, saved_for_later=True).all()
   return [item.__dict__ for item in jobs_trackers]
 
-def load_history_from_db_descending_order(user_id):
-  history = History.query.filter_by(user_id=user_id).order_by(desc(History.time_added_to_jobs)).all()
+def load_history_from_db_descending_order(user_id, limit):
+  history = History.query.filter_by(user_id=user_id).order_by(desc(History.time_added_to_jobs)).limit(limit).all()
   return [item.__dict__ for item in history]
 
 def move_history_to_jobs(my_task_id, user_id):
@@ -741,8 +741,8 @@ def add_inventory_to_task_details_sku(Quantity_of_SKUS, task_id, current_user_id
       print(f"DEBUG: Error when adding inventory details to task records for SKU: {sku} for task ID: {task_id}     Error: {e}")
       
       
-def get_tasks_from_db(current_user_id):
-  tasks = Task.query.filter_by(user_id=current_user_id, type="INCREASE INVENTORY").order_by(Task.time_created.desc()).limit(30).all()
+def get_tasks_from_db(current_user_id, limit):
+  tasks = Task.query.filter_by(user_id=current_user_id, type="INCREASE INVENTORY").order_by(Task.time_created.desc()).limit(limit).all()
   return [task.__dict__ for task in tasks]
 
 def get_info_task_skus_from_db(task_id, current_user_id):
