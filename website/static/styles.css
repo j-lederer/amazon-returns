@@ -211,6 +211,7 @@ td.jobs-content {
 
 table, td, th {
     border: 1px solid #aaa;
+    text-align: center;
 }
 
 table {
