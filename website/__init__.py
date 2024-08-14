@@ -155,6 +155,7 @@ def create_app():
   # Don't worry if email has findable domain
   app.config["SECURITY_EMAIL_VALIDATOR_ARGS"] = {"check_deliverability": False}
   app.config["SECURITY_LOGIN_USER_TEMPLATE"] = "login.html"
+  app.config["SECURITY_REGISTER_USER_TEMPLATE"] = "signup.html"
   app.config["SECURITY_REGISTERABLE"] = True
   app.config["SECURITY_POST_REGISTER_VIEW"] = "views.home"
   app.config["SECURITY_POST_LOGIN_VIEW"] = "views.home"
