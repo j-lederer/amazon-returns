@@ -23,16 +23,16 @@ class Addresses(db.Model):
 
 class All_return_details(db.Model):
   id = db.Column(db.Integer, primary_key=True)
-  tracking_id = db.Column(db.String(250))
-  item_name = db.Column(db.String(500))
-  sku = db.Column(db.String(500))
+  tracking_id = db.Column(db.String(1000))
+  item_name = db.Column(db.String(3000))
+  sku = db.Column(db.String(1000))
   return_quantity = db.Column(db.String(500))
   refund_amount = db.Column(db.String(500))
-  order_id = db.Column(db.String(500))
+  order_id = db.Column(db.String(1000))
   order_quantity = db.Column(db.String(500))
-  asin = db.Column(db.String(500))
+  asin = db.Column(db.String(1000))
   Inventory = db.Column(db.String(500))
-  reason_returned = db.Column(db.String(500))
+  reason_returned = db.Column(db.String(1000))
   date = db.Column(db.DateTime(timezone=True), default=func.now())
   user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), index=True)
 
@@ -173,7 +173,7 @@ class Task(db.Model):
     type = db.Column(db.String(128))
     skus_successful = db.Column(db.String(2000))
     skus_failed = db.Column(db.String(2000))
-    
+
 
 
     def get_rq_job(self):
