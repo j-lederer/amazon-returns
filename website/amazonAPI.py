@@ -161,7 +161,8 @@ def get_all_Returns_data(refresh_token, current_user_id):
                                   
           
                     # print(Returns_info)
-                    output_data = Returns_info                
+                    output_data = Returns_info   
+                    print("output_data: ", output_data)
                         
         elif processing_status == "CANCELLED":
             print(f"Report processing was cancelled.      UserID: {current_user_id}")
@@ -171,6 +172,7 @@ def get_all_Returns_data(refresh_token, current_user_id):
             output_data= "FATAL"
         else:
           output_data= "UNKNOWN ERROR"
+        print("returning: output_data")
         return output_data
 
 

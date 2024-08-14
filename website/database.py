@@ -337,7 +337,7 @@ def refresh_all_return_data_in_db(all_return_data, inventory_data, user_id):
   
 
 def refresh_return_data_in_db(all_return_data, user_id):
-
+  print(f"refreshing return data in db for user: {user_id}")
   All_return_details.query.filter_by(user_id=user_id).delete()
 
   if (all_return_data != 'CANCELLED'):
@@ -347,11 +347,13 @@ def refresh_return_data_in_db(all_return_data, user_id):
             return_details['Inventory'] = "No Data" #default
             return_details_sku_list = return_details['sku'].split(', ')
           else:
-            print("Could not find return_details['sku']")
+            pass
+            # print("Could not find return_details['sku']")
           return_details['user_id'] = user_id
           return_data_obj = All_return_details(**return_details)
           db.session.add(return_data_obj)
           db.session.commit()
+          return "success"
   else: 
      print("An error occcurred while retreiveing info (1). The process was CANCELLED")
      db.session.rollback()
