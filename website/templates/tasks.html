@@ -30,7 +30,7 @@
           <td>{{task['my_task_tracker']}}</td>
         {%endif%}
         <td><a href="/tasks_skus/info/{{task['id']}}"]}}" >Info</a></td>
-        <td><a href="/task/delete/{{task['id']}}" onclick="return confirm('Delete Task ID : {{task_id}}');">Delete</a></td>
+        <td><a href="/task/delete/{{task['id']}}" onclick="return confirm('Delete Task ID : {{task.id}}');">Delete</a></td>
       </tr>
     {% endfor %}
   </table>
