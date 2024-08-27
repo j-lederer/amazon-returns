@@ -1336,34 +1336,36 @@ def every_day(self):
         print("USER: ", user.id)
         if (user.refresh_token):
         #Increase Inventory Operation
-          try:
-            print(f"Starting Increase Inventory Operation for userID: {user.id}")
-            my_task_trackers= load_my_task_trackers_from_db(user.id)
-            my_task_trackers_array_ids = serialize_task_trackers(my_task_trackers)
-            my_task_trackers_array_ids = remove_Submitted_Feed_trackers(my_task_trackers_array_ids)
-            
+          jobs = load_my_task_trackers_from_db(user.id)
+          if(jobs):
             try:
-              for my_task_tracker_id in my_task_trackers_array_ids:
-                my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
-                if my_task_tracker.status=='PARTIAL' or my_task_tracker.status == 'Error with checkInventory when Redoing Partial':
-                  my_task_tracker.status = 'SENT REQUEST: PARTIAL'
-                  my_task_tracker.complete = None
-                  my_task_tracker.skus_failed = None
-                  my_task_tracker.time_completed = None
-                else:
-                  my_task_tracker.status = 'Sent Request'
-                  my_task_tracker.complete = None
-                  my_task_tracker.skus_failed = None
-                  my_task_tracker.time_completed = None
-                db.session.commit()
-            except:
-              print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_array_ids} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None')
-    
-            task1 = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids, user.refresh_token, user.id)
-            print(f"TASK LAUNCHED: increase_inventory_all_jobs_task - TASK_ID: {task1.id} for userID: {user.id}")
-          except Exception as e:
-            print(f"ERROR every_day_increase for userID: {user.id}. Error: {e}")
-            db.session.rollback()
+              print(f"Starting Increase Inventory Operation for userID: {user.id}")
+              my_task_trackers= load_my_task_trackers_from_db(user.id)
+              my_task_trackers_array_ids = serialize_task_trackers(my_task_trackers)
+              my_task_trackers_array_ids = remove_Submitted_Feed_trackers(my_task_trackers_array_ids)
+              
+              try:
+                for my_task_tracker_id in my_task_trackers_array_ids:
+                  my_task_tracker = My_task_tracker.query.get(my_task_tracker_id)
+                  if my_task_tracker.status=='PARTIAL' or my_task_tracker.status == 'Error with checkInventory when Redoing Partial':
+                    my_task_tracker.status = 'SENT REQUEST: PARTIAL'
+                    my_task_tracker.complete = None
+                    my_task_tracker.skus_failed = None
+                    my_task_tracker.time_completed = None
+                  else:
+                    my_task_tracker.status = 'Sent Request'
+                    my_task_tracker.complete = None
+                    my_task_tracker.skus_failed = None
+                    my_task_tracker.time_completed = None
+                  db.session.commit()
+              except:
+                print(f'Error updating status of my_task_tracker_ids: {my_task_trackers_array_ids} in increaseInventory_all_jobs call to: Sent Request or SENT REQUEST: PARTIAL. And resetting other fields to None')
+      
+              task1 = increase_inventory_all_jobs_task.delay(my_task_trackers_array_ids, user.refresh_token, user.id)
+              print(f"TASK LAUNCHED: increase_inventory_all_jobs_task - TASK_ID: {task1.id} for userID: {user.id}")
+            except Exception as e:
+              print(f"ERROR every_day_increase for userID: {user.id}. Error: {e}")
+              db.session.rollback()
             
     
           #Refresh Returns Operation  
