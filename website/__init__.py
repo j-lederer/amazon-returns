@@ -49,13 +49,23 @@ def create_app():
   app.config['SESSION_LIFETIME'] = timedelta(days=14)
   app.config['REMEMBER_SESSION_LIFETIME'] = timedelta(days=365) 
  
-  app.config["CELERY"] = {"broker_url": os.environ['REDIS_URL'], "result_backend": os.environ['REDIS_URL'], "timezone": 'US/Eastern', "beat_schedule": {
+  app.config["CELERY"] = {
+     "broker_url": os.environ['REDIS_URL'], 
+     "result_backend": os.environ['REDIS_URL'], 
+     "timezone": 'US/Eastern', 
+     "beat_schedule": {
       "every-day-at 12am" : {
           "task": "website.views.every_day",
         # 'schedule':20
           "schedule": crontab(hour=0, minute=0, day_of_week='0-6') #timezone is 4 hours ahead of est. It is UTC. So 4 will be 12am
           #"args": (1, 2) 
-      }
+      },
+
+      "worker_prefetch_multiplier": 1,
+       "worker_concurrency": 2,
+       "broker_connection_retry_on_startup": True,
+      "broker_transport_options": {"visibility_timeout": 3600},
+
   }}
   
   app.config['RQ_DASHBOARD_REDIS_URL'] =os.environ['REDIS_URL']
