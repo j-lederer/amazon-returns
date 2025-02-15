@@ -62,8 +62,10 @@ def create_app():
       },
 
       "worker_prefetch_multiplier": 1,
+       "worker_max_tasks_per_child": 100,
        "worker_concurrency": 2,
        "broker_connection_retry_on_startup": True,
+        #  "worker_cancel_long_running_tasks_on_connection_loss": True,
       "broker_transport_options": {"visibility_timeout": 3600},
 
   }}
